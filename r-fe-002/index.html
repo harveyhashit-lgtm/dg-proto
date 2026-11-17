@@ -359,8 +359,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="req-block">
       <h2>改什么</h2>
       <div class="dh-prose"><p>钱包结构不变，只加两处（PC、H5 相同）：</p><ul>
-        <li><b>充值</b>（数字通道）：「Select network」下方加数量输入框和快捷金额，下面显示「≈ 到账 ₱」。</li>
-        <li><b>提现</b>（选数字币时，USDC / USDT / TRX）：金额<b>改为按 ₱ 输入</b>（前缀 ₱），金额输入框下方显示「≈ 到账 X 币」和汇率。网络、钱包地址等其他部分与现网一致；选 PHP 时法币提现不改。</li>
+        <li><b>充值</b>（数字通道）：<b>支持多种数字币</b>（按通道配置，现网为 USDC / USDT / BNB / ETH / SOL / TRX），每个币种都在「Select network」下方加数量输入框和快捷金额，下面显示「≈ 到账 ₱」。</li>
+        <li><b>提现</b>（数字币<b>只保留 USDT</b>，USDC / TRX 下架；币种按钮只显示 USDT，不再下拉）：金额<b>改为按 ₱ 输入</b>（前缀 ₱），金额输入框下方显示「≈ 到账 X 币」和汇率。网络、钱包地址等其他部分与现网一致；选 PHP 时法币提现不改。</li>
       </ul><p>约合值全部由<b>新增的估算接口</b>返回，前台不做计算。其余内容与现网一致。</p></div>
 
       <h3>交互规则</h3>
@@ -368,7 +368,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
         <tr><th>场景</th><th>规则</th></tr>
         <tr><td><b>充值数量输入</b></td><td>单位为所选币；USDT / USDC 最多 2 位小数，其他币最多 8 位。快捷金额、最低、最高取现有通道数据。切换币种或网络时清空。只做预估，不生成订单。</td></tr>
         <tr><td><b>提现金额（数字币）</b></td><td>按 ₱ 输入，最多 2 位小数，前缀 ₱。接口限额按币计算（如 USDT 20.00–50,000.00），前台按汇率折成 ₱ 来校验，超出时提示「Minimum withdrawal USDT 20.00 (≈ ₱ 1,273.80)」。Max 取可提现余额和最高限额折成 ₱ 后的较小值。提交时传 ₱ 金额，由后端换算成币。</td></tr>
-        <tr><td><b>调用估算接口</b></td><td>输入合法后停顿 300ms 再请求；新请求返回前，旧请求的结果直接丢弃。提现提现切换币种或网络时，保留金额并重新估算。</td></tr>
+        <tr><td><b>调用估算接口</b></td><td>输入合法后停顿 300ms 再请求；新请求返回前，旧请求的结果直接丢弃。提现切换网络时，保留金额并重新估算。</td></tr>
         <tr><td><b>显示</b></td><td>充值：<code>≈ ₱ 6,369.00</code> + 小字 <code>1 USDT ≈ ₱ 63.69</code>；提现：<code>≈ 78.50 USDT</code> + 小字 <code>1 USDT ≈ ₱ 63.69</code>。下方固定一行预估说明。</td></tr>
         <tr><td><b>不显示约合行</b></td><td>输入为空或为 0、超出最低 / 最高 / 余额（沿用现有红字提示）、接口失败或超时。都不报错，不影响充值地址和提现提交。</td></tr>
       </table></div>
@@ -381,7 +381,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       </table></div>
 
       <h3>不做</h3>
-      <div class="dh-prose"><p>PHP 充值、提现不改；不单独展示手续费、优惠；不锁定汇率；钱包其他内容不改。</p></div>
+      <div class="dh-prose"><p>PHP 充值、提现不改；提现其他数字币（USDC / TRX 等）本期不开放；不单独展示手续费、优惠；不锁定汇率；钱包其他内容不改。</p></div>
     </div>
   </div>
 
@@ -394,11 +394,12 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
         <tr><td>A1</td><td>充值 USDT 输入 100，或点快捷金额 100</td><td>显示 ≈ ₱ 6,369.00 和 1 USDT ≈ ₱ 63.69</td></tr>
         <tr><td>A2</td><td>输入 5（低于最低 9.90），或超过最高</td><td>显示红字，不显示约合行</td></tr>
         <tr><td>A3</td><td>切换币种或网络</td><td>数量清空；快捷金额和限额换成新通道的值</td></tr>
-        <tr><td>A4</td><td>切到 ETH，输入 0.01</td><td>可输入 8 位小数，汇率小字显示 1 ETH ≈ ₱X</td></tr>
+        <tr><td>A4</td><td>充值下拉可选 USDC / USDT / BNB / ETH / SOL / TRX；切到 ETH，输入 0.01</td><td>每个币种都有约合行；ETH 可输入 8 位小数，汇率小字显示 1 ETH ≈ ₱X</td></tr>
         <tr><td>A5</td><td>提现选 USDT · Tron，输入 ₱5,000</td><td>显示 ≈ 78.50 USDT 和 1 USDT ≈ ₱ 63.69（后端有手续费时显示扣费后的值）</td></tr>
         <tr><td>A5b</td><td>提现输入 ₱1,000（低于 20 USDT ≈ ₱1,273.80）</td><td>显示红字 Minimum withdrawal USDT 20.00 (≈ ₱ 1,273.80)，不显示约合行</td></tr>
         <tr><td>A5c</td><td>提现切到 PHP</td><td>GCash / Maya 和现网一致，没有约合行</td></tr>
-        <tr><td>A6</td><td>提现切换币种（如换成 TRX）或网络</td><td>金额保留，约合行重新估算（TRX 显示 ≈ X TRX）</td></tr>
+        <tr><td>A6</td><td>提现切换网络（如 Tron → BSC）</td><td>金额保留，约合行重新估算</td></tr>
+        <tr><td>A6b</td><td>提现点币种按钮</td><td>只有 USDT，无下拉；USDC、TRX 不出现</td></tr>
         <tr><td>A7</td><td>提现金额超过余额或通道上下限</td><td>现有提示不变，不显示约合行</td></tr>
         <tr><td>A8</td><td>估算接口失败</td><td>不显示约合行；充值地址、提现提交正常</td></tr>
         <tr><td>A9</td><td>快速连续输入</td><td>只显示最后一次输入对应的结果</td></tr>
@@ -456,11 +457,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   var TIERS=[[9,19,'25%'],[19,49,'50%'],[49,99,'100%'],[99,199,'120%'],[199,99999,'150%']];
   var WM={gcash:{n:'GCash',min:100,max:50000},maya:{n:'Maya',min:100,max:50000}};
   var WCOINS={
-    USDC:{p:1,nets:['Ethereum','Polygon','Solana'],min:20,max:50000,cls:'usdc',sym:'$'},
-    USDT:{p:1,nets:['Tron','Ethereum','BSC','Polygon','Solana'],min:20,max:50000,cls:'usdt',sym:'₮'},
-    TRX:{p:0.3056,nets:['Tron'],min:5,max:100000,cls:'trx',sym:'T'}
+    USDT:{p:1,nets:['Tron','Ethereum','BSC','Polygon','Solana'],min:20,max:50000,cls:'usdt',sym:'₮'}
   };
-  var WORDER=['USDC','USDT','TRX'];
+  var WORDER=['USDT']; /* 本期调整：数字币提现只保留 USDT */
   var S;
   function initState(){ S={dev:S?S.dev:'pc',tab:'dep',dCur:'coin',coin:'USDT',net:0,dep:'100',drop:false,wCur:'coin',wCoin:'USDT',wNet:0,wm:'gcash',addr:'',wd:'5000'}; }
   function P(id){ return parseFloat($(id).value)||0; }
@@ -495,7 +494,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   }
   function balRow(){
     var dep=S.tab==='dep', cur=dep?S.dCur:S.wCur, k=dep?S.coin:S.wCoin, list=dep?ORDER:WORDER, map=dep?COINS:WCOINS, c=map[k];
-    var coin='<span style="position:relative"><button type="button" class="cur'+(cur==='coin'?' on':'')+'" id="coinBtn"><span class="ic '+c.cls+'">'+c.sym+'</span>'+k+' ▾'+(dep?'<span class="badge">+150%</span>':'')+'</button>'+
+    var coin='<span style="position:relative"><button type="button" class="cur'+(cur==='coin'?' on':'')+'" id="coinBtn"><span class="ic '+c.cls+'">'+c.sym+'</span>'+k+(list.length>1?' ▾':'')+(dep?'<span class="badge">+150%</span>':'')+'</button>'+(dep?'':mk('wdCoin','修改'))+
       (S.drop?'<div class="drop">'+list.map(function(x){ return '<button type="button" data-coin="'+x+'" class="'+(x===k?'on':'')+'"><span class="ic '+map[x].cls+'">'+map[x].sym+'</span>'+x+'</button>'; }).join('')+'</div>':'')+'</span>';
     return '<div class="cur-row"><button type="button" class="cur'+(cur==='php'?' on':'')+'" data-cur="php"><span class="flag"></span>PHP</button>'+coin+'<span class="bal"><b>₱ '+f2(avail())+'</b> ⟳</span></div>';
   }
@@ -592,7 +591,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   function bind(){
     var fe=$('fe');
     fe.querySelectorAll('[data-wtab]').forEach(function(b){ b.onclick=function(){ S.tab=b.getAttribute('data-wtab'); S.drop=false; cancelEst(); render(); }; });
-    var cb=$('coinBtn'); if(cb) cb.onclick=function(){ var cur=S.tab==='dep'?S.dCur:S.wCur; if(cur!=='coin'){ if(S.tab==='dep') S.dCur='coin'; else S.wCur='coin'; S.drop=false; } else S.drop=!S.drop; render(); };
+    var cb=$('coinBtn'); if(cb) cb.onclick=function(){ var cur=S.tab==='dep'?S.dCur:S.wCur; if(cur!=='coin'){ if(S.tab==='dep') S.dCur='coin'; else S.wCur='coin'; S.drop=false; } else if((S.tab==='dep'?ORDER:WORDER).length>1) S.drop=!S.drop; render(); };
     fe.querySelectorAll('[data-coin]').forEach(function(b){ b.onclick=function(){ var k=b.getAttribute('data-coin'); if(S.tab==='dep'){ S.coin=k; S.net=0; S.dep=''; S.dCur='coin'; } else { S.wCoin=k; S.wNet=0; S.wCur='coin'; } S.drop=false; render(); }; });
     fe.querySelectorAll('[data-cur]').forEach(function(b){ b.onclick=function(){ if(S.tab==='dep') S.dCur='php'; else S.wCur='php'; S.drop=false; render(); }; });
     fe.querySelectorAll('[data-net]').forEach(function(b){ b.onclick=function(){ S.net=+b.getAttribute('data-net'); S.dep=''; render(); }; });
@@ -628,6 +627,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 <script>(function(){var TIPS={
  'depInput': ['充值 · 数量输入', '原：无数量输入，选好币种和网络直接显示地址。\n现：网络下方新增数量输入框和快捷金额（快捷金额、最低、最高用现有通道数据）；只做预估，不生成订单。'],
  'depEst': ['充值 · 约合到账', '原：无。\n现：输入合法数量后，调估算接口显示「≈ ₱X」和汇率小字；接口失败不显示。'],
+ 'wdCoin': ['提现 · 币种', '原：数字币可选 USDC / USDT / TRX，带下拉。\n现：只保留 USDT，按钮去掉下拉箭头，点击不展开。'],
  'wdAmt': ['提现 · 金额单位', '原：数字币提现金额按币输入，无单位前缀（最低提示为 USDC 20.00）。\n现：改为按 ₱ 输入，前缀 ₱；最低 / 最高按币限额折成 ₱ 校验，提示里同时写币数和约合 ₱。'],
  'wdEst': ['提现 · 约合到账', '原：输入金额后无到账预估。\n现：输入合法金额后，调估算接口在输入框下显示「≈ 到账」；数字通道显示 USDT 和汇率小字；接口失败不显示。']
 };
