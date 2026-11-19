@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PWA 引导用 Chrome</title>
+<style>
+/* ===================== 1. 交付文档层令牌（dh-*，通用，不随被复刻的后台变化） ===================== */
+:root{
+  color-scheme:light;
+  --doc-paper:#faf8f4;--doc-paper-raised:#ffffff;--doc-ink:#211f1a;--doc-ink-soft:#5c584e;--doc-ink-faint:#8b8677;
+  --doc-line:#e4ded1;--doc-line-soft:#eee9de;--doc-accent:#a8481f;--doc-accent-soft:#f4e2d3;
+  --doc-teal:#0d6d66;--doc-teal-soft:#dcefec;--doc-p0:#b3261e;--doc-p1:#a8481f;--doc-p1-soft:#f4e2d3;--doc-p2:#6b6a5f;
+  --doc-status-done-fg:#0d6d66;--doc-status-done-bg:#dcefec;--doc-status-open-fg:#8a7f5f;--doc-status-open-bg:#f1ecdc;
+  --shadow-card:0 1px 2px rgba(33,31,26,.06),0 4px 14px rgba(33,31,26,.06);
+  --f-serif:'Source Serif 4',Georgia,'Songti SC',serif;
+  --f-sans:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-mono:'IBM Plex Mono',Consolas,Menlo,monospace;
+}
+/* 深色令牌：跟随系统 + 显式切换两处都写 */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--doc-paper:#18160f;--doc-paper-raised:#221f17;--doc-ink:#f1ece0;--doc-ink-soft:#c2bba8;--doc-ink-faint:#8f8877;
+  --doc-line:#3b3627;--doc-line-soft:#2c2919;--doc-accent:#e2925e;--doc-accent-soft:#3c2a1a;--doc-teal:#63c2b8;--doc-teal-soft:#183430;
+  --doc-p0:#f2766d;--doc-p1:#e2925e;--doc-p1-soft:#3c2a1a;--doc-p2:#a8a693;
+  --doc-status-done-fg:#63c2b8;--doc-status-done-bg:#183430;--doc-status-open-fg:#cfc29a;--doc-status-open-bg:#2e2a1c;
+  --shadow-card:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.35);}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--doc-paper:#18160f;--doc-paper-raised:#221f17;--doc-ink:#f1ece0;--doc-ink-soft:#c2bba8;--doc-ink-faint:#8f8877;
+  --doc-line:#3b3627;--doc-line-soft:#2c2919;--doc-accent:#e2925e;--doc-accent-soft:#3c2a1a;--doc-teal:#63c2b8;--doc-teal-soft:#183430;
+  --doc-p0:#f2766d;--doc-p1:#e2925e;--doc-p1-soft:#3c2a1a;--doc-p2:#a8a693;
+  --doc-status-done-fg:#63c2b8;--doc-status-done-bg:#183430;--doc-status-open-fg:#cfc29a;--doc-status-open-bg:#2e2a1c;
+  --shadow-card:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.35);}
+
+/* ===================== 2. 基础重置与页头 / 导航 / 模块 Tab ===================== */
+*{box-sizing:border-box;}
+img{max-width:100%;}
+body{margin:0;background:var(--doc-paper);color:var(--doc-ink);font-family:var(--f-sans);font-size:14.5px;line-height:1.6;}
+h1,h2,h3{font-family:var(--f-serif);font-weight:600;text-wrap:balance;margin:0;}
+.mono{font-family:var(--f-mono);}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--doc-paper-raised);}
+.dh-header{background:var(--doc-paper-raised);border-bottom:1px solid var(--doc-line);}
+.dh-header-inner,.dh-navbar-inner{max-width:1600px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));}
+.dh-header-inner{padding-block:22px 16px;}
+.dh-header h1{font-size:26px;letter-spacing:.01em;}
+.dh-meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:6px;font-size:12.5px;color:var(--doc-ink-faint);}
+.dh-meta b{color:var(--doc-ink-soft);font-weight:500;}
+.dh-navbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--doc-paper-raised);border-bottom:1px solid var(--doc-line);}
+.dh-primary{display:flex;gap:4px;overflow-x:auto;}
+.dh-primary-btn{appearance:none;border:0;background:none;padding:12px 16px 10px;font:inherit;font-weight:600;color:var(--doc-ink-soft);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;}
+.dh-primary-btn small{font-weight:400;color:var(--doc-ink-faint);margin-left:6px;font-size:12px;}
+.dh-primary-btn.active{color:var(--doc-ink);border-bottom-color:var(--doc-accent);}
+.dh-primary-btn:focus-visible,.dh-tab:focus-visible,.proto-jump:focus-visible,.sub-btn:focus-visible{outline:2px solid var(--doc-teal);outline-offset:2px;}
+.dh-wrap{max-width:1600px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:20px 64px;}
+.dh-primary-panel{display:none;}
+.dh-primary-panel.active{display:block;}
+.dh-tabs{position:sticky;top:calc(env(safe-area-inset-top,0px) + 47px);z-index:20;display:flex;gap:2px;overflow-x:auto;background:var(--doc-paper);border-bottom:1px solid var(--doc-line);margin-bottom:22px;}
+.dh-tab{appearance:none;border:0;background:none;font:inherit;font-size:14px;padding:10px 14px;color:var(--doc-ink-soft);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.dh-tab .n{font-family:var(--f-mono);color:var(--doc-accent);margin-right:6px;font-size:12px;}
+.dh-tab.active{color:var(--doc-ink);border-bottom-color:var(--doc-accent);font-weight:600;}
+.dh-panel{display:none;}
+.dh-panel.active{display:block;}
+
+/* ===================== 3. 正文排版、提示框、表格 ===================== */
+.dh-prose{max-width:92ch;color:var(--doc-ink-soft);}
+.dh-prose p{margin:0 0 10px;}
+.dh-prose strong{color:var(--doc-ink);}
+.dh-prose ul,.dh-prose ol{margin:0 0 10px;padding-left:1.4em;}
+.dh-prose li{margin-bottom:4px;}
+.req-block{max-width:1200px;margin:0 0 30px;}
+.req-block h2{font-size:22px;margin-bottom:12px;}
+.req-block h3{font-size:17px;margin:22px 0 10px;}
+.dh-callout{max-width:1200px;border-left:3px solid var(--doc-teal);background:var(--doc-paper-raised);padding:10px 14px;margin:12px 0;font-size:13.5px;color:var(--doc-ink-soft);border-radius:0 6px 6px 0;}
+.dh-callout.warn{border-left-color:var(--doc-p1);}
+.tag-new{display:inline-block;font-size:11px;background:var(--doc-accent);color:#fff;border-radius:3px;padding:0 5px;margin-left:6px;vertical-align:1px;font-weight:500;white-space:nowrap;}
+.tbl-wrap{overflow-x:auto;max-width:1200px;margin:10px 0 16px;}
+.dh-table-simple{width:100%;max-width:1200px;min-width:560px;border-collapse:separate;border-spacing:0;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:8px;overflow:hidden;font-size:13.5px;box-shadow:var(--shadow-card);}
+.dh-table-simple th,.dh-table-simple td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--doc-line-soft);overflow-wrap:anywhere;}
+.dh-table-simple th{background:var(--doc-line-soft);font-weight:600;color:var(--doc-ink);}
+.dh-table-simple tr:last-child td{border-bottom:0;}
+/* 首列允许换行，禁止 white-space:nowrap */
+.dh-table-simple td:first-child,.dh-table-simple th:first-child{min-width:7em;max-width:34em;}
+.dh-table-simple td{color:var(--doc-ink-soft);}
+.dh-table-simple td b{color:var(--doc-ink);}
+
+/* ===================== 4. 真实截图 ===================== */
+.dh-figure{max-width:520px;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:6px;padding:10px;box-shadow:var(--shadow-card);margin:12px 0 16px;}
+.dh-figure img{display:block;cursor:zoom-in;border-radius:4px;}
+.dh-figure .cap::before{content:"🔍 ";}
+
+/* ===================== 5. 流程图（只用于有先后 / 因果关系的过程） ===================== */
+.dh-flow{max-width:1200px;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:8px;padding:14px;margin:12px 0 16px;box-shadow:var(--shadow-card);cursor:zoom-in;}
+.flow-diagram{display:flex;flex-wrap:wrap;align-items:center;gap:2px;}
+.flow-step{background:var(--doc-paper);border:1px solid var(--doc-line);border-radius:6px;padding:8px 12px;font-size:12.5px;line-height:1.45;text-align:center;max-width:220px;color:var(--doc-ink);}
+.flow-step .sub{display:block;font-size:11px;color:var(--doc-ink-faint);margin-top:2px;}
+.flow-arrow{color:var(--doc-ink-faint);font-size:15px;padding:0 4px;}
+.flow-branches{display:flex;flex-direction:column;gap:7px;margin-top:10px;padding-left:10px;border-left:2px solid var(--doc-line);}
+.flow-branches.first{margin-top:0;margin-bottom:12px;}
+.flow-branch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--doc-ink-soft);}
+.flow-branch .arr{color:var(--doc-ink-faint);}
+.flow-branch .result{font-weight:600;padding:2px 10px;border-radius:100px;font-size:12px;}
+.flow-branch .result.good{color:var(--doc-status-done-fg);background:var(--doc-status-done-bg);}
+.flow-branch .result.bad{color:var(--doc-p1);background:var(--doc-p1-soft);}
+.flow-branch .result.neutral{color:var(--doc-ink-soft);background:var(--doc-line-soft);}
+.cap{font-size:12px;color:var(--doc-ink-faint);margin-top:10px;}
+
+/* ===================== 9. 交互原型区外围（文档层） ===================== */
+.proto-intro{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:14px;font-size:13px;color:var(--doc-ink-soft);}
+.proto-intro .grow{flex:1 1 320px;min-width:0;}
+.doc-btn{appearance:none;border:1px solid var(--doc-line);background:var(--doc-paper-raised);color:var(--doc-ink);border-radius:6px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer;}
+.doc-btn:hover{border-color:var(--doc-accent);color:var(--doc-accent);}
+.doc-check{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;}
+.proto-jump{display:inline-flex;align-items:center;gap:6px;appearance:none;border:1px solid var(--doc-teal);color:var(--doc-teal);background:var(--doc-teal-soft);border-radius:100px;padding:5px 14px;font:inherit;font-size:13px;cursor:pointer;margin:4px 0 14px;}
+.proto-tip{font-size:12.5px;color:var(--doc-ink-faint);margin:8px 2px 0;}
+
+
+
+/* ===================== 10. 演示控制 ===================== */
+.ctl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--doc-ink-soft);max-width:1200px;}
+.ctl label{display:inline-flex;align-items:center;gap:6px;}
+.ctl select{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--doc-line);border-radius:6px;background:var(--doc-paper);color:var(--doc-ink);max-width:100%;}
+.seg{display:inline-flex;border:1px solid var(--doc-line);border-radius:6px;overflow:hidden;}
+.seg button{appearance:none;border:0;background:var(--doc-paper);color:var(--doc-ink-soft);font:inherit;font-size:13px;padding:4px 12px;cursor:pointer;}
+.seg button.on{background:var(--doc-accent);color:#fff;}
+.ctl .hint{flex-basis:100%;font-size:12.5px;color:var(--doc-ink-faint);}
+.proto-stage{display:flex;justify-content:center;background:repeating-linear-gradient(45deg,var(--doc-line-soft) 0 10px,transparent 10px 20px);border:1px solid var(--doc-line);border-radius:10px;padding:28px 12px;max-width:1200px;}
+.dev-cap{text-align:center;font-size:12px;color:var(--doc-ink-faint);margin-top:8px;}
+
+/* ===================== 11. 手机前台复刻（固定浅/深无关的前台配色） ===================== */
+.phone{position:relative;width:360px;max-width:100%;height:700px;border:8px solid #111;border-radius:36px;overflow:hidden;background:#0f1117;color:#e9ecf2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color-scheme:dark;box-shadow:0 10px 30px rgba(0,0,0,.25);}
+.sb{height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:12px;font-weight:600;color:#fff;background:#0b0c11;}
+.wv{height:40px;display:flex;align-items:center;gap:10px;padding:0 12px;background:#1b1d26;font-size:12px;color:#aab;border-bottom:1px solid #262938;}
+.wv .x{font-size:18px;color:#ccd;}
+.wv .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wv .t b{display:block;color:#eef;font-size:13px;}
+.dl{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#1a1530;}
+.dl .ic{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#ffb347,#f7731c);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:13px;flex:none;}
+.dl .tx{flex:1;font-size:12px;line-height:1.35;color:#d7d9e6;}
+.dl .tx b{display:block;color:#fff;font-size:13px;}
+.dl button{appearance:none;border:0;border-radius:18px;background:#f7962a;color:#fff;font-weight:700;font-size:13px;padding:7px 14px;cursor:pointer;font-family:inherit;}
+.hdr{display:flex;align-items:center;gap:8px;padding:10px 12px;}
+.logo{font-weight:900;font-size:18px;letter-spacing:.5px;background:linear-gradient(90deg,#ffcf70,#f7962a);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hdr .sp{flex:1;}
+.hdr .b1,.hdr .b2{font-size:12px;border-radius:16px;padding:6px 12px;font-weight:700;}
+.hdr .b1{border:1px solid #3a3e52;color:#dfe2ee;}
+.hdr .b2{background:#19be6b;color:#062612;}
+.banner{margin:0 12px;height:132px;border-radius:14px;background:radial-gradient(circle at 80% 30%,#ff9f43 0,transparent 45%),linear-gradient(120deg,#3b1d7a,#7a2a8f 60%,#c2410c);display:flex;flex-direction:column;justify-content:center;padding:0 16px;}
+.banner b{font-size:20px;color:#fff;}
+.banner span{font-size:12px;color:#ffe6c7;margin-top:4px;}
+.cats{display:flex;gap:8px;padding:12px;overflow:hidden;}
+.cats span{flex:none;font-size:12px;padding:6px 12px;border-radius:14px;background:#1e2130;color:#c8cbd8;}
+.cats span:first-child{background:#f7962a;color:#fff;}
+.games{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 12px;}
+.games i{display:block;aspect-ratio:3/4;border-radius:10px;}
+.games i:nth-child(6n+1){background:linear-gradient(160deg,#ff6b6b,#7b2ff7);}
+.games i:nth-child(6n+2){background:linear-gradient(160deg,#ffd166,#ef476f);}
+.games i:nth-child(6n+3){background:linear-gradient(160deg,#06d6a0,#118ab2);}
+.games i:nth-child(6n+4){background:linear-gradient(160deg,#f78c6b,#3a0ca3);}
+.games i:nth-child(6n+5){background:linear-gradient(160deg,#4cc9f0,#4361ee);}
+.games i:nth-child(6n){background:linear-gradient(160deg,#b5179e,#f72585);}
+
+/* 遮罩 + 引导弹窗（本期新增，复刻截图） */
+.mask{position:absolute;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:5;}
+.mask.open{display:flex;}
+.gd{position:relative;width:100%;background:#fff;color:#4a4a4a;border-radius:16px;padding:22px 18px 18px;color-scheme:light;animation:pop .18s ease-out;}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+.gd p{margin:0 0 16px;font-size:15px;line-height:1.45;color:#555;}
+.gd .lk{display:flex;align-items:center;gap:10px;background:#f2f2f2;border-radius:8px;padding:10px 12px;margin-bottom:18px;}
+#gdUrl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;color:#333;}
+.cr{width:28px;height:28px;border-radius:50%;flex:none;background:conic-gradient(from -60deg,#db4437 0 120deg,#f4c20d 0 240deg,#0f9d58 0 360deg);position:relative;}
+.cr::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#4285f4;box-shadow:0 0 0 2.5px #fff;}
+.sf{width:28px;height:28px;border-radius:50%;flex:none;background:radial-gradient(circle,#fff 0 18%,transparent 19%),conic-gradient(#1e90ff,#5ac8fa,#1e90ff);position:relative;}
+.sf::after{content:"";position:absolute;left:12.5px;top:4px;width:3px;height:20px;background:linear-gradient(#ff3b30 50%,#fff 50%);transform:rotate(45deg);border-radius:2px;}
+.gd .ft{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.gd .ft button{appearance:none;border:0;height:44px;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.gd .ft .c{background:#fff;color:#444;box-shadow:0 0 0 1px #f0f0f0,0 2px 6px rgba(0,0,0,.05);}
+.gd .ft .ok{background:#f7962a;color:#fff;}
+.gd .steps{margin:-6px 0 16px;padding-left:1.2em;font-size:13px;color:#666;line-height:1.6;}
+.mk{position:absolute;font-size:10px;line-height:16px;padding:0 5px;border-radius:3px;background:#19be6b;color:#fff;font-weight:600;z-index:3;pointer-events:none;}
+.nomk .mk{display:none;}
+.toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;font-size:13px;border-radius:8px;padding:8px 14px;z-index:9;display:none;white-space:nowrap;}
+.toast.open{display:block;}
+.loading{position:absolute;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:6;}
+.loading.open{display:flex;}
+.loading div{background:rgba(20,20,26,.92);color:#fff;border-radius:10px;padding:14px 18px;font-size:13px;display:flex;align-items:center;gap:10px;}
+.spin{width:16px;height:16px;border:2px solid #555;border-top-color:#f7962a;border-radius:50%;animation:sp 0.8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* 原生安装弹层 / Chrome 中打开（演示结果） */
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;color:#222;border-radius:16px 16px 0 0;padding:18px;z-index:7;display:none;color-scheme:light;}
+.sheet.open{display:block;}
+.sheet h5{margin:0 0 12px;font-size:16px;}
+.sheet .row{display:flex;align-items:center;gap:12px;margin-bottom:14px;font-size:13px;color:#555;}
+.sheet .row .ic{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#ffb347,#f7731c);flex:none;}
+.sheet .ft{display:flex;justify-content:flex-end;gap:18px;}
+.sheet .ft button{appearance:none;border:0;background:none;font:inherit;font-size:14px;font-weight:700;color:#1a73e8;cursor:pointer;}
+.sheet .note{font-size:11px;color:#999;margin-top:8px;}
+.chromebar{display:none;align-items:center;gap:8px;height:40px;padding:0 10px;background:#f1f3f4;color:#333;font-size:12px;color-scheme:light;}
+.chromebar .u{flex:1;background:#fff;border-radius:16px;padding:5px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.phone.inchrome .chromebar{display:flex;}
+.phone.inchrome .wv{display:none;}
+@media (max-width:560px){.dh-header h1{font-size:22px;}.proto-stage{padding:16px 6px;}.phone{height:640px;}}
+</style></head><body>
+
+<header class="dh-header"><div class="dh-header-inner">
+  <h1>下载 App：无法安装 PWA 时引导用 Chrome 打开</h1>
+  <div class="dh-meta"><span>模块：<b>前台 · 下载 App（PWA）</b></span><span>适用：<b>H5（Android / iOS）</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-19</b></span></div>
+</div></header>
+
+<nav class="dh-navbar"><div class="dh-navbar-inner dh-primary">
+  <button class="dh-primary-btn active" data-primary="proto" type="button">交互原型 <small>切换环境演示</small></button>
+  <button class="dh-primary-btn" data-primary="docs" type="button">需求文档 <small>规则、文案与验收</small></button>
+</div></nav>
+
+<div class="dh-wrap"><main>
+
+<section class="dh-primary-panel active" data-primary-panel="proto">
+  <div class="ctl">
+    <label>用户环境 <select id="env">
+      <option value="and-inapp" selected>Android · App 内置浏览器（Facebook / TikTok / Telegram 等）</option>
+      <option value="and-nopwa">Android · 不支持 PWA 的系统浏览器</option>
+      <option value="and-chrome">Android · Chrome（可安装 PWA）</option>
+      <option value="ios-other">iOS · 非 Safari（Chrome / 内置浏览器）</option>
+      <option value="ios-safari">iOS · Safari</option>
+    </select></label>
+    <label id="hasChromeWrap"><input type="checkbox" id="hasChrome"> 手机已安装 Chrome</label>
+    <label><input type="checkbox" id="mkT" checked> 显示新增标注</label>
+    <button class="doc-btn" id="reset" type="button">重置</button>
+    <div class="hint" id="hint"></div>
+  </div>
+  <div class="proto-stage"><div>
+    <div class="phone" id="ph">
+      <div class="sb"><span>9:41</span><span>▂▄▆ 🔋</span></div>
+      <div class="wv"><span class="x">✕</span><div class="t"><b>77slot</b>77slot.com</div><span>⋯</span></div>
+      <div class="chromebar"><span>⌂</span><div class="u">🔒 77slot.com/?inv=8K2Q91&amp;ch=fb_ads</div><span>⋮</span></div>
+      <div class="dl"><div class="ic">77</div><div class="tx"><b data-t="dlT"></b><span data-t="dlS"></span></div><button type="button" id="dlBtn" data-t="dlB"></button></div>
+      <div class="hdr"><span class="logo">77SLOT</span><span class="sp"></span><span class="b1" data-t="login"></span><span class="b2" data-t="reg"></span></div>
+      <div class="banner"><b data-t="bn"></b><span data-t="bnS"></span></div>
+      <div class="cats"><span>🔥 Hot</span><span>Slots</span><span>Live</span><span>Fishing</span><span>Sports</span></div>
+      <div class="games"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+      <div class="loading" id="ld"><div><span class="spin"></span><span data-t="opening"></span></div></div>
+
+      <div class="mask" id="mask"><div class="gd">
+        <span class="mk" style="right:8px;top:-8px">新增弹窗</span>
+        <p id="gdTxt"></p>
+        <ol class="steps" id="gdSteps"></ol>
+        <div class="lk"><span id="gdIc" class="cr"></span><span id="gdUrl"></span></div>
+        <div class="ft"><button class="c" type="button" id="cBtn" data-t="cancel"></button><button class="ok" type="button" id="okBtn" data-t="copy"></button></div>
+      </div></div>
+
+      <div class="sheet" id="sheet"><h5 data-t="instT"></h5><div class="row"><span class="ic"></span><div><b>77slot</b><br>77slot.com</div></div>
+        <div class="ft"><button type="button" class="sx" data-t="cancelN"></button><button type="button" class="sx" data-t="install"></button></div>
+        <div class="note" id="sheetNote"></div></div>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="dev-cap" id="cap"></div>
+  </div></div>
+  <p class="proto-tip">点击顶部「下载」按钮走一遍流程。默认是 Android App 内置浏览器、未装 Chrome，引导弹窗已打开。</p>
+</section>
+
+<section class="dh-primary-panel" data-primary-panel="docs">
+  <nav class="dh-tabs"><button class="dh-tab active" data-tab="spec" type="button"><span class="n">1</span>需求说明</button><button class="dh-tab" data-tab="qa" type="button"><span class="n">2</span>验收</button></nav>
+
+  <div class="dh-panel active" data-panel="spec"><div class="req-block">
+    <h2>改什么</h2>
+    <div class="dh-prose"><p>用户点「下载 App」时，<b>如果当前浏览器装不了 PWA</b>（多数是 Facebook、TikTok 等 App 内置浏览器），现在点了没反应。改成：</p><ul>
+      <li><b>Android</b>：先尝试直接用 Chrome 打开当前页；拉不起来（没装 Chrome 或被拦截）时，弹出「复制链接，用 Chrome 打开」引导窗。</li>
+      <li><b>iOS 非 Safari</b>：弹同款引导窗，文案和图标换成 Safari（iOS 上只有 Safari 能添加到主屏幕）。</li>
+      <li>能正常安装 PWA 的浏览器（Android Chrome 等）和 iOS Safari：<b>保持现有流程</b>，不弹这个窗。</li>
+    </ul></div>
+
+    <h3>流程</h3>
+    <div class="dh-flow"><div class="flow-diagram"><span class="flow-step">点击「下载 App」</span><span class="flow-arrow">→</span><span class="flow-step">已收到 beforeinstallprompt？</span></div>
+      <div class="flow-branches">
+        <div class="flow-branch"><span>是</span><span class="arr">→</span><span class="result good">调起原生安装（现有）</span></div>
+        <div class="flow-branch"><span>否 · iOS Safari</span><span class="arr">→</span><span class="result neutral">现有「添加到主屏幕」引导</span></div>
+        <div class="flow-branch"><span>否 · iOS 其他浏览器</span><span class="arr">→</span><span class="result bad">弹窗：复制链接用 Safari 打开</span></div>
+        <div class="flow-branch"><span>否 · Android</span><span class="arr">→</span><span>intent 拉起 Chrome，等 1.5s</span><span class="arr">→</span><span class="result good">页面切走 = 已打开 Chrome</span><span>/</span><span class="result bad">页面仍可见 = 弹窗：复制链接用 Chrome 打开</span></div>
+      </div></div>
+
+    <h3>规则</h3>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>项</th><th>规则</th></tr>
+      <tr><td><b>判断「不能安装」</b></td><td>页面加载后监听 <code>beforeinstallprompt</code>，点击时没收到这个事件就算不能安装。已经以 PWA 方式打开（<code>display-mode: standalone</code>）时不显示下载入口，沿用现有逻辑。</td></tr>
+      <tr><td><b>拉起 Chrome（Android）</b></td><td><code>intent://77slot.com/?inv=…#Intent;scheme=https;package=com.android.chrome;end</code>，路径和参数用当前完整 URL。拉起后 1.5 秒内触发 <code>visibilitychange</code>（页面变成隐藏），就算成功，不弹窗；否则弹窗。网页无法检测手机是否装了 Chrome，只能这样试。</td></tr>
+      <tr><td><b>链接</b></td><td>当前页面完整 URL，<b>必须带上邀请码、渠道号等参数</b>，否则注册归因会丢。展示框单行，超出显示省略号。</td></tr>
+      <tr><td><b>复制链接</b></td><td>优先 <code>navigator.clipboard.writeText</code>，失败时用隐藏输入框 + <code>execCommand('copy')</code> 兜底（部分内置浏览器禁用剪贴板 API）。成功后 toast 提示「已复制」，弹窗保持打开，方便用户再复制。两种都失败时，toast 提示「复制失败，请长按链接复制」，展示框里的文字允许长按选中。</td></tr>
+      <tr><td><b>取消 / 遮罩</b></td><td>点「取消」关闭弹窗；点遮罩不关（防误触）。每次点「下载」都重新走一遍判断。</td></tr>
+      <tr><td><b>样式</b></td><td>按原型：白底圆角卡片，左「取消」白底，右主按钮用站点主色（橙）。宽度跟随屏幕，左右留 18px。</td></tr>
+      <tr><td><b>语言</b></td><td>只做英文，文案见下表。</td></tr>
+    </table></div>
+
+    <h3>文案</h3>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>位置</th><th>文案（英文）</th></tr>
+      <tr><td>Android 提示</td><td>Copy the link and open it in Chrome.</td></tr>
+      <tr><td>iOS 提示</td><td>Copy the link and open it in Safari, then tap Share → Add to Home Screen.</td></tr>
+      <tr><td>按钮</td><td>Cancel / Copy link</td></tr>
+      <tr><td>拉起中</td><td>Opening in Chrome…</td></tr>
+      <tr><td>toast</td><td>Link copied / Copy failed, long-press the link to copy</td></tr>
+    </table></div>
+
+    <h3>不做</h3>
+    <div class="dh-prose"><p>不做 APK 下载；不改可安装浏览器的现有安装流程；不改 iOS Safari 的现有引导。</p></div>
+  </div></div>
+
+  <div class="dh-panel" data-panel="qa"><div class="req-block">
+    <h2>验收</h2>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>编号</th><th>环境 / 操作</th><th>期望</th></tr>
+      <tr><td>A1</td><td>Android · Facebook 内置浏览器，已装 Chrome，点下载</td><td>直接跳到 Chrome 打开同一链接（参数完整），不弹窗</td></tr>
+      <tr><td>A2</td><td>Android · 内置浏览器，未装 Chrome（或拦截 intent），点下载</td><td>约 1.5 秒后弹引导窗，链接为当前完整 URL</td></tr>
+      <tr><td>A3</td><td>弹窗点「复制链接」</td><td>toast「已复制」；粘贴得到的链接带邀请码、渠道号</td></tr>
+      <tr><td>A4</td><td>剪贴板 API 被禁用的内置浏览器</td><td>兜底方式仍能复制；全部失败时提示长按复制，链接可长按选中</td></tr>
+      <tr><td>A5</td><td>iOS · Chrome 或 Facebook 内置浏览器，点下载</td><td>弹 Safari 版引导窗（Safari 图标 + 添加到主屏幕步骤）</td></tr>
+      <tr><td>A6</td><td>Android Chrome / iOS Safari，点下载</td><td>保持现有流程，不弹这个窗</td></tr>
+      <tr><td>A7</td><td>点「取消」/ 点遮罩</td><td>取消关闭弹窗；点遮罩不关闭</td></tr>
+    </table></div>
+  </div></div>
+</section>
+
+</main></div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  /* 文档层切换 */
+  var pb=document.querySelectorAll('.dh-primary-btn');
+  pb.forEach(function(b){b.addEventListener('click',function(){var n=b.getAttribute('data-primary');pb.forEach(function(x){x.classList.toggle('active',x===b);});document.querySelectorAll('.dh-primary-panel').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-primary-panel')===n);});});});
+  var tb=document.querySelectorAll('.dh-tab');
+  tb.forEach(function(t){t.addEventListener('click',function(){var n=t.getAttribute('data-tab');tb.forEach(function(x){x.classList.toggle('active',x===t);});document.querySelectorAll('.dh-panel').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-panel')===n);});});});
+
+  var URL_='https://77slot.com/?inv=8K2Q91&ch=fb_ads#/home';
+  var T={
+    en:{dlT:'Get the 77slot App',dlS:'Faster, claim bonuses',dlB:'Download',login:'Log in',reg:'Sign up',bn:'100% Bonus',bnS:'on first deposit',opening:'Opening in Chrome…',
+        and:'Copy the link and open it in Chrome.',ios:'Copy the link and open it in Safari.',iosSteps:['Open the link in Safari','Tap Share ⬆︎','Add to Home Screen'],
+        cancel:'Cancel',copy:'Copy link',copied:'Link copied',instT:'Install app?',cancelN:'Cancel',install:'Install'}
+  };
+  var HINT={
+    'and-inapp':'没收到 beforeinstallprompt → 先用 intent 拉 Chrome；拉不起来就弹窗。勾选「已安装 Chrome」看拉起成功的效果。',
+    'and-nopwa':'同上：系统浏览器不支持安装，也走拉 Chrome → 兜底弹窗。',
+    'and-chrome':'能收到 beforeinstallprompt：直接调起原生安装（现有流程，不弹窗）。',
+    'ios-other':'iOS 只有 Safari 能添加到主屏幕：弹 Safari 版引导窗。',
+    'ios-safari':'现有「添加到主屏幕」引导，本期不改。'
+  };
+  var CAP={'and-inapp':'Android · Facebook 内置浏览器','and-nopwa':'Android · 系统浏览器','and-chrome':'Android · Chrome','ios-other':'iOS · Chrome / 内置浏览器','ios-safari':'iOS · Safari'};
+  var S, timer;
+  function init(){S={env:'and-inapp',has:false,lang:'en'};}
+  function t(k){return T[S.lang][k];}
+  function closeAll(){clearTimeout(timer);['mask','ld','sheet','toast'].forEach(function(id){$(id).classList.remove('open');});}
+  function paint(){
+    document.querySelectorAll('[data-t]').forEach(function(e){e.textContent=t(e.getAttribute('data-t'));});
+    $('env').value=S.env; $('hasChrome').checked=S.has;
+    $('hasChromeWrap').style.display=S.env.indexOf('and')===0&&S.env!=='and-chrome'?'':'none';
+    $('hint').textContent='当前：'+HINT[S.env];
+    $('cap').textContent=CAP[S.env];
+    $('ph').classList.toggle('inchrome',S.env==='and-chrome'||S.env==='ios-safari');
+    var ios=S.env.indexOf('ios')===0;
+    $('gdTxt').textContent=ios?t('ios'):t('and');
+    $('gdIc').className=ios?'sf':'cr';
+    $('gdSteps').innerHTML=ios?t('iosSteps').map(function(s){return '<li>'+s+'</li>';}).join(''):'';
+    $('gdSteps').style.display=ios?'':'none';
+    $('gdUrl').textContent=URL_;
+  }
+  function toast(m){var e=$('toast');e.textContent=m;e.classList.add('open');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('open');},1600);}
+  function download(){
+    closeAll(); $('ph').classList.toggle('inchrome',S.env==='and-chrome'||S.env==='ios-safari');
+    if(S.env==='and-chrome'){$('sheetNote').textContent='演示：浏览器原生安装弹层（现有流程）';$('sheet').classList.add('open');return;}
+    if(S.env==='ios-safari'){toast('现有「添加到主屏幕」引导（不改）');return;}
+    if(S.env==='ios-other'){$('mask').classList.add('open');return;}
+    $('ld').classList.add('open');
+    timer=setTimeout(function(){$('ld').classList.remove('open');
+      if(S.has){$('ph').classList.add('inchrome');toast('已在 Chrome 中打开');setTimeout(function(){$('sheetNote').textContent='演示：进入 Chrome 后用户再点下载，走原生安装';$('sheet').classList.add('open');},900);}
+      else $('mask').classList.add('open');
+    },1500);
+  }
+  function copy(){
+    var ok=function(){toast(t('copied'));};
+    var fb=function(){var i=document.createElement('textarea');i.value=URL_;i.style.position='fixed';i.style.opacity='0';document.body.appendChild(i);i.select();try{document.execCommand('copy');}catch(e){}i.remove();ok();};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(URL_).then(ok,fb);else fb();
+  }
+  $('dlBtn').addEventListener('click',download);
+  $('cBtn').addEventListener('click',function(){$('mask').classList.remove('open');});
+  $('okBtn').addEventListener('click',copy);
+  document.querySelectorAll('.sx').forEach(function(b){b.addEventListener('click',function(){$('sheet').classList.remove('open');});});
+  $('env').addEventListener('change',function(){S.env=this.value;closeAll();paint();download();});
+  $('hasChrome').addEventListener('change',function(){S.has=this.checked;closeAll();$('ph').classList.remove('inchrome');paint();});
+  $('mkT').addEventListener('change',function(){$('ph').classList.toggle('nomk',!this.checked);});
+  $('reset').addEventListener('click',function(){init();closeAll();paint();$('ph').classList.remove('inchrome');$('mask').classList.add('open');});
+  init();paint();$('mask').classList.add('open');
+})();
+</script>
+</body></html>
