@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>后台 Tab 统一标准</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+html{color-scheme:light}body{margin:0}
+/* 布局：单栏规格文档，示意区用后台真实配色 */
+:root{--paper:#f6f7f5;--raised:#fff;--ink:#1d2321;--soft:#56605c;--faint:#87918d;--line:#dfe4e1;--code-bg:#eef1ef;--th:#eef2ef;
+--accent:#a8481f;--accent-soft:#f6e3d6;--teal:#0d6d66;--teal-soft:#dcefec;--red:#b3261e;--red-soft:#f8dedb;
+--pre-bg:#1f2624;--pre-fg:#e8efec;
+--adm-bg:#edf0f4;--adm-card:#fff;--adm-line:#d8e0e8;--adm-ink:#334;--adm-mute:#778;--adm-green:#0f8f78;--adm-on:#fff;
+--sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#141917;--raised:#1c2321;--ink:#e6ece9;--soft:#a9b4af;--faint:#7d8884;--line:#2e3734;--code-bg:#26302d;--th:#222b28;--accent:#e08a5f;--accent-soft:#3a2a20;--teal:#5fc4b8;--teal-soft:#1d3532;--red:#f08a80;--red-soft:#3d2422;--pre-bg:#0e1211;--pre-fg:#e8efec;--adm-bg:#202725;--adm-card:#2a3230;--adm-line:#3a4441;--adm-ink:#dfe6e3;--adm-mute:#9aa5a1;--adm-green:#2fb59a;--adm-on:#08130f;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#141917;--raised:#1c2321;--ink:#e6ece9;--soft:#a9b4af;--faint:#7d8884;--line:#2e3734;--code-bg:#26302d;--th:#222b28;--accent:#e08a5f;--accent-soft:#3a2a20;--teal:#5fc4b8;--teal-soft:#1d3532;--red:#f08a80;--red-soft:#3d2422;--pre-bg:#0e1211;--pre-fg:#e8efec;--adm-bg:#202725;--adm-card:#2a3230;--adm-line:#3a4441;--adm-ink:#dfe6e3;--adm-mute:#9aa5a1;--adm-green:#2fb59a;--adm-on:#08130f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:15px/1.7 var(--sans);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+main{max-width:900px;margin:0 auto;padding-block:32px 64px}
+h1{font-size:26px;margin:0 0 4px;text-wrap:balance}
+.meta{color:var(--faint);font-size:13px;margin-bottom:24px}
+h2{font-size:19px;margin:36px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+h3{font-size:16px;margin:22px 0 8px}
+.card{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:14px 20px;margin:12px 0;min-width:0}
+ol,ul{padding-left:22px;margin:6px 0}li{margin:3px 0}
+code{font-family:var(--mono);font-size:13px;background:var(--code-bg);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+pre{font-family:var(--mono);font-size:13px;background:var(--pre-bg);color:var(--pre-fg);padding:12px 14px;border-radius:8px;overflow-x:auto;margin:8px 0}
+.tw{overflow-x:auto;margin:8px 0}
+table{width:100%;border-collapse:collapse;background:var(--raised);border:1px solid var(--line);font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--th);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;font-weight:600;margin-left:6px;vertical-align:2px}
+.t1{background:var(--teal-soft);color:var(--teal)}.t2{background:var(--accent-soft);color:var(--accent)}
+.note{color:var(--soft);font-size:13px}.hl{color:var(--red);font-weight:600}
+.lbl{font-size:12px;color:var(--faint);margin:14px 0 4px;letter-spacing:.04em}
+.stage{background:var(--adm-bg);border-radius:10px;padding:20px;margin:6px 0 10px}
+.tabs{display:flex;flex-wrap:wrap;align-items:flex-end;border-bottom:1px solid var(--adm-line);margin-bottom:12px;gap:0 40px}
+.tabs span{height:40px;display:inline-flex;align-items:center;font-size:14px;color:var(--adm-ink);position:relative}
+.tabs span.on{color:var(--adm-green);font-weight:600}
+.tabs span.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--adm-green)}
+.tabs .acts{margin-left:auto;display:flex;gap:8px;padding-bottom:6px}
+.btn{font-size:13px;border:1px solid var(--adm-line);background:var(--adm-card);border-radius:4px;padding:3px 12px;color:var(--adm-ink)}
+.btn.p{background:var(--adm-green);border-color:var(--adm-green);color:var(--adm-on)}
+.wcard{background:var(--adm-card);border:1px solid var(--adm-line);border-radius:12px;padding:16px;color:var(--adm-mute);font-size:13px}
+.wcard .tabs{margin:-16px -16px 16px;padding:0 16px}
+</style>
+</head><body>
+<body><main>
+<h1>后台 Tab 统一标准</h1>
+<div class="meta">R-ADM-001 · 运营管理后台 · 走查环境 admin.97810.com · 2026-11-19 · 只改 Tab，其他暂不改</div>
+
+<h2>一、走查发现的问题</h2>
+<div class="card">
+<h3 style="margin-top:4px">1. 贴边、没留白</h3>
+<ul>
+<li><b>充提限制设置</b>：Tab 在白卡片里，左右边距是 0，「每日收款额度」直接贴着卡片边框</li>
+<li><b>充值 / 出款通道配置</b>等 8 页：Tab 放在灰底上，但下边距有 0、4、12、15px 四种；<b>渠道回传记录、广告回传记录</b>是 0，Tab 底线直接压着下面的卡片</li>
+<li>原因：10 个页面用了 7 套自写样式，每页各写各的间距</li>
+</ul>
+<h3>2. 切换时跳、卡</h3>
+<ul>
+<li><b>下划线跟不上</b>：充值通道配置「法币」面板内容很长（约 5000px，一次全部渲染），切回「法币」时页面卡顿，0.6 秒时下划线还停在旧位置、宽度也不对，1.5 秒后才归位</li>
+<li><b>切菜单位置跳</b>：充值通道、出款通道、渠道管理、广告像素的 Tab 上面多一整行「刷新 / 新增」按钮，标签管理上面多一行空白，在菜单之间切换时 Tab 忽上忽下</li>
+</ul>
+</div>
+
+<h2>二、标准</h2>
+<p>做成一套<b>全局 Tab 样式</b>（例如 <code>.page-tabs</code>、<code>.card-tabs</code>），删掉上面 7 个页面里的自定义类。</p>
+
+<h3>1. 页面级 Tab（切换整块数据，默认用这种）</h3>
+<div class="lbl">示意</div>
+<div class="stage">
+  <div class="tabs"><span class="on">法币</span><span>加密货币</span><div class="acts"><span class="btn">刷新</span><span class="btn p">新增通道</span></div></div>
+  <div class="wcard">筛选卡片 / 表格卡片 …</div>
+</div>
+<div class="card"><ul>
+<li><b>位置</b>：放在灰底上、第一张白卡片上面，不放进卡片；是页面的第一个元素，上面不再放别的行</li>
+<li><b>左右</b>：左边与下方卡片外边对齐（<code>margin: 0</code>）</li>
+<li><b>页面按钮</b>（刷新、新增通道等）放到 Tab 同一行最右边，不再单独占一行</li>
+<li><b>下边距</b>：Tab 底线到下方第一张卡片 <code>12px</code></li>
+</ul>
+<pre>.page-tabs { margin: 0; }
+.page-tabs > .el-tabs__header { margin: 0 0 12px; }
+.page-tabs .el-tabs__nav-wrap::after { height: 1px; background: var(--cc-border); }</pre>
+</div>
+
+<h3>2. 卡片内 Tab（只用在一张卡片里切内容）</h3>
+<div class="lbl">示意</div>
+<div class="stage">
+  <div class="wcard"><div class="tabs"><span class="on">每日收款额度</span><span>充值引导</span></div>卡片内容（左右 16px，和 Tab 文字对齐）…</div>
+</div>
+<div class="card"><ul>
+<li>Tab 做成卡片的头部，<b>左右 16px</b>，和卡片内容左边对齐；底线贯通卡片</li>
+<li>Tab 底线到卡片内容 <code>16px</code></li>
+</ul>
+<pre>.card-tabs > .el-tabs__header { margin: 0 0 16px; padding: 0 16px; }</pre>
+</div>
+
+<h3>3. 两种都一样的规则</h3>
+<div class="card"><ul>
+<li>Tab 高 40px，字号 14px；选中文字和下划线用主题绿 <code>var(--cc-emerald)</code>，下划线 2px</li>
+<li>Tab 之间间距用 Element Plus 默认（第一个左边 0，其余 <code>padding: 0 20px</code>），不要单独改</li>
+<li>面板加 <code>lazy</code>：切到哪个才渲染哪个，避免切换时卡顿、下划线跟不上</li>
+<li>每个 Tab 记住自己的筛选条件和页码，切回来不清空</li>
+<li>当前 Tab 写进地址（如 <code>?tab=crypto</code>），刷新后停在原来的 Tab</li>
+</ul></div>
+
+<h2>三、涉及页面<span class="tag t1">10 页</span></h2>
+
+<h3>① 改成页面级 Tab<span class="tag t1">8 页</span></h3>
+<div class="tw"><table><tr><th>菜单</th><th>Tab</th><th>现在的问题</th></tr>
+<tr><td>会员管理 › 标签管理</td><td>标签定义 / 会员标签记录</td><td>上面有一行空的按钮行，Tab 比别的页面低 16px</td></tr>
+<tr><td>支付配置管理 › 充值通道配置</td><td>法币 / 加密货币</td><td>上面单独一行「刷新 / 新增通道」；<span class="hl">切回「法币」下划线错位</span>；下边距 4px</td></tr>
+<tr><td>支付配置管理 › 出款通道配置</td><td>法币 / 加密货币</td><td>同上（是另一份组件，要一起改）</td></tr>
+<tr><td>运营配置 › 渠道管理</td><td>渠道列表 / Bigo 手工测试</td><td>上面单独一行按钮</td></tr>
+<tr><td>运营配置 › 渠道回传记录</td><td>会员归因 / 回传流水</td><td>下边距 0，底线贴着卡片</td></tr>
+<tr><td>系统管理 › 广告像素</td><td>渠道列表 / Bigo 手工测试</td><td>和渠道管理同一个组件</td></tr>
+<tr><td>系统管理 › 广告回传记录</td><td>会员归因 / 回传流水</td><td>和渠道回传记录同一个组件</td></tr>
+<tr><td>系统管理 › 后台人员操作日志</td><td>操作日志 / 登录日志</td><td>下边距 4px</td></tr>
+</table></div>
+
+<h3>② 改成卡片内 Tab<span class="tag t2">2 页</span></h3>
+<div class="tw"><table><tr><th>菜单</th><th>Tab</th><th>现在的问题</th></tr>
+<tr><td>支付配置管理 › 充提限制设置</td><td>每日收款额度 / 充值引导</td><td class="hl">左右 0 留白，文字贴着卡片边框</td></tr>
+<tr><td>会员管理 › VIP 管理</td><td>VIP 等级配置 / 累计充值 EXP</td><td>已有 16px，换成全局样式即可</td></tr>
+</table></div>
+<p class="note">弹窗、抽屉里的 Tab（如代理详情）这次没扫，改全局样式后顺带看一眼。</p>
+
+<h2>四、验收</h2>
+<div class="card"><ol>
+<li>上面 10 个页面，Tab 文字左边都有对齐：页面级与下方卡片外边对齐，卡片内与卡片内容对齐，没有贴边</li>
+<li>在这 10 个菜单之间来回切，页面级 Tab 都在页面最上面，位置不跳</li>
+<li>Tab 底线到下方卡片的距离：页面级都是 12px，卡片内都是 16px</li>
+<li>充值通道配置在「法币 / 加密货币」之间连续切换，下划线立刻对准文字，页面不卡</li>
+<li>切到第二个 Tab 后刷新页面，还停在第二个 Tab；切回第一个，原来的筛选条件还在</li>
+</ol></div>
+</main></body></html>
+</body></html>
