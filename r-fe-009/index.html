@@ -400,6 +400,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 /* 角标 tips：悬停显示原 / 现 */
 .mk.tip{pointer-events:auto;cursor:help}
+
+/* 删除档位确认 */
+.adm .cfm{position:absolute;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:70;padding:16px}
+.adm .cfm.on{display:flex}
+.adm .cbox{background:#fff;border-radius:8px;width:400px;max-width:100%;padding:18px 20px;box-shadow:0 12px 32px rgba(0,0,0,.2)}
+.adm .cbox h5{margin:0 0 10px;font-size:16px;color:#223;font-weight:600}
+.adm .cbox p{margin:0 0 6px;color:#334;font-size:14px}
+.adm .cbox p.sub{color:#8a8f99;font-size:12px;margin-bottom:16px}
+.adm .cbox .acts{display:flex;justify-content:flex-end;gap:10px}
+.adm .btn.d{background:var(--a-red);border-color:var(--a-red);color:#fff}
 </style>
 </head>
 <body>
@@ -477,14 +487,12 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
             <div class="row"><label><i>*</i>后台名称</label><div><div class="inp" id="w-name"><input id="f-name" maxlength="128" placeholder="运营列表里看到的名称"></div></div></div>
             <div class="row"><label><i>*</i>活动类型</label><div><div class="inp dis sel"><select disabled><option>每日签到</option></select></div></div></div>
             <div class="row"><label><i>*</i>VIP 档位与奖励</label><div>
-              <p class="hint" style="margin-top:6px">每行一个档位，VIP 下限、VIP 上限从「VIP 等级配置」的等级中选择（含两端）；签到时按「当前所属档位 × 当前连续签到天数」确定奖励。不在任何档位内的 VIP 等级无法签到。</p>
               <div class="mxwrap" id="mxwrap">
                 <table class="mx"><thead><tr><th style="width:44px">档位</th><th style="width:196px">VIP 下限 – VIP 上限</th><th>第 1 天</th><th>第 2 天</th><th>第 3 天</th><th>第 4 天</th><th>第 5 天</th><th>第 6 天</th><th>第 7 天</th><th style="width:52px">操作</th></tr></thead><tbody id="mx-rows"></tbody></table>
                 <div class="mxfoot"><button class="btn s" type="button" id="b-add">加一档</button><span class="hint" style="margin:0" id="mx-cnt"></span></div>
               </div>
               <div class="errmsg" id="e-mx" hidden></div>
-              <p class="hint" style="margin-top:8px">档位规则：VIP 区间不能重叠，可以不连续；最多 10 档。活动进行中可修改，保存后从下一次签到起按新配置发放，已发放的不变。</p>
-              <p class="hint">签到规则：点击签到即领取当天奖励；漏签后连续签到进度重置为第 1 天；签满 7 天后从第 1 天重新开始。领取时后端再次校验，防止重复领取与并发发奖。</p>
+              <p class="hint" style="margin-top:8px">VIP 区间不能重叠，可以不连续；最多 10 档。</p>
             </div></div>
             <div class="row"><label>活动时间</label><div class="dt2"><div class="inp dt"><span class="ico">◷</span><input placeholder="开始，空 = 不限" readonly></div><span>至</span><div class="inp dt"><span class="ico">◷</span><input placeholder="结束，空 = 不限" readonly></div></div></div>
             <div class="row"><label>需登录展示</label><div class="inl"><button class="sw ip" type="button" id="f-login" aria-label="需登录展示"><em>关</em></button><span class="inline-hint">开启后未登录访客在活动列表与详情中看不到该活动；仅收窄展示，不影响触发与派发；默认关闭</span></div></div>
@@ -498,6 +506,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
         <footer><button class="btn" type="button" id="d-no">取消</button><button class="btn p" type="button" id="d-ok">保存</button></footer>
       </div>
     </div>
+    <div class="cfm" id="cfm"><div class="cbox"><h5>删除档位</h5><p id="cfm-t"></p><p class="sub">删除后点「保存」才生效，点「取消」关闭弹窗可撤销。</p><div class="acts"><button class="btn" type="button" id="cfm-no">取消</button><button class="btn d" type="button" id="cfm-ok">删除</button></div></div></div>
     <div class="toast" id="toast">保存成功</div>
   </div>
   </div>
@@ -593,7 +602,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td><b>下拉里的不可选项</b></td><td>已被其它档位占用的等级置灰，后面标注「（第 N 档）」；上限下拉里，小于本档下限的等级、会跨过后一个档位的等级也置灰。改下限后如果上限不再合法，上限自动改成和下限相同</td><td>—</td></tr>
       <tr><td><b>VIP 等级被减少</b></td><td>「VIP 等级配置」减少等级后，档位里选过但已不存在的等级在编辑时显示「请选择」并标红，重新选择后才能保存</td><td>—</td></tr>
       <tr><td><b>第 1 天 … 第 7 天</b></td><td>必填，大于 0，最多 2 位小数，固定金额，币种跟站点</td><td>空</td></tr>
-      <tr><td><b>加一档 / 删除</b></td><td>最少 1 档，最多 10 档；到 10 档或所有 VIP 等级都已分配时「加一档」置灰，只剩 1 档「删除」置灰。保存时按 VIP 下限从小到大排序</td><td>—</td></tr>
+      <tr><td><b>加一档 / 删除</b></td><td>最少 1 档，最多 10 档；到 10 档或所有 VIP 等级都已分配时「加一档」置灰，只剩 1 档「删除」置灰。点「删除」先弹确认：「删除第 N 档（VIP x–y）？这一档已填 n 天的奖励金额会一起删掉。」，下面小字「删除后点「保存」才生效，点「取消」关闭弹窗可撤销。」，按钮「取消 / 删除」（红色）。保存时按 VIP 下限从小到大排序</td><td>—</td></tr>
       <tr><td><b>开启中修改</b></td><td>活动开启中也能改档位和金额，保存后从下一次签到起按新配置，已发放的不变，玩家的连续天数不变</td><td>—</td></tr>
     </table></div>
     <div class="tbl-wrap"><table class="dh-table-simple">
@@ -642,7 +651,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td><b>今天可签</b></td><td>已签的天 <code>Claimed</code>（绿色带勾）；今天这行高亮，右侧 <code>Claim</code> 按钮；之后的天 <code>Upcoming</code></td><td><code>Day {d} · check in today to keep your streak</code></td><td><code>Check In</code>，和行内 <code>Claim</code> 是同一个动作</td></tr>
       <tr><td><b>提交中</b></td><td>行内按钮 <code>Claiming…</code> 置灰</td><td>不变</td><td><code>Claiming…</code> 置灰，防重复点击</td></tr>
       <tr><td><b>今天已签</b></td><td>到今天为止 <code>Claimed</code>，之后 <code>Upcoming</code></td><td>第 1–6 天：<code>Come back tomorrow for Day {d+1} · ₱ {amount}</code>；第 7 天：<code>7-day cycle completed · a new cycle starts tomorrow</code></td><td><code>Checked In</code> 置灰</td></tr>
-      <tr><td><b>预览其它档位</b>（点了进度条上别的档位）</td><td>有自己档位的玩家：每行右侧显示和自己档位同一天的差额，多的显示绿色 <code>+₱ 2.00</code>，少的显示灰色 <code>−₱ 2.00</code>，相同显示 <code>—</code>；没有 Claim 按钮。未登录或不在档位的玩家：全部 <code>Locked</code>。标题行改为 <code>VIP 4–6 rewards · ₱ 96.00 in 7 days</code> + 右侧 <code>Preview</code>；列表下面多一个按钮 <code>Back to my rewards</code>（未登录或不在档位时是 <code>Back</code>）</td><td>不变，仍是玩家自己的状态</td><td>不变；点 Check In 签的是自己档位的奖励，签完列表回到自己的档位</td></tr>
+      <tr><td><b>预览其它档位</b>（点了进度条上别的档位）</td><td>有自己档位的玩家：每行右侧显示和自己档位同一天的差额，多的显示绿色 <code>+₱ 2.00</code>，少的显示灰色 <code>−₱ 2.00</code>，相同显示 <code>—</code>；没有 Claim 按钮。未登录或不在档位的玩家：全部 <code>Locked</code>。标题行改为 <code>VIP 4–6 rewards · ₱ 96.00 in 7 days</code> + 右侧 <code>Preview</code>；列表下面多一个按钮 <code>Back to my rewards</code>（未登录或不在档位时是 <code>Back</code>）</td><td>今天可签时改为 <code>Check in with your tier (VIP 1–3) · ₱ 6.00</code>（自己的档位和今天能领的金额）；其它状态不变</td><td>不变；点 Check In 签的是自己档位的奖励，签完列表回到自己的档位</td></tr>
       <tr><td><b>退出预览</b></td><td colspan="3">点 <code>Back to my rewards</code>、再点一次正在预览的节点、点自己档位的节点、签到成功、关闭弹窗，都回到默认显示的档位。预览只是前端切换显示，不请求接口</td></tr>
       <tr><td><b>签到成功</b></td><td colspan="3">顶部提示 <code>Checked in! +₱ {amount}</code>（用现有全局成功提示）；余额刷新；弹窗不关，切到「今天已签」状态</td></tr>
       <tr><td><b>签到失败</b></td><td colspan="3">今天已签过（并发 / 多端）：提示 <code>Already checked in today</code> 并刷新状态；VIP 不在档位、活动已关闭等：显示后端返回的提示并刷新状态</td></tr>
@@ -675,7 +684,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>编号</th><th>前置条件与操作</th><th>期望结果</th></tr>
       <tr><td>A1</td><td>后台新建活动，活动类型选「每日签到」</td><td>表单出现「VIP 档位与奖励」表格，默认 1 行；VIP 下限、上限是下拉，选项与「VIP 等级配置」里的等级一致；派发方式固定手动领取</td></tr>
-      <tr><td>A2</td><td>点「加一档」到 10 档；删到只剩 1 档</td><td>第 10 档后「加一档」置灰；只剩 1 档时「删除」置灰</td></tr>
+      <tr><td>A2</td><td>点「加一档」到 10 档；删到只剩 1 档</td><td>第 10 档后「加一档」置灰；只剩 1 档时「删除」置灰；点「删除」先弹确认，点「取消」不删，点「删除」才删</td></tr>
       <tr><td>A3</td><td>第 1 档选 VIP1–5，再看第 2 档的下限、上限下拉</td><td>VIP1–5 置灰并标注「（第 1 档）」，选不到；用接口直接提交 VIP1–5、VIP5–8，返回「第 2 档与第 1 档的 VIP 区间重叠」</td></tr>
       <tr><td>A4</td><td>某档下限选 VIP6，看上限下拉；再把下限改成比上限高的等级</td><td>上限下拉里 VIP6 以下置灰；下限改高后上限自动变成和下限相同</td></tr>
       <tr><td>A5</td><td>某天金额留空、填 0 或填 1.234 保存</td><td>输入框标红并提示，不能保存</td></tr>
@@ -697,7 +706,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>A21</td><td>后台关闭活动</td><td>前台卡片消失，直接调签到接口被拒绝；重新开启后，期间没签的玩家从第 1 天开始</td></tr>
       <tr><td>A22</td><td>H5 打开签到弹窗</td><td>底部抽屉样式，底部提示行可见；各状态与 PC 一致；10 个档位时进度条不换行、不溢出</td></tr>
       <tr><td>A23</td><td>后台规则文案留空</td><td>弹窗不显示 Rules 区，Rules 页签点击无滚动异常</td></tr>
-      <tr><td>A24</td><td>VIP2 玩家（VIP1–3 档，第 1 天未签）在弹窗里点进度条上的 VIP5–7 节点</td><td>列表切到 5 / 8 / 10 / 12 / 15 / 18 / 28；每行右侧显示 +₱ 2.00、+₱ 3.00 …；标题行显示 VIP 5–7 rewards · ₱ 96.00 in 7 days 和 Preview；没有 Claim；底部仍是 Day 1 和 Check In</td></tr>
+      <tr><td>A24</td><td>VIP2 玩家（VIP1–3 档，第 1 天未签）在弹窗里点进度条上的 VIP5–7 节点</td><td>列表切到 5 / 8 / 10 / 12 / 15 / 18 / 28；每行右侧显示 +₱ 2.00、+₱ 3.00 …；标题行显示 VIP 5–7 rewards · ₱ 96.00 in 7 days 和 Preview；没有 Claim；底部提示变为 Check in with your tier (VIP 1–3) · ₱ 3.00，按钮仍是 Check In</td></tr>
       <tr><td>A25</td><td>A24 的状态下点 Check In</td><td>按自己的档位发 ₱3；列表回到 VIP1–3 档，第 1 天 Claimed</td></tr>
       <tr><td>A26</td><td>预览时点 Back to my rewards、或再点一次同一个节点</td><td>回到自己的档位，状态和预览前一样</td></tr>
       <tr><td>A27</td><td>未登录、VIP 不在档位的玩家点其它档位节点</td><td>能看到各档金额，全部 Locked；底部提示和按钮不变</td></tr>
@@ -800,7 +809,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     var tip,btn,act,dis=false;
     if(!x.logged){tip='Log in to check in and claim your daily bonus';btn='Log In';act='login';}
     else if(!x.eligible){tip=x.ui>=0?'Reach VIP '+cfg.tiers[x.ui].lo+' to unlock daily check-in':'Daily check-in is not available for your VIP level';btn='View VIP';act='vip';}
-    else if(x.canClaim){tip='Day '+x.today+' · check in today to keep your streak';btn=busy?'Claiming…':'Check In';act='claim';dis=busy;}
+    else if(x.canClaim){tip=pvOn?'Check in with your tier ('+rngLong(own)+') · '+money(own.r[x.today-1]):'Day '+x.today+' · check in today to keep your streak';btn=busy?'Claiming…':'Check In';act='claim';dis=busy;}
     else{tip=st.streak>=7?'7-day cycle completed · a new cycle starts tomorrow':'Come back tomorrow for Day '+(st.streak+1)+' · '+money(own.r[st.streak]);btn='Checked In';act='';dis=true;}
     h+='<footer class="is-daily-login"><p>'+tip+'</p><button type="button"'+(act?' data-act="'+act+'"':'')+(dis?' disabled':'')+'><span>'+btn+'</span></button></footer></div>';
     return h;
@@ -880,7 +889,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     $('mx-rows').innerHTML=h;
     var full=freeLevel()===null;
     $('b-add').disabled=draft.length>=MAX_TIER||full;
-    $('mx-cnt').textContent='已配 '+draft.length+' 档，最多 '+MAX_TIER+' 档'+(full?'；所有 VIP 等级都已分配':'')+'。下拉选项来自「VIP 等级配置」（当前 VIP '+VIPS[0]+' – VIP '+VIPS[VIPS.length-1]+'），已被其它档位占用的等级不可选';
+    $('mx-cnt').textContent='已配 '+draft.length+' 档'+(draft.length>=MAX_TIER?'，已到上限':(full?'，VIP 等级都已分配':''))+'。选项来自「VIP 等级配置」（当前 VIP '+VIPS[0]+' – VIP '+VIPS[VIPS.length-1]+'），已被其它档位占用的不可选';
   }
   function fillForm(){
     draft=cfg.tiers.map(function(t){return {lo:t.lo,hi:t.hi,r:t.r.map(String)};});
@@ -899,7 +908,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   $('mx-rows').addEventListener('change',function(e){var s=e.target;if(!s.matches('select[data-i]'))return;var n=Number(s.getAttribute('data-i')),t=draft[n],k=s.getAttribute('data-k');t[k]=s.value===''?'':Number(s.value);
     if(k==='lo'&&t.lo!==''){var cap=capOf(n);if(t.hi===''||t.hi<t.lo||t.hi>=cap)t.hi=t.lo;}
     clearErr();mxRender();});
-  $('mx-rows').addEventListener('click',function(e){var b=e.target.closest('[data-del]');if(!b||b.disabled)return;draft.splice(Number(b.getAttribute('data-del')),1);clearErr();mxRender();});
+  var delIdx=-1;
+  $('mx-rows').addEventListener('click',function(e){var b=e.target.closest('[data-del]');if(!b||b.disabled)return;delIdx=Number(b.getAttribute('data-del'));var t=draft[delIdx];var rg=(t.lo===''||t.hi==='')?'未选 VIP 区间':(t.lo===t.hi?'VIP '+t.lo:'VIP '+t.lo+'–'+t.hi);var filled=t.r.filter(function(x){return String(x).trim()!=='';}).length;$('cfm-t').textContent='删除第 '+(delIdx+1)+' 档（'+rg+'）？这一档已填 '+filled+' 天的奖励金额会一起删掉。';$('cfm').classList.add('on');});
+  $('cfm-no').addEventListener('click',function(){$('cfm').classList.remove('on');delIdx=-1;});
+  $('cfm-ok').addEventListener('click',function(){if(delIdx>=0){draft.splice(delIdx,1);clearErr();mxRender();}$('cfm').classList.remove('on');delIdx=-1;});
   $('b-add').addEventListener('click',function(){var f=freeLevel();if(draft.length>=MAX_TIER||f===null)return;draft.push({lo:f,hi:f,r:['','','','','','','']});clearErr();mxRender();});
   function mark(i,k){var el=document.querySelector('#mx-rows [data-i="'+i+'"][data-k="'+k+'"]');if(el)el.classList.add('err');}
   function validate(){
