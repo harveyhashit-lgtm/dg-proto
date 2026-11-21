@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>快捷注册 / 登录增加 Facebook</title><style>
+:root{--bg:#f5f6f4;--surface:#fff;--fg:#1d2320;--muted:#6a736e;--line:#e3e6e2;--accent:#0f7a5c;--code:#eef0ed}
+@media (prefers-color-scheme:dark){:root{--bg:#141816;--surface:#1c211f;--fg:#e6ebe8;--muted:#97a19c;--line:#2c3330;--accent:#4cc79d;--code:#252b28;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 "PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-left,0px)) 48px}
+h1{font-size:22px;margin:0}.meta{color:var(--muted);font-size:13px;margin:4px 0 20px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-top:14px}
+h2{font-size:16px;margin:0 0 8px}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:500;border-top:0}
+td:first-child{white-space:nowrap;color:var(--muted)}
+.tw{overflow-x:auto}code{background:var(--code);border-radius:4px;padding:0 4px;font-size:13px}
+img{max-width:100%;border:1px solid var(--line);border-radius:6px;display:block;margin-top:10px}
+ul{margin:4px 0;padding-left:20px}
+</style></head><body><div class="wrap">
+<h1>快捷注册 / 登录增加 Facebook</h1><div class="meta">R-FE-010 · 需求文档 v1.0 · 前台-注册登录 · 产品经理 Harvey · 2026-11-21</div>
+<section><h2>现状</h2>注册和登录弹窗的第三方登录只有 Telegram、Google；后台会员「注册方式」只认 email / mobile / google / telegram / guest / wallet。<img src="3_注册方式.png" alt="注册弹窗，第三方登录只有 Telegram 和 Google" style="max-width:420px"></section><section><h2>改为</h2><div class="tw"><table><tr><td>位置</td><td>注册和登录弹窗「OR」下面加 Facebook 按钮，和 Telegram、Google 并排（三个一行）</td></tr><tr><td>流程</td><td>和 Google 一样：点按钮 → Facebook 授权 → 新用户自动注册并登录，老用户直接登录</td></tr><tr><td>拿哪些信息</td><td>Facebook 用户 ID、名字、头像、邮箱（有就拿）；不要求手机号</td></tr><tr><td>新用户</td><td>和 Google 注册一样：注册奖励、邀请码、渠道归因、注册 IP / 设备限制照常生效</td></tr><tr><td>后台</td><td>会员列表、详情的「注册方式」显示 Facebook；「第三方账号」显示 Facebook 账号</td></tr><tr><td>开关</td><td>每个站点能单独开关 Facebook 登录，关掉时前台不显示按钮</td></tr></table></div></section><section><h2>前置条件</h2><ul><li>建 Facebook 开发者 App，拿 App ID / App Secret；配置 77slot.com 为授权域名，填隐私政策地址和「数据删除」说明地址</li><li>申请上线（Live）模式；拿邮箱需要 <code>email</code> 权限（基础权限）</li><li>App ID、Secret 放后端配置，不写在文档或工单里</li></ul></section><section><h2>涉及页面</h2><ul><li>前台：注册弹窗、登录弹窗（PC / H5）</li><li>运营管理后台：会员列表、会员详情</li></ul></section><section><h2>不做</h2><ul><li>不改 Telegram、Google 登录</li><li>不做 Facebook 账号绑定到已有账号</li></ul></section><section><h2>验收</h2><div class="tw"><table><tr><th>#</th><th>操作</th><th>预期</th></tr><tr><td>1</td><td>新 Facebook 账号点 Facebook 按钮</td><td>一键注册并登录，拿到注册奖励</td></tr><tr><td>2</td><td>同一个 Facebook 账号再点一次</td><td>直接登录，不重复注册</td></tr><tr><td>3</td><td>注册时填了邀请码</td><td>上级关系正确</td></tr><tr><td>4</td><td>后台会员详情</td><td>注册方式显示 Facebook</td></tr><tr><td>5</td><td>站点关掉 Facebook 开关</td><td>前台不显示按钮</td></tr></table></div></section>
+</div></body></html>

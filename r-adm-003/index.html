@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>VIP「加赠享受次数」上限改为 9999</title><style>
+:root{--bg:#f5f6f4;--surface:#fff;--fg:#1d2320;--muted:#6a736e;--line:#e3e6e2;--accent:#0f7a5c;--code:#eef0ed}
+@media (prefers-color-scheme:dark){:root{--bg:#141816;--surface:#1c211f;--fg:#e6ebe8;--muted:#97a19c;--line:#2c3330;--accent:#4cc79d;--code:#252b28;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 "PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-left,0px)) 48px}
+h1{font-size:22px;margin:0}.meta{color:var(--muted);font-size:13px;margin:4px 0 20px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-top:14px}
+h2{font-size:16px;margin:0 0 8px}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:500;border-top:0}
+td:first-child{white-space:nowrap;color:var(--muted)}
+.tw{overflow-x:auto}code{background:var(--code);border-radius:4px;padding:0 4px;font-size:13px}
+img{max-width:100%;border:1px solid var(--line);border-radius:6px;display:block;margin-top:10px}
+ul{margin:4px 0;padding-left:20px}
+</style></head><body><div class="wrap">
+<h1>VIP「加赠享受次数」上限改为 9999</h1><div class="meta">R-ADM-003 · 需求文档 v1.0 · 运营管理后台-VIP 管理 · 产品经理 Harvey · 2026-11-21</div>
+<section><h2>现状</h2>会员管理 › VIP 管理 › VIP 等级配置，「加赠享受次数」<code>depositBonusLimit</code> 输入框写死 <code>min: 0, max: 100</code>，占位符「0为不限」。<img src="2_加赠享受次数.png" alt="VIP 等级配置页，加赠享受次数一列"></section>
+<section><h2>改为</h2><ul><li>输入框上限改为 <b>9999</b>（整数，0–9999），0 仍表示不限</li><li>后端保存接口 <code>PUT /v1/admin/vip/config</code> 如果也限制了 100，同步改为 9999</li><li>不改次数的计算和扣减逻辑</li></ul></section>
+<section><h2>涉及页面</h2>运营管理后台：会员管理 › VIP 管理 › VIP 等级配置（美国站、菲律宾站相同）</section>
+<section><h2>验收</h2><div class="tw"><table><tr><th>#</th><th>操作</th><th>预期</th></tr>
+<tr><td>1</td><td>某 VIP 等级填 9999，保存后刷新</td><td>仍是 9999</td></tr>
+<tr><td>2</td><td>填 10000</td><td>提示「最多 9999」，不能保存</td></tr>
+<tr><td>3</td><td>填 0</td><td>保存成功，按不限次数</td></tr>
+<tr><td>4</td><td>玩家按配置次数充值</td><td>按次数享受存款加赠，超过次数不再加赠</td></tr></table></div></section>
+</div></body></html>
