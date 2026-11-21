@@ -410,6 +410,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .adm .cbox p.sub{color:#8a8f99;font-size:12px;margin-bottom:16px}
 .adm .cbox .acts{display:flex;justify-content:flex-end;gap:10px}
 .adm .btn.d{background:var(--a-red);border-color:var(--a-red);color:#fff}
+
+/* 新增：档位节点不写序号（避免和下方 VIP 标注混淆），只留圆点 */
+.fx .is-checkin .daily-login-progress b{width:10px;height:10px;margin:2px 0}
 </style>
 </head>
 <body>
@@ -639,7 +642,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="dh-prose"><p>PC 是 375 宽的居中弹窗，H5 是底部抽屉（高度 80%），沿用现网活动详情弹窗的外壳。从上到下：标题（客户端名称）、顶图（详情背景图）、Level / Bonus / Rules 三个页签（点击滚动到对应区块，滚动时页签跟着高亮）、等级区、7 天列表、规则、底部固定栏。</p></div>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>区块</th><th>内容</th></tr>
-      <tr><td><b>等级区</b></td><td>左：VIP 图标。右：<code>Your VIP level</code> + <code>VIP 3</code>，下面小字是所属档位 <code>Tier VIP 1–5</code>；不在档位时小字显示 <code>Not in any tier</code>；未登录显示 <code>Log in to view</code>。下方进度条每个节点是一个档位，标注 VIP 区间（如 <code>1-5</code>，单个等级只写一个数），玩家所在档位高亮；节点数 = 档位数（1–10），等宽排列。<b>节点可以点</b>：点某个档位，下面 7 天列表切成这个档位的金额（预览）；档位多于 1 个时进度条下面有一行小字 <code>Tap a tier to preview its rewards</code></td></tr>
+      <tr><td><b>等级区</b></td><td>左：VIP 图标。右：<code>Your VIP level</code> + <code>VIP 3</code>，下面小字是所属档位 <code>Tier VIP 1–5</code>；不在档位时小字显示 <code>Not in any tier</code>；未登录显示 <code>Log in to view</code>。下方进度条每个节点是一个档位，标注 VIP 区间，前面加 V（如 <code>V1-5</code>，单个等级写 <code>V6</code>）；节点圆点里不写序号，玩家所在档位高亮；节点数 = 档位数（1–10），等宽排列。<b>节点可以点</b>：点某个档位，下面 7 天列表切成这个档位的金额（预览）；档位多于 1 个时进度条下面有一行小字 <code>Tap a tier to preview its rewards</code></td></tr>
       <tr><td><b>7 天列表</b></td><td>标题行左边 <code>Higher VIP, better daily rewards.</code>，右边是本周期进度 <code>2 / 7</code>。7 行，每行：日历图标 + 第几天、金额、右侧状态。金额显示玩家当前档位的 7 天金额；不在档位时显示「比当前 VIP 高的最近一档」，没有更高档就显示最高档；未登录显示最低档</td></tr>
       <tr><td><b>规则</b></td><td>显示后台「规则文案」；留空则不显示这个区块</td></tr>
       <tr><td><b>底部固定栏</b></td><td>一行橙色提示 + 一个主按钮，H5 也显示提示行</td></tr>
@@ -723,7 +726,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <li><b>下拉置灰不能代替后端校验</b>：区间重叠、下限大于上限、等级不存在，保存接口都要自己校验。</li>
       <li><b>区间可以不连续</b>：VIP 落在两档之间、低于最低档、高于最高档是三种不同的展示，都不能签；不要把「不在档位」当成最低档处理。</li>
       <li><b>预览不影响签到</b>：预览只切换前端显示，详情接口已返回全部档位，不用再请求；签到金额永远由后端按玩家自己的档位算。</li>
-      <li><b>档位数不固定</b>：进度条按 1–10 个节点等宽排，标注用 <code>下限-上限</code>，下限 = 上限只写一个数。</li>
+      <li><b>档位数不固定</b>：进度条按 1–10 个节点等宽排，标注用 <code>V下限-上限</code>，下限 = 上限写 <code>V6</code>。</li>
       <li><b>开启中可改配置</b>：活动开启中可以改档位和金额，改完只影响之后的签到。</li>
       <li><b>H5 提示行</b>：H5 也要显示底部提示行（解锁条件、明天金额都在这行）。</li>
     </ul></div>
@@ -758,7 +761,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   var cfg,st,open,busy,view='pc',draft,pv=null;
   function clone(o){return JSON.parse(JSON.stringify(o));}
   function money(n){return '₱ '+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
-  function rng(t){return t.lo===t.hi?String(t.lo):t.lo+'-'+t.hi;}
+  function rng(t){return t.lo===t.hi?'V'+t.lo:'V'+t.lo+'-'+t.hi;}
   function rngLong(t){return t.lo===t.hi?'VIP '+t.lo:'VIP '+t.lo+'–'+t.hi;}
 
   /* ---------- 规则计算 ---------- */
@@ -786,7 +789,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     h+='<section class="daily-login-level" data-sec="level" style="background-image:url('+IMG.lvbg+')"><span class="daily-login-level__label">Current Level</span>';
     h+='<div class="daily-login-level__summary"><img src="'+IMG.crown+'" alt=""><p>Your VIP level<strong>'+(x.logged?'VIP '+st.vip:'—')+'<small>'+sub+'</small></strong></p></div>';
     h+='<div class="daily-login-progress" style="--n:'+n+'">';
-    cfg.tiers.forEach(function(tt,i){var on=x.ti===i,c=((on?'active':'')+(pvOn&&si===i?' is-preview':'')).trim();h+='<span role="button" tabindex="0" data-act="tier" data-ti="'+i+'"'+(c?' class="'+c+'"':'')+'>'+(on?'<img src="'+IMG.dot+'" alt="">':'<b>'+(i+1)+'</b>')+'<small>'+rng(tt)+'</small></span>';});
+    cfg.tiers.forEach(function(tt,i){var on=x.ti===i,c=((on?'active':'')+(pvOn&&si===i?' is-preview':'')).trim();h+='<span role="button" tabindex="0" data-act="tier" data-ti="'+i+'"'+(c?' class="'+c+'"':'')+'>'+(on?'<img src="'+IMG.dot+'" alt="">':'<b></b>')+'<small>'+rng(tt)+'</small></span>';});
     h+='</div>'+(n>1?'<small class="daily-login-level__tip">Tap a tier to preview its rewards</small>':'')+'<img class="daily-login-level__flag is-start" src="'+IMG.flag+'" alt=""><img class="daily-login-level__flag is-end" src="'+IMG.flag+'" alt=""></section>';
     /* 7 天列表 */
     h+='<section class="daily-login-bonus" data-sec="bonus" style="background-image:url('+IMG.bnbg+')"><p>'+(pvOn?'<span>'+rngLong(t)+' rewards · '+money(t.r.reduce(function(a,b){return a+b;},0))+' in 7 days</span><b class="is-preview">Preview</b>':'<span>Higher VIP, better daily rewards.</span>'+(x.eligible?'<b>'+st.streak+' / 7</b>':''))+'</p>';
