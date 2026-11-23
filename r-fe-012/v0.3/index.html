@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>前台多语言（语言包）</title><style>
+:root{--bg:#f5f6f4;--surface:#fff;--fg:#1d2320;--muted:#6a736e;--line:#e3e6e2;--accent:#0f7a5c;--code:#eef0ed}
+@media (prefers-color-scheme:dark){:root{--bg:#141816;--surface:#1c211f;--fg:#e6ebe8;--muted:#97a19c;--line:#2c3330;--accent:#4cc79d;--code:#252b28;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 "PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-left,0px)) 48px}
+h1{font-size:22px;margin:0}.meta{color:var(--muted);font-size:13px;margin:4px 0 20px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-top:14px}
+h2{font-size:16px;margin:0 0 8px}h3{font-size:14px;margin:12px 0 4px}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:500;border-top:0}
+td:first-child{white-space:nowrap;color:var(--muted)}
+.tw{overflow-x:auto}code{background:var(--code);border-radius:4px;padding:0 4px;font-size:13px}
+ul,ol{margin:4px 0;padding-left:20px}.tag{display:inline-block;font-size:12px;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:0 6px;margin-left:6px}
+</style></head><body><div class="wrap">
+<h1>前台多语言（语言包）</h1><div class="meta">R-FE-012 · 需求文档 v0.3 · 前台-通用 / 运营管理后台-内容配置 · 产品经理 Harvey · 2026-11-23</div>
+
+<section><h2>目标</h2>前台界面文案全部抽成语言包，一种语言一份、按 key 对应。以后新增国家语言（如孟加拉语）只加一份语言包、站点开启即可，<b>不改页面代码</b>。本期首批：英文 + 他加禄语（补全）。</section>
+
+<section><h2>现状（正式站 77slot.com，PC / H5）</h2><div class="tw"><table>
+<tr><td>框架</td><td>前端已按 key 取文案，找不到 key 回退英文</td></tr>
+<tr><td>语言包</td><td>在前端代码里：英文 1542 条；西班牙语 1520 条；他加禄语只有 14 条</td></tr>
+<tr><td>站点语言</td><td>站点配置下发默认语言、可选语言。菲站：默认英文，可选英文、他加禄语；美国站：英文</td></tr>
+<tr><td>语言弹窗</td><td>PC 左侧菜单底部、H5 侧边菜单「Language」；弹窗显示国家名 + 国旗（如 United States）</td></tr>
+<tr><td>写死文案</td><td>约 200 条没走语言包：推荐计算器、下载落地页、报错提示、Spin、改密码、网站地图、Bonus、VIP、钱包、合规页、游戏分类名等（准确清单以开发抽取为准）</td></tr>
+<tr><td>金额 / 日期</td><td>约 12 条文案带 <code>$</code> / USD 或写死金额；部分日期固定格式</td></tr>
+<tr><td>后台内容</td><td>活动标题 / 说明 / 按钮文字、Banner 文字、公告 / 站内信、转盘格子名等都是单语言字段</td></tr>
+</table></div></section>
+
+<section><h2>一、前台语言包<span class="tag">前端</span></h2><div class="tw"><table>
+<tr><td>文案全部进语言包</td><td>页面文字、按钮、占位文字、提示、弹窗、报错、空状态、无障碍文字、游戏分类名等全部按 key 取，代码里不再写死界面文案。英文包为基准包（key 最全）</td></tr>
+<tr><td>一种语言一份</td><td>每种语言一个文件（如 <code>en.json</code>、<code>tl-PH.json</code>），key 与英文包一一对应；变量用占位（<code>{amount}</code>、<code>{currency}</code>、<code>{date}</code>），金额、币种不写死在文案里</td></tr>
+<tr><td>放哪里</td><td>放前端代码，随版本发布；不做总控页面。加语言 / 改词条 = 改语言包文件 + 前端发版，不改页面代码</td></tr>
+<tr><td>缺 key 检查</td><td>提供脚本，列出某种语言相对英文包缺哪些 key</td></tr>
+<tr><td>选语言</td><td>玩家手选过的 &gt; 站点默认语言 &gt; 英文；不按浏览器语言 / IP 自动选；刷新后保持</td></tr>
+<tr><td>语言弹窗</td><td>只列站点开启的语言；显示<b>语言名</b>（该语言自己的写法：English、Tagalog），国旗可保留</td></tr>
+<tr><td>兜底</td><td>当前语言缺某条 key → 显示英文那条；站点开启了前端没有语言包的语言 → 按英文显示；不显示 key 名或空白</td></tr>
+<tr><td>格式</td><td>金额、币种符号、千分位、小数位按站点配置；日期按当前语言格式、时区按站点</td></tr>
+<tr><td>他加禄语</td><td>补全全部 key（翻译用 AI 出，写进语言包文件）</td></tr>
+</table></div></section>
+
+<section><h2>二、后台配置内容多语言<span class="tag">后端 + 运营管理后台</span></h2><div class="tw"><table>
+<tr><td>涉及内容</td><td>活动标题、活动说明 / 规则、活动按钮文字、Banner 标题文字、公告、站内信、转盘格子名称（完整字段清单请开发列出）</td></tr>
+<tr><td>编辑方式</td><td>这些文本字段按<b>站点开启的语言</b>各填一份（如菲站：English / Tagalog 两个输入框或页签）；后台界面本身仍是中文</td></tr>
+<tr><td>必填</td><td>站点默认语言那份必填，其它语言选填</td></tr>
+<tr><td>前台显示</td><td>按玩家当前语言返回 / 显示；该语言没填 → 显示站点默认语言那份</td></tr>
+<tr><td>存量数据</td><td>上线时现有内容全部作为站点默认语言（菲站 = 英文）那一份，运营不用重填</td></tr>
+<tr><td>新开语言</td><td>已有内容该语言为空，前台回退默认语言，运营按需补填</td></tr>
+<tr><td>图片</td><td>不分语言</td></tr>
+</table></div></section>
+
+<section><h2>新增一种语言的流程（上线后）</h2><ol>
+<li>新增语言包文件（AI 翻译），用脚本检查缺失 key 并补齐</li><li>前端发版</li><li>站点配置开启该语言，需要的话设为默认语言</li><li>运营在后台给活动、公告等补填该语言内容（不填显示默认语言）</li><li>前台语言弹窗自动出现新语言</li></ol></section>
+
+<section><h2>请开发确认</h2><ol>
+<li>写死文案的准确清单和数量，抽取改造工作量</li>
+<li>后端返回的报错 / 提示怎么多语言：返回错误码由前端按语言显示，还是后端按请求语言返回</li>
+<li>后台需要多语言的文本字段完整清单；短信、邮件模板能否按语言分</li>
+<li>游戏大厅接口的 <code>lang</code> 参数现在是否生效</li></ol></section>
+
+<section><h2>不做</h2><ul><li>总控语言包管理页面</li><li>运营管理后台 / 总控界面本身的多语言</li><li>图片里的文字</li><li>游戏名、厂商名翻译</li><li>右到左语言排版</li><li>多皮肤</li></ul></section>
+
+<section><h2>验收</h2><div class="tw"><table><tr><th>#</th><th>操作</th><th>预期</th></tr>
+<tr><td>A1</td><td>菲站切到他加禄语，逐页看（PC + H5）</td><td>界面文案全部是他加禄语（游戏名、厂商名、图片文字除外）</td></tr>
+<tr><td>A2</td><td>测试环境删掉他加禄语包里一条 key</td><td>该处显示英文，不显示 key 名或空白</td></tr>
+<tr><td>A3</td><td>站点开启一个前端没有语言包的语言</td><td>前台按英文显示，不报错</td></tr>
+<tr><td>A4</td><td>新增一个测试语言包、发版、站点开启</td><td>弹窗出现该语言，切换生效、刷新保持；页面代码没改</td></tr>
+<tr><td>A5</td><td>打开语言弹窗</td><td>只列站点开启的语言，显示语言名</td></tr>
+<tr><td>A6</td><td>后台活动只填英文，玩家用他加禄语看</td><td>显示英文内容</td></tr>
+<tr><td>A7</td><td>后台活动补填他加禄语</td><td>他加禄语玩家看到他加禄语，英文玩家看到英文</td></tr>
+<tr><td>A8</td><td>上线后看现有活动、公告</td><td>原内容正常显示，不用重填</td></tr>
+<tr><td>A9</td><td>看金额、日期</td><td>币种、千分位、小数位按站点；日期按当前语言；没有写死的 $ 或美元数字</td></tr>
+</table></div></section>
+</div></body></html>

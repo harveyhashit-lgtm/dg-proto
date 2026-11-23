@@ -13,7 +13,7 @@ td:first-child{white-space:nowrap;color:var(--muted)}
 .tw{overflow-x:auto}code{background:var(--code);border-radius:4px;padding:0 4px;font-size:13px}
 ul,ol{margin:4px 0;padding-left:20px}.tag{display:inline-block;font-size:12px;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:0 6px;margin-left:6px}
 </style></head><body><div class="wrap">
-<h1>前台多语言（语言包）</h1><div class="meta">R-FE-012 · 需求文档 v0.3 · 前台-通用 / 运营管理后台-内容配置 · 产品经理 Harvey · 2026-11-23</div>
+<h1>前台多语言（语言包）</h1><div class="meta">R-FE-012 · 需求文档 v0.4 · 前台-通用 / 运营管理后台-内容配置 · 产品经理 Harvey · 2026-11-23</div>
 
 <section><h2>目标</h2>前台界面文案全部抽成语言包，一种语言一份、按 key 对应。以后新增国家语言（如孟加拉语）只加一份语言包、站点开启即可，<b>不改页面代码</b>。本期首批：英文 + 他加禄语（补全）。</section>
 
@@ -39,36 +39,39 @@ ul,ol{margin:4px 0;padding-left:20px}.tag{display:inline-block;font-size:12px;bo
 <tr><td>他加禄语</td><td>补全全部 key（翻译用 AI 出，写进语言包文件）</td></tr>
 </table></div></section>
 
-<section><h2>二、后台配置内容多语言<span class="tag">后端 + 运营管理后台</span></h2><div class="tw"><table>
-<tr><td>涉及内容</td><td>活动标题、活动说明 / 规则、活动按钮文字、Banner 标题文字、公告、站内信、转盘格子名称（完整字段清单请开发列出）</td></tr>
-<tr><td>编辑方式</td><td>这些文本字段按<b>站点开启的语言</b>各填一份（如菲站：English / Tagalog 两个输入框或页签）；后台界面本身仍是中文</td></tr>
-<tr><td>必填</td><td>站点默认语言那份必填，其它语言选填</td></tr>
-<tr><td>前台显示</td><td>按玩家当前语言返回 / 显示；该语言没填 → 显示站点默认语言那份</td></tr>
-<tr><td>存量数据</td><td>上线时现有内容全部作为站点默认语言（菲站 = 英文）那一份，运营不用重填</td></tr>
-<tr><td>新开语言</td><td>已有内容该语言为空，前台回退默认语言，运营按需补填</td></tr>
-<tr><td>图片</td><td>不分语言</td></tr>
+<section><h2>二、后台配置内容多语言（文字 + 图片）<span class="tag">后端 + 运营管理后台</span></h2><div class="meta">v0.4 新增：后台配置的展示图片也按语言各传一份</div><div class="tw"><table>
+<tr><td>涉及文字</td><td>活动标题、活动说明 / 规则、活动按钮文字、Banner 标题文字、公告、站内信、转盘格子名称（完整字段清单请开发列出）</td></tr>
+<tr><td>涉及图片 <span class="tag">v0.4</span></td><td>后台配置、前台展示的各种图片：Banner 图、活动封面 / 详情图、弹窗图、公告 / 站内信里的图、转盘等活动素材图（完整清单请开发列出）；PC、H5 分开传的图，每种语言各传一套</td></tr>
+<tr><td>编辑方式</td><td>这些文字和图片按<b>站点开启的语言</b>各填 / 各传一份（如菲站：English / Tagalog 两个输入框或页签）；后台界面本身仍是中文</td></tr>
+<tr><td>必填</td><td>站点默认语言那份必填 / 必传，其它语言选填</td></tr>
+<tr><td>前台显示</td><td>按玩家当前语言返回 / 显示；该语言没填 / 没传 → 显示站点默认语言那份（文字、图片各自回退）</td></tr>
+<tr><td>存量数据</td><td>上线时现有文字和图片全部作为站点默认语言（菲站 = 英文）那一份，运营不用重填 / 重传</td></tr>
+<tr><td>新开语言</td><td>已有内容该语言为空，前台回退默认语言，运营按需补填 / 补传</td></tr>
 </table></div></section>
 
 <section><h2>新增一种语言的流程（上线后）</h2><ol>
-<li>新增语言包文件（AI 翻译），用脚本检查缺失 key 并补齐</li><li>前端发版</li><li>站点配置开启该语言，需要的话设为默认语言</li><li>运营在后台给活动、公告等补填该语言内容（不填显示默认语言）</li><li>前台语言弹窗自动出现新语言</li></ol></section>
+<li>新增语言包文件（AI 翻译），用脚本检查缺失 key 并补齐</li><li>前端发版</li><li>站点配置开启该语言，需要的话设为默认语言</li><li>运营在后台给活动、公告、Banner 等补填该语言文字、补传该语言图片（不补显示默认语言）</li><li>前台语言弹窗自动出现新语言</li></ol></section>
 
 <section><h2>请开发确认</h2><ol>
 <li>写死文案的准确清单和数量，抽取改造工作量</li>
 <li>后端返回的报错 / 提示怎么多语言：返回错误码由前端按语言显示，还是后端按请求语言返回</li>
-<li>后台需要多语言的文本字段完整清单；短信、邮件模板能否按语言分</li>
-<li>游戏大厅接口的 <code>lang</code> 参数现在是否生效</li></ol></section>
+<li>后台需要多语言的文本字段和图片完整清单；短信、邮件模板能否按语言分</li>
+<li>游戏大厅接口的 <code>lang</code> 参数现在是否生效</li>
+<li>前端代码里自带的、带文字的图片（如下载落地页图）有哪些，是否也按语言各放一套</li></ol></section>
 
-<section><h2>不做</h2><ul><li>总控语言包管理页面</li><li>运营管理后台 / 总控界面本身的多语言</li><li>图片里的文字</li><li>游戏名、厂商名翻译</li><li>右到左语言排版</li><li>多皮肤</li></ul></section>
+<section><h2>不做</h2><ul><li>总控语言包管理页面</li><li>运营管理后台 / 总控界面本身的多语言</li><li>游戏名、厂商名翻译</li><li>右到左语言排版</li><li>多皮肤</li></ul></section>
 
 <section><h2>验收</h2><div class="tw"><table><tr><th>#</th><th>操作</th><th>预期</th></tr>
-<tr><td>A1</td><td>菲站切到他加禄语，逐页看（PC + H5）</td><td>界面文案全部是他加禄语（游戏名、厂商名、图片文字除外）</td></tr>
+<tr><td>A1</td><td>菲站切到他加禄语，逐页看（PC + H5）</td><td>界面文案全部是他加禄语（游戏名、厂商名、游戏图标除外）</td></tr>
 <tr><td>A2</td><td>测试环境删掉他加禄语包里一条 key</td><td>该处显示英文，不显示 key 名或空白</td></tr>
 <tr><td>A3</td><td>站点开启一个前端没有语言包的语言</td><td>前台按英文显示，不报错</td></tr>
 <tr><td>A4</td><td>新增一个测试语言包、发版、站点开启</td><td>弹窗出现该语言，切换生效、刷新保持；页面代码没改</td></tr>
 <tr><td>A5</td><td>打开语言弹窗</td><td>只列站点开启的语言，显示语言名</td></tr>
 <tr><td>A6</td><td>后台活动只填英文，玩家用他加禄语看</td><td>显示英文内容</td></tr>
 <tr><td>A7</td><td>后台活动补填他加禄语</td><td>他加禄语玩家看到他加禄语，英文玩家看到英文</td></tr>
-<tr><td>A8</td><td>上线后看现有活动、公告</td><td>原内容正常显示，不用重填</td></tr>
+<tr><td>A8</td><td>上线后看现有活动、公告、Banner</td><td>原文字和图片正常显示，不用重填 / 重传</td></tr>
 <tr><td>A9</td><td>看金额、日期</td><td>币种、千分位、小数位按站点；日期按当前语言；没有写死的 $ 或美元数字</td></tr>
+<tr><td>A10</td><td>后台 Banner / 活动图只传英文图，玩家用他加禄语看</td><td>显示英文那张图</td></tr>
+<tr><td>A11</td><td>补传他加禄语图（PC、H5 各一张）</td><td>他加禄语玩家看到他加禄语图，英文玩家看到英文图；PC、H5 各显示对应那张</td></tr>
 </table></div></section>
 </div></body></html>
