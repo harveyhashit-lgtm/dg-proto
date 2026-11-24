@@ -627,6 +627,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 
 
+
             <div class="row"><label><i>*</i>客户端名称</label><div><div class="inp" id="w-cname"><input id="f-cname" value="Monthly Bonus" maxlength="128" placeholder="玩家端展示名称"></div></div></div>
             <div class="row"><label><i>*</i>活动标题</label><div><div class="inp" id="w-title"><input id="f-title" value="Monthly Bonus" maxlength="128" placeholder="玩家端活动标题，例如 Daily Rebate 2%"><em class="wl" id="c-title"></em></div></div></div>
             <div class="row"><label>活动文案</label><div><div class="content-editor"><div class="rte-tb"><div class="r"><span class="dd">正文</span><i class="sep"></i><span>❝</span><i class="sep"></i><span class="b">B</span><span class="u">U</span><span class="it">I</span><span class="dd">···</span><i class="sep"></i><span class="dd">A</span><span class="dd">▧</span><i class="sep"></i><span class="dd">默认字号</span><span class="dd">默认字体</span><span class="dd">默认行高</span><i class="sep"></i><span>☰</span><span>⒈</span></div><div class="r"><span>☑</span><i class="sep"></i><span class="dd">≡</span><span class="dd">⇥</span><i class="sep"></i><span>🔗</span><span class="dd">🖼</span><span>⎯</span><i class="sep"></i><span>↶</span><span>↷</span></div></div><div class="content-body" id="f-desc" contenteditable="true"><p>Claim a random bonus on every claim day of the month!</p></div></div><p class="hint">玩家端活动页展示的正文，留空则不展示文案区。当前 <span id="b-desc">55</span> / 65536 字节。</p></div></div>
@@ -640,6 +641,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 <div class="row"><label>PC 宽卡图</label><div><div class="cover-slot" data-cover="promo"><div class="cover-box cover-box--pc cover-box--empty" data-cbox>未上传</div><div class="cover-actions"><button class="btn" type="button" data-up="promo">上传图片</button><button class="btn" type="button" data-clr="promo">清除</button></div><p class="hint">只给 PC 两列宽卡用。最长边 1680px、≤400 KB。H5 请用下面单独的一张，不要用这张顶。</p><input class="cover-file" type="file" accept="image/jpeg,image/png,image/webp" data-file="promo" hidden></div></div></div>
 <div class="row"><label>H5 宽卡图</label><div><div class="cover-slot" data-cover="promoH5"><div class="cover-box cover-box--pc cover-box--empty" data-cbox>未上传</div><div class="cover-actions"><button class="btn" type="button" data-up="promoH5">上传图片</button><button class="btn" type="button" data-clr="promoH5">清除</button></div><p class="hint">只给手机单列宽卡用，和 PC 宽卡不是同一张图。最长边 1280px、≤400 KB。未上传时玩家端 H5 宽卡为空。</p><input class="cover-file" type="file" accept="image/jpeg,image/png,image/webp" data-file="promoH5" hidden></div></div></div>
             </div>
+          
           
           
           
@@ -818,12 +820,12 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>A4</td><td>11-28，近 30 天充值 300、打码 1,200 的会员点 Claim</td><td>弹出「You got X」，X 在 5–100；红利钱包 +X；活动订单一条「已到账」；打码 +3X</td></tr>
       <tr><td>A5</td><td>同一会员当天再打开</td><td>按钮「Claimed today」，不能再领</td></tr>
       <tr><td>A6</td><td>近 30 天只充值 60 的会员</td><td>按钮「Deposit to unlock」，提示还差 40；点了打开充值弹窗</td></tr>
-      <tr><td>A6b</td><td>近 30 天充值 300、打码只有 260 的会员</td><td>按钮「Play to unlock」，提示还差 240；点了进游戏大厅</td></tr>
-      <tr><td>A7</td><td>当天全站已领合计达到 20,000</td><td>其它会员按钮「All claimed today」；最后一笔按剩余额度发放</td></tr>
-      <tr><td>A8</td><td>11-30（当月最后一天）</td><td>勾了「每月最后一天」可以领取；当月选了 31 日的不开放</td></tr>
-      <tr><td>A9</td><td>测试环境模拟领取 10,000 次</td><td>平均值与期望奖金偏差 ≤ 5%，没有一笔超出奖励范围</td></tr>
-      <tr><td>A10</td><td>抓前台接口</td><td>没有奖励范围、期望奖金、单日上限</td></tr>
-      <tr><td>A11</td><td>勾「同设备只能参加一次」，同设备两个账号在同一领取日领取</td><td>第二个账号不能领</td></tr>
+      <tr><td>A7</td><td>近 30 天充值 300、打码只有 260 的会员</td><td>按钮「Play to unlock」，提示还差 240；点了进游戏大厅</td></tr>
+      <tr><td>A8</td><td>当天全站已领合计达到 20,000</td><td>其它会员按钮「All claimed today」；最后一笔按剩余额度发放</td></tr>
+      <tr><td>A9</td><td>11-30（当月最后一天）</td><td>勾了「每月最后一天」可以领取；当月选了 31 日的不开放</td></tr>
+      <tr><td>A10</td><td>测试环境模拟领取 10,000 次</td><td>平均值与期望奖金偏差 ≤ 5%，没有一笔超出奖励范围</td></tr>
+      <tr><td>A11</td><td>抓前台接口</td><td>没有奖励范围、期望奖金、单日上限</td></tr>
+      <tr><td>A12</td><td>勾「同设备只能参加一次」，同设备两个账号在同一领取日领取</td><td>第二个账号不能领</td></tr>
     </table></div>
     <h3>开发测试重点</h3>
     <div class="dh-prose"><ul>
