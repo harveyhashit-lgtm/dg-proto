@@ -565,6 +565,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .fx.h5 .is-mb footer{flex:0 0 auto}
 .fx.h5 .is-mb footer p{display:block;font-size:12px;margin-bottom:10px}
 .fx .bcard em+small{margin-top:2px}
+.adm #w-wd,.adm #w-dep,.adm #w-bet{width:110px}
 </style>
 </head>
 <body>
@@ -585,7 +586,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   <div class="ctl">
     <label>页面 <span class="seg" id="viewSeg"><button type="button" data-v="adm">后台 · 活动配置</button><button type="button" class="on" data-v="pc">前台 · PC</button><button type="button" data-v="h5">前台 · H5</button></span></label>
     <label>演示日期 <select id="selDay"><option value="2026-11-24">11-24（不是领取日）</option><option value="2026-11-28" selected>11-28（领取日）</option><option value="2026-11-30">11-30（每月最后一天）</option></select></label>
-    <label>演示玩家 <select id="selUser"><option value="ok">近 30 天已充值 300</option><option value="no">近 30 天只充值 60</option></select></label>
+    <label>演示玩家 <select id="selUser"><option value="ok">近 30 天充值 300、打码 1,200</option><option value="no">近 30 天充值 60、打码 1,200</option><option value="bet">近 30 天充值 300、打码 260</option></select></label>
     <label><input type="checkbox" id="ckCap"> 当天发放已达上限</label>
     <button class="doc-btn" id="resetAll" type="button">重置演示</button>
     <label><input type="checkbox" id="mkT" checked> 显示改动标注</label>
@@ -625,6 +626,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 
 
+
             <div class="row"><label><i>*</i>客户端名称</label><div><div class="inp" id="w-cname"><input id="f-cname" value="Monthly Bonus" maxlength="128" placeholder="玩家端展示名称"></div></div></div>
             <div class="row"><label><i>*</i>活动标题</label><div><div class="inp" id="w-title"><input id="f-title" value="Monthly Bonus" maxlength="128" placeholder="玩家端活动标题，例如 Daily Rebate 2%"><em class="wl" id="c-title"></em></div></div></div>
             <div class="row"><label>活动文案</label><div><div class="content-editor"><div class="rte-tb"><div class="r"><span class="dd">正文</span><i class="sep"></i><span>❝</span><i class="sep"></i><span class="b">B</span><span class="u">U</span><span class="it">I</span><span class="dd">···</span><i class="sep"></i><span class="dd">A</span><span class="dd">▧</span><i class="sep"></i><span class="dd">默认字号</span><span class="dd">默认字体</span><span class="dd">默认行高</span><i class="sep"></i><span>☰</span><span>⒈</span></div><div class="r"><span>☑</span><i class="sep"></i><span class="dd">≡</span><span class="dd">⇥</span><i class="sep"></i><span>🔗</span><span class="dd">🖼</span><span>⎯</span><i class="sep"></i><span>↶</span><span>↷</span></div></div><div class="content-body" id="f-desc" contenteditable="true"><p>Claim a random bonus on every claim day of the month!</p></div></div><p class="hint">玩家端活动页展示的正文，留空则不展示文案区。当前 <span id="b-desc">55</span> / 65536 字节。</p></div></div>
@@ -642,12 +644,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
           
           
           
+          
           </div>
           <div class="dpane on" id="d-cfg">
             <div class="row"><label><i>*</i>后台名称</label><div><div class="inp" id="w-name"><input id="f-name" maxlength="128" placeholder="运营列表里看到的名称"></div></div></div>
             <div class="row"><label><i>*</i>活动类型</label><div><div class="inp dis sel"><select disabled><option>每月彩金</option></select></div></div></div>
             <div class="chg-a mb-new">
-              <span class="mk tip" style="right:10px;top:-9px" title="原：无。现：「每月彩金」专有配置：领取日、前台展示范围、奖励范围（实际派送）、期望奖金（平均金额）、参与门槛、单日发放上限">每月彩金专有配置</span>
+              <span class="mk tip" style="right:10px;top:-9px" title="原：无。现：「每月彩金」专有配置：领取日、前台展示范围、奖励范围（实际派送）、期望奖金（平均金额）、参与门槛（累计充值、累计打码）、单日发放上限">每月彩金专有配置</span>
               <div class="row"><label><i>*</i>领取日</label><div>
                 <div class="days" id="f-days"></div>
                 <label class="chk" style="margin-top:8px"><input type="checkbox" id="f-last">每月最后一天</label>
@@ -657,7 +660,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
               <div class="row"><label><i>*</i>前台展示范围</label><div><div class="mrange"><div class="inp" id="w-dmin"><input id="f-dmin" inputmode="decimal" placeholder="最小金额"></div><span>-</span><div class="inp" id="w-dmax"><input id="f-dmax" inputmode="decimal" placeholder="最大金额"></div></div><p class="hint">前台卡片和详情显示的金额范围，只用于展示，不参与派送。</p><div class="errmsg" id="e-d" hidden></div></div></div>
               <div class="row"><label><i>*</i>奖励范围</label><div><div class="mrange"><div class="inp" id="w-amin"><input id="f-amin" inputmode="decimal" placeholder="最小金额"></div><span>-</span><div class="inp" id="w-amax"><input id="f-amax" inputmode="decimal" placeholder="最大金额"></div></div><p class="hint">实际派送的最小、最大金额，每次领取在这个范围内随机，保留 2 位小数。不下发给前台。</p><div class="errmsg" id="e-a" hidden></div></div></div>
               <div class="row"><label><i>*</i>期望奖金（平均金额）</label><div><div class="inp num2" id="w-avg"><input id="f-avg" inputmode="decimal"></div><p class="hint">整体派送金额围绕这个值上下浮动，长期平均每次派送这么多；须在奖励范围的最小和最大之间。</p><div class="errmsg" id="e-avg" hidden></div></div></div>
-              <div class="row"><label>参与门槛</label><div><div class="inl wrap">领取日前<div class="inp num2" id="w-wd"><input id="f-wd" inputmode="numeric"><em class="wl">天</em></div>内累计充值 ≥<div class="inp num2" id="w-dep"><input id="f-dep" inputmode="decimal"></div></div><p class="hint">按到账的充值订单统计（含领取日当天领取前的充值），人工加款、活动奖励不算。金额填 0 表示不要求。</p><div class="errmsg" id="e-th" hidden></div></div></div>
+              <div class="row"><label>参与门槛</label><div><div class="inl wrap">领取日前<div class="inp num2" id="w-wd"><input id="f-wd" inputmode="numeric"><em class="wl">天</em></div>内累计充值 ≥<div class="inp num2" id="w-dep"><input id="f-dep" inputmode="decimal"></div>累计打码 ≥<div class="inp num2" id="w-bet"><input id="f-bet" inputmode="decimal"></div></div><p class="hint">两项都要满足。充值按到账的充值订单统计，人工加款、活动奖励不算；打码按已结算的有效投注统计。都含领取日当天领取前的数据。填 0 表示这项不要求。</p><div class="errmsg" id="e-th" hidden></div></div></div>
               <div class="row"><label>单日发放上限</label><div><div class="inp num2" id="w-cap"><input id="f-cap" inputmode="decimal"></div><p class="hint">一个领取日所有会员领取的金额合计达到上限后，当天停止领取。0 表示不限。</p><div class="errmsg" id="e-cap" hidden></div></div></div>
             </div>
             <div class="row"><label>活动时间</label><div class="dt2"><div class="inp dt"><span class="ico">◷</span><input placeholder="开始，空 = 不限" readonly></div><span>至</span><div class="inp dt"><span class="ico">◷</span><input placeholder="结束，空 = 不限" readonly></div></div></div>
@@ -725,16 +728,17 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <h2>改什么</h2>
     <div class="dh-prose"><p>新增活动类型「每月彩金」：运营选每月的几个日子作为领取日，会员在领取日当天到 Bonus 页点领取，得到一笔随机金额的彩金（进红利钱包、按流水倍数加打码）。</p><ul>
       <li>前台展示范围和实际派送的奖励范围分开配；整体派送金额围绕「期望奖金（平均金额）」上下浮动。</li>
-      <li>可设参与门槛（领取日前 N 天内累计充值 ≥ X）和单日发放上限。</li>
+      <li>可设参与门槛（领取日前 N 天内累计充值 ≥ X、累计打码 ≥ Y）和单日发放上限。</li>
       <li>活动的新建、开关、排序、文案图片、账号去重等沿用现有活动配置。</li></ul></div>
 
     <h3>领取流程</h3>
     <div class="dh-flow">
-      <div class="flow-diagram"><span class="flow-step">会员打开 Bonus 页 / 每月彩金详情</span><span class="flow-arrow">→</span><span class="flow-step">今天是领取日？</span><span class="flow-arrow">→</span><span class="flow-step">今天领过？</span><span class="flow-arrow">→</span><span class="flow-step">满足参与门槛？<span class="sub">VIP、账号去重、近 N 天充值</span></span><span class="flow-arrow">→</span><span class="flow-step">当天发放未达上限？</span><span class="flow-arrow">→</span><span class="flow-step">点 Claim</span></div>
+      <div class="flow-diagram"><span class="flow-step">会员打开 Bonus 页 / 每月彩金详情</span><span class="flow-arrow">→</span><span class="flow-step">今天是领取日？</span><span class="flow-arrow">→</span><span class="flow-step">今天领过？</span><span class="flow-arrow">→</span><span class="flow-step">满足参与门槛？<span class="sub">VIP、账号去重、近 N 天充值和打码</span></span><span class="flow-arrow">→</span><span class="flow-step">当天发放未达上限？</span><span class="flow-arrow">→</span><span class="flow-step">点 Claim</span></div>
       <div class="flow-branches">
         <div class="flow-branch"><span>不是领取日</span><span class="arr">→</span><span class="result neutral">按钮不可点，显示下一个领取日</span></div>
         <div class="flow-branch"><span>今天已领</span><span class="arr">→</span><span class="result neutral">按钮「Claimed today」，显示下一个领取日</span></div>
         <div class="flow-branch"><span>未达充值门槛</span><span class="arr">→</span><span class="result bad">按钮「Deposit to unlock」，点了打开充值弹窗</span></div>
+        <div class="flow-branch"><span>充值够、打码不够</span><span class="arr">→</span><span class="result bad">按钮「Play to unlock」，点了进游戏大厅</span></div>
         <div class="flow-branch"><span>当天发放已达上限</span><span class="arr">→</span><span class="result bad">按钮不可点「All claimed today」，显示下一个领取日</span></div>
         <div class="flow-branch"><span>全部满足</span><span class="arr">→</span><span class="result good">后端随机金额 → 立即到账红利钱包 + 加打码，弹出「You got X」</span></div>
       </div>
@@ -748,7 +752,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td><b>前台展示范围</b></td><td>必填。最小 ≤ 最大，大于 0，最多 2 位小数。只用于前台展示</td><td>10 – 8,888</td></tr>
       <tr><td><b>奖励范围</b></td><td>必填。实际派送的最小、最大金额，0 &lt; 最小 ≤ 最大，最多 2 位小数</td><td>5 – 100</td></tr>
       <tr><td><b>期望奖金（平均金额）</b></td><td>必填。奖励范围最小 ≤ 期望 ≤ 最大；整体派送金额围绕它上下浮动</td><td>15</td></tr>
-      <tr><td><b>参与门槛</b></td><td>领取日前 N 天（1–90）内累计到账充值 ≥ X；X 填 0 不要求。含领取日当天领取前的充值；人工加款、活动奖励不算</td><td>30 天、100</td></tr>
+      <tr><td><b>参与门槛</b></td><td>领取日前 N 天（1–90）内：累计到账充值 ≥ X，且累计打码 ≥ Y，两项都要满足；哪项填 0 就不要求哪项。充值不含人工加款、活动奖励；打码按已结算有效投注。都含领取日当天领取前的数据</td><td>30 天、充值 100、打码 500</td></tr>
       <tr><td><b>单日发放上限</b></td><td>一个领取日所有会员领取合计达到上限后当天停止领取；0 不限。当前一笔会超出上限时，这笔金额按剩余额度发放（剩余为 0 才停止）</td><td>20,000</td></tr>
       <tr><td><b>派发方式</b></td><td>固定手动领取（玩家点 Claim）</td><td>—</td></tr>
       <tr><td><b>流水基数 / 领取有效天数</b></td><td>流水基数固定赠送金额；点领取即到账，没有待领取订单，有效天数不适用</td><td>—</td></tr>
@@ -759,7 +763,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>前台展示范围最小大于最大</td><td>提示「前台展示范围最小不能大于最大」</td></tr>
       <tr><td>奖励范围最小为 0 或大于最大</td><td>提示「奖励范围须大于 0，且最小不大于最大」</td></tr>
       <tr><td>期望奖金不在奖励范围的最小与最大之间</td><td>提示「期望奖金须在奖励范围的最小和最大之间」</td></tr>
-      <tr><td>门槛天数不在 1–90，或金额为负</td><td>提示「参与门槛天数须为 1–90，金额须为非负数」</td></tr>
+      <tr><td>门槛天数不在 1–90，或充值 / 打码为负</td><td>提示「参与门槛天数须为 1–90，充值和打码金额须为非负数」</td></tr>
       <tr><td>保存成功</td><td>提示「保存成功」；改动从保存后生效，已领取的订单不变</td></tr>
     </table></div>
 
@@ -781,18 +785,19 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td><b>不是领取日</b></td><td>View</td><td>按钮不可点「Next claim: Nov 28」</td></tr>
       <tr><td><b>今天已领</b></td><td>View</td><td>按钮不可点「Claimed today」，提示下一个领取日</td></tr>
       <tr><td><b>未达充值门槛</b></td><td>View</td><td>按钮「Deposit to unlock」，上方提示「Deposit 40 more to unlock」，点了打开充值弹窗</td></tr>
+      <tr><td><b>充值够、打码不够</b></td><td>View</td><td>按钮「Play to unlock」，上方提示「Bet 240 more to unlock」，点了进游戏大厅</td></tr>
       <tr><td><b>当天发放已达上限</b></td><td>View</td><td>按钮不可点「All claimed today」，提示下一个领取日</td></tr>
     </table></div>
     <div class="dh-prose"><ul>
       <li>卡片：标题、展示金额「10 – 8,888」、领取日「Every 8th, 18th, 28th」（勾了每月最后一天时加「& last day」）。</li>
-      <li>详情弹窗：顶图、展示金额、本月领取日日历（领取日高亮、今天加框、已领打勾）、参与门槛进度（有门槛时显示「Deposit in last 30 days: 60 / 100」）、活动规则。</li>
+      <li>详情弹窗：顶图、展示金额、本月领取日日历（领取日高亮、今天加框、已领打勾）、参与门槛进度（配了哪项显示哪项：「Deposit in last 30 days 60 / 100」「Bet in last 30 days 260 / 500」）、活动规则。</li>
     </ul></div>
 
     <h3>接口</h3>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>接口</th><th>说明</th></tr>
-      <tr><td>后台活动保存 / 查询</td><td><code>type = monthly_bonus</code>，<code>config { claimDays:[8,18,28], lastDayOfMonth, displayMin, displayMax, actualMin, actualMax, expectedAvg, depositWindowDays, depositMin, dailyCap }</code></td></tr>
-      <tr><td>前台活动列表 / 详情</td><td>只下发 <code>displayMin, displayMax, claimDays, lastDayOfMonth, nextClaimDate, claimState: available | claimed | not_claim_day | not_eligible | cap_reached</code>，有门槛时加 <code>depositWindowDays, depositMin, depositTotal</code></td></tr>
+      <tr><td>后台活动保存 / 查询</td><td><code>type = monthly_bonus</code>，<code>config { claimDays:[8,18,28], lastDayOfMonth, displayMin, displayMax, actualMin, actualMax, expectedAvg, depositWindowDays, depositMin, betMin, dailyCap }</code></td></tr>
+      <tr><td>前台活动列表 / 详情</td><td>只下发 <code>displayMin, displayMax, claimDays, lastDayOfMonth, nextClaimDate, claimState: available | claimed | not_claim_day | not_eligible | need_bet | cap_reached</code>，有门槛时加 <code>depositWindowDays, depositMin, depositTotal, betMin, betTotal</code></td></tr>
       <tr><td>前台领取</td><td>沿用活动领取接口，返回 <code>amount</code>；服务端再校验领取日、次数、资格和单日上限</td></tr>
     </table></div>
 
@@ -804,15 +809,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
   <div class="dh-panel" data-panel="qa"><div class="req-block">
     <h2>验收</h2>
-    <div class="dh-prose"><p>前置：领取日 8、18、28 + 每月最后一天；前台展示范围 10–8,888；奖励范围 5–100；期望奖金 15；门槛 30 天 ≥ 100；单日上限 20,000；流水倍数 3。</p></div>
+    <div class="dh-prose"><p>前置：领取日 8、18、28 + 每月最后一天；前台展示范围 10–8,888；奖励范围 5–100；期望奖金 15；门槛 30 天内充值 ≥ 100、打码 ≥ 500；单日上限 20,000；流水倍数 3。</p></div>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>编号</th><th>前置条件与操作</th><th>期望结果</th></tr>
       <tr><td>A1</td><td>新建活动选「每月彩金」</td><td>活动配置页出现领取日、前台展示范围、奖励范围、期望奖金、参与门槛、单日发放上限；派发方式固定手动领取</td></tr>
       <tr><td>A2</td><td>不选领取日保存 / 期望奖金填 200</td><td>分别提示「请至少选择 1 个领取日」「期望奖金须在奖励范围的最小和最大之间」，不能保存</td></tr>
       <tr><td>A3</td><td>11-24 打开 Bonus</td><td>卡片显示「10 – 8,888」「Every 8th, 18th, 28th & last day」，按钮 View；详情按钮不可点「Next claim: Nov 28」</td></tr>
-      <tr><td>A4</td><td>11-28，近 30 天充值 300 的会员点 Claim</td><td>弹出「You got X」，X 在 5–100；红利钱包 +X；活动订单一条「已到账」；打码 +3X</td></tr>
+      <tr><td>A4</td><td>11-28，近 30 天充值 300、打码 1,200 的会员点 Claim</td><td>弹出「You got X」，X 在 5–100；红利钱包 +X；活动订单一条「已到账」；打码 +3X</td></tr>
       <tr><td>A5</td><td>同一会员当天再打开</td><td>按钮「Claimed today」，不能再领</td></tr>
       <tr><td>A6</td><td>近 30 天只充值 60 的会员</td><td>按钮「Deposit to unlock」，提示还差 40；点了打开充值弹窗</td></tr>
+      <tr><td>A6b</td><td>近 30 天充值 300、打码只有 260 的会员</td><td>按钮「Play to unlock」，提示还差 240；点了进游戏大厅</td></tr>
       <tr><td>A7</td><td>当天全站已领合计达到 20,000</td><td>其它会员按钮「All claimed today」；最后一笔按剩余额度发放</td></tr>
       <tr><td>A8</td><td>11-30（当月最后一天）</td><td>勾了「每月最后一天」可以领取；当月选了 31 日的不开放</td></tr>
       <tr><td>A9</td><td>测试环境模拟领取 10,000 次</td><td>平均值与期望奖金偏差 ≤ 5%，没有一笔超出奖励范围</td></tr>
@@ -841,7 +847,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   tb.forEach(function(t){t.addEventListener('click',function(){var n=t.getAttribute('data-tab');tb.forEach(function(x){x.classList.toggle('active',x===t);});document.querySelectorAll('.dh-panel').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-panel')===n);});});});
   $('mkT').addEventListener('change',function(){document.body.classList.toggle('nomk',!this.checked);});
 
-  var DEF={name:'每月彩金',cname:'Monthly Bonus',days:[8,18,28],last:true,dmin:10,dmax:8888,amin:5,amax:100,avg:15,wd:30,dep:100,cap:20000,wm:3};
+  var DEF={name:'每月彩金',cname:'Monthly Bonus',days:[8,18,28],last:true,dmin:10,dmax:8888,amin:5,amax:100,avg:15,wd:30,dep:100,bet:500,cap:20000,wm:3};
   var cfg,st,view='pc',SYM='₱';
   function clone(o){return JSON.parse(JSON.stringify(o));}
   function money(n){return SYM+' '+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
@@ -854,8 +860,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   function dayText(){var a=cfg.days.slice().sort(function(a,b){return a-b;}).map(ord);var t=a.length?'Every '+a.join(', '):'';if(cfg.last)t+=(t?' & ':'Every ')+'last day';return t;}
   function today(){return $('selDay').value;}
   function tp(){var p=today().split('-').map(Number);return {y:p[0],m:p[1]-1,d:p[2]};}
-  function depTotal(){return $('selUser').value==='ok'?300:60;}
-  function state(){var t=tp();if(!isClaimDay(t.y,t.m,t.d))return 'not_claim_day';if(st.claimed[today()])return 'claimed';if(cfg.dep>0&&depTotal()<cfg.dep)return 'not_eligible';if($('ckCap').checked)return 'cap_reached';return 'available';}
+  function depTotal(){return $('selUser').value==='no'?60:300;}
+  function betTotal(){return $('selUser').value==='bet'?260:1200;}
+  function state(){var t=tp();if(!isClaimDay(t.y,t.m,t.d))return 'not_claim_day';if(st.claimed[today()])return 'claimed';if(cfg.dep>0&&depTotal()<cfg.dep)return 'not_eligible';if(cfg.bet>0&&betTotal()<cfg.bet)return 'need_bet';if($('ckCap').checked)return 'cap_reached';return 'available';}
   function pick(){var lo=cfg.amin,hi=cfg.amax,av=cfg.avg;if(hi===lo)return lo;var p=(hi-av)/(hi-lo),v=Math.random()<p?lo+Math.random()*(av-lo):av+Math.random()*(hi-av);return Math.round(v*100)/100;}
 
   /* ---------- 前台 ---------- */
@@ -874,12 +881,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     else if(s==='claimed'){btn='Claimed today';dis=true;tip='Next claim: '+fmtD(nx);}
     else if(s==='not_claim_day'){var n2=nextClaim(today(),true);btn='Next claim: '+fmtD(n2);dis=true;tip='Come back on the claim day';}
     else if(s==='not_eligible'){btn='Deposit to unlock';tip='Deposit '+m0(cfg.dep-depTotal())+' more to unlock';act='deposit';}
+    else if(s==='need_bet'){btn='Play to unlock';tip='Bet '+m0(cfg.bet-betTotal())+' more to unlock';act='play';}
     else {btn='All claimed today';dis=true;tip='Next claim: '+fmtD(nx);}
-    var gate=cfg.dep>0?'<div class="mb-gate"><p>Deposit in last '+cfg.wd+' days<b>'+m0(depTotal())+' / '+m0(cfg.dep)+'</b></p><div class="bar"><i style="width:'+Math.min(100,depTotal()/cfg.dep*100)+'%"></i></div></div>':'';
+    function bar(lbl,v,t){return '<p>'+lbl+' in last '+cfg.wd+' days<b>'+m0(v)+' / '+m0(t)+'</b></p><div class="bar"><i style="width:'+Math.min(100,v/t*100)+'%"></i></div>';}
+    var gate=(cfg.dep>0||cfg.bet>0)?'<div class="mb-gate">'+(cfg.dep>0?bar('Deposit',depTotal(),cfg.dep):'')+(cfg.bet>0?'<div style="height:8px"></div>'+bar('Bet',betTotal(),cfg.bet):'')+'</div>':'';
     return '<div class="promotion-deposit-dialog is-mb"><div class="deposit-dialog__header"><h2 class="header-title">'+cfg.cname+'</h2><button type="button" data-act="close">×</button></div>'+
       '<div class="deposit-dialog__scroll"><div class="deposit-dialog__hero" style="background-image:url('+HERO+')"></div><div class="mb-body">'+
       '<div class="mb-amt"><small>Random bonus</small><strong>'+m0(cfg.dmin)+' – '+m0(cfg.dmax)+'</strong><span>'+dayText()+'</span></div>'+calendar()+gate+
-      '<div class="daily-login-rules"><h3>Rules</h3><div class="activity-rules-html"><p>Claim a random bonus on every claim day ('+dayText()+').</p>'+(cfg.dep>0?'<p>Deposit at least '+m0(cfg.dep)+' in the '+cfg.wd+' days before the claim day to unlock.</p>':'')+'<p>One claim per account per claim day. Missed days cannot be claimed later.</p><p>The bonus needs '+cfg.wm+'x turnover to be withdrawn.</p></div></div></div></div>'+
+      '<div class="daily-login-rules"><h3>Rules</h3><div class="activity-rules-html"><p>Claim a random bonus on every claim day ('+dayText()+').</p>'+((cfg.dep>0||cfg.bet>0)?'<p>To unlock, in the '+cfg.wd+' days before the claim day: '+[cfg.dep>0?'deposit at least '+m0(cfg.dep):'',cfg.bet>0?'bet at least '+m0(cfg.bet):''].filter(Boolean).join(' and ')+'.</p>':'')+'<p>One claim per account per claim day. Missed days cannot be claimed later.</p><p>The bonus needs '+cfg.wm+'x turnover to be withdrawn.</p></div></div></div></div>'+
       '<footer><p>'+tip+'</p><button type="button" data-act="'+(act||'none')+'"'+(dis?' disabled':'')+'>'+btn+'</button></footer></div>';}
   function renderDlg(){document.querySelectorAll('.promotion-deposit-dialog-overlay').forEach(function(o){if(o.classList.contains('on'))o.innerHTML=dialogHTML(o.dataset.host);});}
   function toastF(host,t){var e=document.querySelector('[data-toast="'+host+'"]');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('on');},2200);}
@@ -888,25 +897,26 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     if(b.dataset.act==='close'){ov.classList.remove('on');}
     if(b.dataset.act==='claim'){var a=pick();st.claimed[today()]=a;st.bal+=a;renderAll();toastF(host,'You got '+money(a)+'!');}
     if(b.dataset.act==='deposit'){toastF(host,'打开充值弹窗（现网）');}
+    if(b.dataset.act==='play'){toastF(host,'跳到 Casino 游戏大厅（现网）');}
   });});
 
   /* ---------- 后台 ---------- */
   var dayBox=$('f-days');for(var d=1;d<=31;d++){var b=document.createElement('button');b.type='button';b.textContent=d;b.dataset.d=d;dayBox.appendChild(b);}
   dayBox.addEventListener('click',function(e){var b=e.target.closest('button');if(b)b.classList.toggle('on');});
-  function fill(){$('f-name').value=cfg.name;$('f-wm').value=cfg.wm;['dmin','dmax','amin','amax','avg','wd','dep','cap'].forEach(function(k){$('f-'+k).value=cfg[k];});
+  function fill(){$('f-name').value=cfg.name;$('f-wm').value=cfg.wm;['dmin','dmax','amin','amax','avg','wd','dep','bet','cap'].forEach(function(k){$('f-'+k).value=cfg[k];});
     dayBox.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',cfg.days.indexOf(Number(b.dataset.d))>=0);});$('f-last').checked=cfg.last;
     document.querySelectorAll('#d-cfg .errmsg').forEach(function(e){e.hidden=true;});document.querySelectorAll('#d-cfg .inp').forEach(function(e){e.classList.remove('err');});}
   function num(id){var v=$(id).value.trim();return v===''?NaN:Number(v);}
   function err(id,box,msg){$(id).textContent=msg;$(id).hidden=false;[].concat(box).forEach(function(b){$(b).classList.add('err');});}
   $('d-ok').addEventListener('click',function(){
     document.querySelectorAll('#d-cfg .errmsg').forEach(function(e){e.hidden=true;});document.querySelectorAll('#d-cfg .inp').forEach(function(e){e.classList.remove('err');});
-    var c={name:$('f-name').value.trim()||cfg.name,cname:cfg.cname,days:[].map.call(dayBox.querySelectorAll('button.on'),function(b){return Number(b.dataset.d);}),last:$('f-last').checked,dmin:num('f-dmin'),dmax:num('f-dmax'),amin:num('f-amin'),amax:num('f-amax'),avg:num('f-avg'),wd:num('f-wd'),dep:num('f-dep'),cap:num('f-cap'),wm:num('f-wm')};
+    var c={name:$('f-name').value.trim()||cfg.name,cname:cfg.cname,days:[].map.call(dayBox.querySelectorAll('button.on'),function(b){return Number(b.dataset.d);}),last:$('f-last').checked,dmin:num('f-dmin'),dmax:num('f-dmax'),amin:num('f-amin'),amax:num('f-amax'),avg:num('f-avg'),wd:num('f-wd'),dep:num('f-dep'),bet:num('f-bet'),cap:num('f-cap'),wm:num('f-wm')};
     var bad=false;
     if(!c.days.length&&!c.last){err('e-days',[],'请至少选择 1 个领取日');bad=true;}
     if(!(c.dmin>0&&c.dmax>0)||c.dmin>c.dmax){err('e-d',['w-dmin','w-dmax'],c.dmin>c.dmax?'前台展示范围最小不能大于最大':'请填写前台展示范围（大于 0）');bad=true;}
     if(!(c.amin>0)||!(c.amax>=c.amin)){err('e-a',['w-amin','w-amax'],'奖励范围须大于 0，且最小不大于最大');bad=true;}
     else if(!(c.avg>=c.amin&&c.avg<=c.amax)){err('e-avg',['w-avg'],'期望奖金须在奖励范围的最小和最大之间');bad=true;}
-    if(!(Number.isInteger(c.wd)&&c.wd>=1&&c.wd<=90)||!(c.dep>=0)){err('e-th',['w-wd','w-dep'],'参与门槛天数须为 1–90，金额须为非负数');bad=true;}
+    if(!(Number.isInteger(c.wd)&&c.wd>=1&&c.wd<=90)||!(c.dep>=0)||!(c.bet>=0)){err('e-th',['w-wd','w-dep','w-bet'],'参与门槛天数须为 1–90，充值和打码金额须为非负数');bad=true;}
     if(!(c.cap>=0)){err('e-cap',['w-cap'],'单日发放上限须为非负数，0 表示不限');bad=true;}
     if(!(c.wm>=0)){err('e-wm',['w-wm'],'活动流水倍数须为非负数字');bad=true;}
     if(bad)return;
@@ -922,8 +932,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   seg.forEach(function(b){b.addEventListener('click',function(){show(b.dataset.v);});});
   ['selDay','selUser','ckCap'].forEach(function(id){$(id).addEventListener('change',renderAll);});
   function n0(n){return Number(n).toLocaleString('en-US',{maximumFractionDigits:2});}
-  function hint(){var s={available:'可领取',claimed:'今天已领',not_claim_day:'不是领取日',not_eligible:'未达充值门槛',cap_reached:'当天发放已达上限'}[state()];
-    $('hint').textContent='当前已保存：领取日 '+(cfg.days.slice().sort(function(a,b){return a-b;}).join('、')||'—')+(cfg.last?' + 每月最后一天':'')+' · 展示 '+n0(cfg.dmin)+'–'+n0(cfg.dmax)+' · 奖励范围 '+n0(cfg.amin)+'–'+n0(cfg.amax)+' · 期望奖金 '+n0(cfg.avg)+' · 门槛 '+cfg.wd+' 天 ≥ '+n0(cfg.dep)+' · 单日上限 '+(cfg.cap?n0(cfg.cap):'不限')+' · 流水 '+cfg.wm+' 倍　｜　演示状态：'+s;}
+  function hint(){var s={available:'可领取',claimed:'今天已领',not_claim_day:'不是领取日',not_eligible:'未达充值门槛',need_bet:'未达打码门槛',cap_reached:'当天发放已达上限'}[state()];
+    $('hint').textContent='当前已保存：领取日 '+(cfg.days.slice().sort(function(a,b){return a-b;}).join('、')||'—')+(cfg.last?' + 每月最后一天':'')+' · 展示 '+n0(cfg.dmin)+'–'+n0(cfg.dmax)+' · 奖励范围 '+n0(cfg.amin)+'–'+n0(cfg.amax)+' · 期望奖金 '+n0(cfg.avg)+' · 门槛 '+cfg.wd+' 天内充值 ≥ '+n0(cfg.dep)+'、打码 ≥ '+n0(cfg.bet)+' · 单日上限 '+(cfg.cap?n0(cfg.cap):'不限')+' · 流水 '+cfg.wm+' 倍　｜　演示状态：'+s;}
   function renderAll(){$('l-name').textContent=cfg.name;$('l-cname').textContent=cfg.cname;$('l-wm').textContent=cfg.wm;renderCard();renderDlg();hint();}
   function init(){cfg=clone(DEF);st={claimed:{'2026-11-18':21.4},bal:1280.5};$('selDay').value='2026-11-28';$('selUser').value='ok';$('ckCap').checked=false;fill();document.querySelector('[data-host="pc"]').classList.add('on');renderAll();}
   $('resetAll').addEventListener('click',function(){init();show('pc');});
