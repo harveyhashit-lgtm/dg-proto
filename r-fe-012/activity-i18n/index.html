@@ -497,7 +497,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
         <div class="dtabs"><button type="button" class="on" data-d="txt">文案与图片</button><button type="button" data-d="cfg">活动配置</button></div>
         <div class="dbody">
           <div class="dpane on" id="d-txt">
-            <div class="row lbar chg-a" id="lbar"><span class="mk tip" style="right:8px;top:-9px" title="原：文案与图片只有一套，所有语言的玩家看到的都一样。现：按站点开启的语言（总控「站点管理」里该站点的支持语言）各填一套，页签顺序 = 默认语言在最前；页签上显示这套填了几项">新增：内容语言</span><label>内容语言</label><div class="lin"><span id="lg-btns"></span><span class="sp"></span><button class="btn s" type="button" id="b-copy">复制 English 内容</button></div></div>
+            <div class="row lbar chg-a" id="lbar"><span class="mk tip" style="right:8px;top:-9px" title="原：文案与图片只有一套，所有语言的玩家看到的都一样。现：按站点开启的语言（总控「站点管理」里该站点的支持语言）各填一套，页签顺序 = 默认语言在最前">新增：内容语言</span><label>内容语言</label><div class="lin"><span id="lg-btns"></span><span class="sp"></span><button class="btn s" type="button" id="b-copy">复制 English 内容</button></div></div>
             <p class="lnote" id="lnote"></p>
             <div class="row"><label id="lb-cname"><i>*</i>客户端名称</label><div><div class="inp" id="w-cname"><input id="f-cname" class="ph-fb" maxlength="128" placeholder="玩家端展示名称" data-k="cname"></div></div></div>
             <div class="row"><label id="lb-title"><i>*</i>活动标题</label><div><div class="inp" id="w-title"><input id="f-title" class="ph-fb" maxlength="128" placeholder="玩家端活动标题，例如 Daily Rebate 2%" data-k="title"><em class="wl" id="c-title">0 / 128</em></div></div></div>
@@ -578,7 +578,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
     <h3>一、运营后台：活动按语言配置</h3>
     <table class="dh-table-simple"><thead><tr><th style="width:150px">项</th><th>规则</th></tr></thead><tbody>
-      <tr><td>内容语言页签</td><td>放在「文案与图片」页最上面。页签 = 总控里该站点的<b>支持语言</b>，默认语言排第一并标「默认」；页签上显示这套填了几项（如「已填 6 / 13」）。总控给站点加一种支持语言，这里自动多一个页签；总控改了默认语言，「默认」标记和必填跟着变</td></tr>
+      <tr><td>内容语言页签</td><td>放在「文案与图片」页最上面。页签 = 总控里该站点的<b>支持语言</b>，默认语言排第一并标「默认」。总控给站点加一种支持语言，这里自动多一个页签；总控改了默认语言，「默认」标记和必填跟着变</td></tr>
       <tr><td>分语言的字段</td><td>客户端名称、活动标题、活动文案、规则文案、列表图标、详情背景图 · PC、详情背景图 · H5、PC 宽卡图、H5 宽卡图、文案设置（4 行），共 13 项，每种语言各一份</td></tr>
       <tr><td>不分语言的字段</td><td>展示位置（Promotion 宽卡）、宽卡排序，标「所有语言共用」；「活动配置」页全部字段不分语言，本期不改</td></tr>
       <tr><td>必填</td><td>默认语言那一套按现网规则：客户端名称、活动标题必填；其它语言全部选填，不显示红色 *</td></tr>
@@ -680,7 +680,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     $('b-desc').textContent=bytes($('f-desc').innerHTML);$('b-rules').textContent=bytes($('f-rules').innerHTML);
   }
   function renderBar(){
-    var d=site().def;var h='';langsOn().forEach(function(c){ensure(c);var n=cnt(c);h+='<button type="button" class="lg'+(c===cur?' on':'')+'" data-l="'+c+'">'+L(c).name+(c===d?' <span class="df">默认</span>':'')+' <span class="st'+(n==='13'?' ok':'')+'">已填 '+n+' / 13</span></button> ';});
+    var d=site().def;var h='';langsOn().forEach(function(c){ensure(c);var n=cnt(c);h+='<button type="button" class="lg'+(c===cur?' on':'')+'" data-l="'+c+'">'+L(c).name+(c===d?' <span class="df">默认</span>':'')+'</button> ';});
     $('lg-btns').innerHTML=h;
     $('lg-btns').querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){saveCur();cur=b.dataset.l;renderBar();loadCur();renderRes();});});
   }
