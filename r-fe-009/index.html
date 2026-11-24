@@ -306,7 +306,6 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .fx .is-checkin .daily-login-progress span.is-preview small{color:#fff}
 .fx .is-checkin .daily-login-level__tip{display:block;text-align:center;color:#9a9bab;font-size:10px;margin-top:8px}
 .fx .is-checkin .daily-login-bonus>p b.is-preview{background:rgba(88,244,216,.14);color:#58f4d8}
-.fx .is-checkin .daily-login-bonus article em.up{color:#4ff67d}
 .fx .is-checkin .daily-login-back{display:block;width:100%;height:32px;margin-top:8px;border:1px solid #4a4c58;border-radius:7px;background:transparent;color:#d6d8de;font-size:12px;font-weight:600;cursor:pointer}
 /* 新增：VIP 等级说明第二行 */
 .fx .is-checkin .daily-login-level__summary strong small{display:block;font-size:11px;font-weight:400;color:#b7b8c1;margin-top:3px}
@@ -419,7 +418,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 <header class="dh-header"><div class="dh-header-inner">
   <h1>VIP等级签到（按 VIP 档位，7 天一周期）</h1>
-  <div class="dh-meta"><span>模块：<b>营销活动 · 运营管理后台活动配置 + 前台 Bonus</b></span><span>适用：<b>菲律宾站、美国站（金额按站点币种）</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-21</b></span></div>
+  <div class="dh-meta"><span>模块：<b>营销活动 · 运营管理后台活动配置 + 前台 Bonus</b></span><span>适用：<b>菲律宾站、美国站（金额按站点币种）</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-24</b></span></div>
 </div></header>
 
 <nav class="dh-navbar"><div class="dh-navbar-inner dh-primary">
@@ -551,7 +550,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   </div>
 
   </div>
-  <p class="proto-tip">前台弹窗沿用现网活动详情弹窗（Bonus 页点活动卡片弹出的那个）的外壳、配色和字号，签到区块的样式写在源码里，开发可直接照搬。顶图、入口卡片图标是示意，正式图由运营在「文案与图片」里上传；各档位金额是示例，正式金额由运营填写。在「后台」改档位或金额并保存，再切到前台看效果；用「演示玩家」切换 VIP 等级，用「到第二天 / 漏签一天」看连续与断签；点弹窗进度条上的其它档位可以预览它的奖励。</p>
+  <p class="proto-tip">前台弹窗沿用现网活动详情弹窗（Bonus 页点活动卡片弹出的那个）的外壳、配色和字号，签到区块的样式写在源码里，开发可直接照搬。顶图、入口卡片图标是示意，正式图由运营在「文案与图片」里上传；各档位金额是示例，正式金额由运营填写。在「后台」改档位或金额并保存，再切到前台看效果；用「演示玩家」切换 VIP 等级，用「到第二天 / 漏签一天」看连续与断签；点弹窗进度条上的其它档位可以查看它录入的奖励。</p>
 </section>
 
 <section class="dh-primary-panel" data-primary-panel="docs">
@@ -654,7 +653,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td><b>今天可签</b></td><td>已签的天 <code>Claimed</code>（绿色带勾）；今天这行高亮，右侧 <code>Claim</code> 按钮；之后的天 <code>Upcoming</code></td><td><code>Day {d} · check in today to keep your streak</code></td><td><code>Check In</code>，和行内 <code>Claim</code> 是同一个动作</td></tr>
       <tr><td><b>提交中</b></td><td>行内按钮 <code>Claiming…</code> 置灰</td><td>不变</td><td><code>Claiming…</code> 置灰，防重复点击</td></tr>
       <tr><td><b>今天已签</b></td><td>到今天为止 <code>Claimed</code>，之后 <code>Upcoming</code></td><td>第 1–6 天：<code>Come back tomorrow for Day {d+1} · ₱ {amount}</code>；第 7 天：<code>7-day cycle completed · a new cycle starts tomorrow</code></td><td><code>Checked In</code> 置灰</td></tr>
-      <tr><td><b>预览其它档位</b>（点了进度条上别的档位）</td><td>有自己档位的玩家：每行右侧显示和自己档位同一天的差额，多的显示绿色 <code>+₱ 2.00</code>，少的显示灰色 <code>−₱ 2.00</code>，相同显示 <code>—</code>；没有 Claim 按钮。未登录或不在档位的玩家：全部 <code>Locked</code>。标题行改为 <code>VIP 4–6 rewards · ₱ 96.00 in 7 days</code> + 右侧 <code>Preview</code>；列表下面多一个按钮 <code>Back to my rewards</code>（未登录或不在档位时是 <code>Back</code>）</td><td>今天可签时改为 <code>Check in with your tier (VIP 1–3) · ₱ 6.00</code>（自己的档位和今天能领的金额）；其它状态不变</td><td>不变；点 Check In 签的是自己档位的奖励，签完列表回到自己的档位</td></tr>
+      <tr><td><b>预览其它档位</b>（点了进度条上别的档位）</td><td>每行显示那一档后台录入的金额，右侧不显示内容，没有 Claim 按钮。标题行改为 <code>VIP 4–6 rewards · ₱ 96.00 in 7 days</code> + 右侧 <code>Preview</code>；列表下面多一个按钮 <code>Back to my rewards</code>（未登录或不在档位时是 <code>Back</code>）</td><td>今天可签时改为 <code>Check in with your tier (VIP 1–3) · ₱ 6.00</code>（自己的档位和今天能领的金额）；其它状态不变</td><td>不变；点 Check In 签的是自己档位的奖励，签完列表回到自己的档位</td></tr>
       <tr><td><b>退出预览</b></td><td colspan="3">点 <code>Back to my rewards</code>、再点一次正在预览的节点、点自己档位的节点、签到成功、关闭弹窗，都回到默认显示的档位。预览只是前端切换显示，不请求接口</td></tr>
       <tr><td><b>签到成功</b></td><td colspan="3">顶部提示 <code>Checked in! +₱ {amount}</code>（用现有全局成功提示）；余额刷新；弹窗不关，切到「今天已签」状态</td></tr>
       <tr><td><b>签到失败</b></td><td colspan="3">今天已签过（并发 / 多端）：提示 <code>Already checked in today</code> 并刷新状态；VIP 不在档位、活动已关闭等：显示后端返回的提示并刷新状态</td></tr>
@@ -709,10 +708,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>A21</td><td>后台关闭活动</td><td>前台卡片消失，直接调签到接口被拒绝；重新开启后，期间没签的玩家从第 1 天开始</td></tr>
       <tr><td>A22</td><td>H5 打开签到弹窗</td><td>底部抽屉样式，底部提示行可见；各状态与 PC 一致；10 个档位时进度条不换行、不溢出</td></tr>
       <tr><td>A23</td><td>后台规则文案留空</td><td>弹窗不显示 Rules 区，Rules 页签点击无滚动异常</td></tr>
-      <tr><td>A24</td><td>VIP2 玩家（VIP1–3 档，第 1 天未签）在弹窗里点进度条上的 VIP5–7 节点</td><td>列表切到 5 / 8 / 10 / 12 / 15 / 18 / 28；每行右侧显示 +₱ 2.00、+₱ 3.00 …；标题行显示 VIP 5–7 rewards · ₱ 96.00 in 7 days 和 Preview；没有 Claim；底部提示变为 Check in with your tier (VIP 1–3) · ₱ 3.00，按钮仍是 Check In</td></tr>
+      <tr><td>A24</td><td>VIP2 玩家（VIP1–3 档，第 1 天未签）在弹窗里点进度条上的 VIP5–7 节点</td><td>列表切到 5 / 8 / 10 / 12 / 15 / 18 / 28；每行右侧不显示内容；标题行显示 VIP 5–7 rewards · ₱ 96.00 in 7 days 和 Preview；没有 Claim；底部提示变为 Check in with your tier (VIP 1–3) · ₱ 3.00，按钮仍是 Check In</td></tr>
       <tr><td>A25</td><td>A24 的状态下点 Check In</td><td>按自己的档位发 ₱3；列表回到 VIP1–3 档，第 1 天 Claimed</td></tr>
       <tr><td>A26</td><td>预览时点 Back to my rewards、或再点一次同一个节点</td><td>回到自己的档位，状态和预览前一样</td></tr>
-      <tr><td>A27</td><td>未登录、VIP 不在档位的玩家点其它档位节点</td><td>能看到各档金额，全部 Locked；底部提示和按钮不变</td></tr>
+      <tr><td>A27</td><td>未登录、VIP 不在档位的玩家点其它档位节点</td><td>能看到各档录入的金额，右侧不显示内容；底部提示和按钮不变</td></tr>
       <tr><td>A28</td><td>在「VIP 等级配置」新增一个等级后，回到活动编辑</td><td>下限、上限下拉多出这个等级，可选并能保存</td></tr>
       <tr><td>A29</td><td>清除「详情背景图 · H5」并保存</td><td>H5 签到弹窗顶图为空；PC 弹窗顶图不受影响</td></tr>
     </table></div>
@@ -780,7 +779,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     var x=info(),n=cfg.tiers.length,h='';
     if(pv!==null&&(pv>=n||pv===x.show))pv=null;
     var pvOn=pv!==null,si=pvOn?pv:x.show,t=cfg.tiers[si],own=x.ti>=0?cfg.tiers[x.ti]:null;
-    h+='<div class="promotion-deposit-dialog is-daily-login is-checkin"><span class="mk pk tip" style="left:12px;top:6px" title="原：无。现：新增签到弹窗（PC 居中、H5 底部抽屉），默认显示自己 VIP 档位，可点开其它档位查看奖励">新增页面</span>';
+    h+='<div class="promotion-deposit-dialog is-daily-login is-checkin"><span class="mk pk tip" style="left:12px;top:6px" title="原：无。现：新增签到弹窗（PC 居中、H5 底部抽屉），默认显示自己 VIP 档位，可点开其它档位查看奖励金额">新增页面</span>';
     h+='<header class="deposit-dialog__header"><p class="header-title">'+esc(cfg.cname)+'</p><button type="button" data-act="close" aria-label="Close">×</button></header>';
     h+='<div class="deposit-dialog__scroll"><div class="deposit-dialog__hero"'+(cfg.img[host==='h5'?'h5':'pc']?' style="background-image:url('+cfg.img[host==='h5'?'h5':'pc']+')"':'')+'></div><div class="daily-login-detail">';
     h+='<nav class="daily-login-tabs"><button type="button" class="active" data-act="tab" data-t="level">Level</button><button type="button" data-act="tab" data-t="bonus">Bonus</button><button type="button" data-act="tab" data-t="rules">Rules</button></nav>';
@@ -795,7 +794,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     h+='<section class="daily-login-bonus" data-sec="bonus" style="background-image:url('+IMG.bnbg+')"><p>'+(pvOn?'<span>'+rngLong(t)+' rewards · '+money(t.r.reduce(function(a,b){return a+b;},0))+' in 7 days</span><b class="is-preview">Preview</b>':'<span>Higher VIP, better daily rewards.</span>'+(x.eligible?'<b>'+st.streak+' / 7</b>':''))+'</p>';
     for(var d=1;d<=7;d++){
       var cls='',right='';
-      if(pvOn&&own){var df=t.r[d-1]-own.r[d-1];right=df>0?'<em class="up">+'+money(df)+'</em>':(df<0?'<em>−'+money(-df)+'</em>':'<em>—</em>');}
+      if(pvOn){right='';}
       else if(!x.eligible){cls='is-locked';right='<em>Locked</em>';}
       else if(d<=st.streak){cls='is-claimed';right='<em>Claimed</em>';}
       else if(d===x.today&&x.canClaim){cls='is-today';right='<button type="button" class="daily-login-claim" data-act="claim"'+(busy?' disabled':'')+'>'+(busy?'Claiming…':'Claim')+'</button>';}
