@@ -13,7 +13,7 @@ td:first-child{white-space:nowrap;color:var(--muted)}
 .tw{overflow-x:auto}code{background:var(--code);border-radius:4px;padding:0 4px;font-size:13px}
 ul,ol{margin:4px 0;padding-left:20px}.tag{display:inline-block;font-size:12px;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:0 6px;margin-left:6px}
 </style></head><body><div class="wrap">
-<h1>前台多语言（语言包）</h1><div class="meta">R-FE-012 · 需求文档 v0.4 · 前台-通用 / 运营管理后台-内容配置 · 产品经理 Harvey · 2026-11-23</div>
+<h1>前台多语言（语言包）</h1><div class="meta">R-FE-012 · 需求文档 v0.5 · 前台-通用 / 运营管理后台-内容配置 · 产品经理 Harvey · 2026-11-23</div>
 
 <section><h2>目标</h2>前台界面文案全部抽成语言包，一种语言一份、按 key 对应。以后新增国家语言（如孟加拉语）只加一份语言包、站点开启即可，<b>不改页面代码</b>。本期首批：英文 + 他加禄语（补全）。</section>
 
@@ -39,13 +39,14 @@ ul,ol{margin:4px 0;padding-left:20px}.tag{display:inline-block;font-size:12px;bo
 <tr><td>他加禄语</td><td>补全全部 key（翻译用 AI 出，写进语言包文件）</td></tr>
 </table></div></section>
 
-<section><h2>二、后台配置内容多语言（文字 + 图片）<span class="tag">后端 + 运营管理后台</span></h2><div class="meta">v0.4 新增：后台配置的展示图片也按语言各传一份</div><div class="tw"><table>
+<section><h2>二、后台配置内容多语言（文字 + 图片）<span class="tag">后端 + 运营管理后台</span></h2><div class="meta">v0.4 新增：后台配置的展示图片也按语言各传一份</div><p style="margin:10px 0;padding:10px 12px;background:#e8f6f3;border-radius:6px">v0.5 新增 <b>配置样式原型</b>（以亏损救援活动为例，可点击）：<a href="activity-i18n/">后台活动按语言配置文案和图片 →</a></p><div class="tw"><table>
 <tr><td>涉及文字</td><td>活动标题、活动说明 / 规则、活动按钮文字、Banner 标题文字、公告、站内信、转盘格子名称（完整字段清单请开发列出）</td></tr>
 <tr><td>涉及图片 <span class="tag">v0.4</span></td><td>后台配置、前台展示的各种图片：Banner 图、活动封面 / 详情图、弹窗图、公告 / 站内信里的图、转盘等活动素材图（完整清单请开发列出）；PC、H5 分开传的图，每种语言各传一套</td></tr>
 <tr><td>编辑方式</td><td>这些文字和图片按<b>站点开启的语言</b>各填 / 各传一份（如菲站：English / Tagalog 两个输入框或页签）；后台界面本身仍是中文</td></tr>
 <tr><td>必填</td><td>站点默认语言那份必填 / 必传，其它语言选填</td></tr>
 <tr><td>前台显示</td><td>按玩家当前语言返回 / 显示；该语言没填 / 没传 → 显示站点默认语言那份（文字、图片各自回退）</td></tr>
 <tr><td>存量数据</td><td>上线时现有文字和图片全部作为站点默认语言（菲站 = 英文）那一份，运营不用重填 / 重传</td></tr>
+<tr><td>配置样式 <span class="tag">v0.5</span></td><td>编辑页「文案与图片」最上面一排<b>内容语言</b>页签 = 站点支持语言（总控已有），默认语言排第一标「默认」，页签显示已填几项；活动的 13 个文字 / 图片字段分语言，「展示位置、宽卡排序」及「活动配置」页不分语言；非默认语言的空字段用橙色提示前台显示的默认语言内容；「复制 English 内容」只填空字段；保存时默认语言必填项没填会切回默认语言页签标红。前台逐字段取值：当前语言 → 站点默认 → English。Banner、公告、站内信、转盘等按同样方式</td></tr>
 <tr><td>新开语言</td><td>已有内容该语言为空，前台回退默认语言，运营按需补填 / 补传</td></tr>
 </table></div></section>
 
@@ -57,6 +58,7 @@ ul,ol{margin:4px 0;padding-left:20px}.tag{display:inline-block;font-size:12px;bo
 <li>后端返回的报错 / 提示怎么多语言：返回错误码由前端按语言显示，还是后端按请求语言返回</li>
 <li>后台需要多语言的文本字段和图片完整清单；短信、邮件模板能否按语言分</li>
 <li>游戏大厅接口的 <code>lang</code> 参数现在是否生效</li>
+<li>活动文案和图片按语言怎么存（如按 活动 + 语言 存 13 个字段），其它后台内容是否同一套；「刷新C端缓存」是否要按语言分</li>
 <li>前端代码里自带的、带文字的图片（如下载落地页图）有哪些，是否也按语言各放一套</li></ol></section>
 
 <section><h2>不做</h2><ul><li>总控语言包管理页面</li><li>运营管理后台 / 总控界面本身的多语言</li><li>游戏名、厂商名翻译</li><li>右到左语言排版</li><li>多皮肤</li></ul></section>
@@ -73,5 +75,7 @@ ul,ol{margin:4px 0;padding-left:20px}.tag{display:inline-block;font-size:12px;bo
 <tr><td>A9</td><td>看金额、日期</td><td>币种、千分位、小数位按站点；日期按当前语言；没有写死的 $ 或美元数字</td></tr>
 <tr><td>A10</td><td>后台 Banner / 活动图只传英文图，玩家用他加禄语看</td><td>显示英文那张图</td></tr>
 <tr><td>A11</td><td>补传他加禄语图（PC、H5 各一张）</td><td>他加禄语玩家看到他加禄语图，英文玩家看到英文图；PC、H5 各显示对应那张</td></tr>
+<tr><td>A12</td><td>活动编辑切到 Filipino 页签点「复制 English 内容」</td><td>只有空着的字段被填上，已填的不变</td></tr>
+<tr><td>A13</td><td>改「展示位置 / 宽卡排序」</td><td>所有语言同时生效</td></tr>
 </table></div></section>
 </div></body></html>

@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>前台多语言：运营后台活动按语言配置</title>
+<style>
+/* ===================== 1. 交付文档层令牌（dh-*，通用，不随被复刻的后台变化） ===================== */
+:root{
+  color-scheme:light;
+  --doc-paper:#faf8f4;--doc-paper-raised:#ffffff;--doc-ink:#211f1a;--doc-ink-soft:#5c584e;--doc-ink-faint:#8b8677;
+  --doc-line:#e4ded1;--doc-line-soft:#eee9de;--doc-accent:#a8481f;--doc-accent-soft:#f4e2d3;
+  --doc-teal:#0d6d66;--doc-teal-soft:#dcefec;--doc-p0:#b3261e;--doc-p1:#a8481f;--doc-p1-soft:#f4e2d3;--doc-p2:#6b6a5f;
+  --doc-status-done-fg:#0d6d66;--doc-status-done-bg:#dcefec;--doc-status-open-fg:#8a7f5f;--doc-status-open-bg:#f1ecdc;
+  --shadow-card:0 1px 2px rgba(33,31,26,.06),0 4px 14px rgba(33,31,26,.06);
+  --f-serif:'Source Serif 4',Georgia,'Songti SC',serif;
+  --f-sans:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-mono:'IBM Plex Mono',Consolas,Menlo,monospace;
+}
+/* 深色令牌：跟随系统 + 显式切换两处都写 */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--doc-paper:#18160f;--doc-paper-raised:#221f17;--doc-ink:#f1ece0;--doc-ink-soft:#c2bba8;--doc-ink-faint:#8f8877;
+  --doc-line:#3b3627;--doc-line-soft:#2c2919;--doc-accent:#e2925e;--doc-accent-soft:#3c2a1a;--doc-teal:#63c2b8;--doc-teal-soft:#183430;
+  --doc-p0:#f2766d;--doc-p1:#e2925e;--doc-p1-soft:#3c2a1a;--doc-p2:#a8a693;
+  --doc-status-done-fg:#63c2b8;--doc-status-done-bg:#183430;--doc-status-open-fg:#cfc29a;--doc-status-open-bg:#2e2a1c;
+  --shadow-card:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.35);}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--doc-paper:#18160f;--doc-paper-raised:#221f17;--doc-ink:#f1ece0;--doc-ink-soft:#c2bba8;--doc-ink-faint:#8f8877;
+  --doc-line:#3b3627;--doc-line-soft:#2c2919;--doc-accent:#e2925e;--doc-accent-soft:#3c2a1a;--doc-teal:#63c2b8;--doc-teal-soft:#183430;
+  --doc-p0:#f2766d;--doc-p1:#e2925e;--doc-p1-soft:#3c2a1a;--doc-p2:#a8a693;
+  --doc-status-done-fg:#63c2b8;--doc-status-done-bg:#183430;--doc-status-open-fg:#cfc29a;--doc-status-open-bg:#2e2a1c;
+  --shadow-card:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.35);}
+
+/* ===================== 2. 基础重置与页头 / 导航 / 模块 Tab ===================== */
+*{box-sizing:border-box;}
+img{max-width:100%;}
+body{margin:0;background:var(--doc-paper);color:var(--doc-ink);font-family:var(--f-sans);font-size:14.5px;line-height:1.6;}
+h1,h2,h3{font-family:var(--f-serif);font-weight:600;text-wrap:balance;margin:0;}
+.mono{font-family:var(--f-mono);}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--doc-paper-raised);}
+.dh-header{background:var(--doc-paper-raised);border-bottom:1px solid var(--doc-line);}
+.dh-header-inner,.dh-navbar-inner{max-width:1600px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));}
+.dh-header-inner{padding-block:22px 16px;}
+.dh-header h1{font-size:26px;letter-spacing:.01em;}
+.dh-meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:6px;font-size:12.5px;color:var(--doc-ink-faint);}
+.dh-meta b{color:var(--doc-ink-soft);font-weight:500;}
+.dh-navbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--doc-paper-raised);border-bottom:1px solid var(--doc-line);}
+.dh-primary{display:flex;gap:4px;overflow-x:auto;}
+.dh-primary-btn{appearance:none;border:0;background:none;padding:12px 16px 10px;font:inherit;font-weight:600;color:var(--doc-ink-soft);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;}
+.dh-primary-btn small{font-weight:400;color:var(--doc-ink-faint);margin-left:6px;font-size:12px;}
+.dh-primary-btn.active{color:var(--doc-ink);border-bottom-color:var(--doc-accent);}
+.dh-primary-btn:focus-visible,.dh-tab:focus-visible,.proto-jump:focus-visible,.sub-btn:focus-visible{outline:2px solid var(--doc-teal);outline-offset:2px;}
+.dh-wrap{max-width:1600px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:20px 64px;}
+.dh-primary-panel{display:none;}
+.dh-primary-panel.active{display:block;}
+.dh-tabs{position:sticky;top:calc(env(safe-area-inset-top,0px) + 47px);z-index:20;display:flex;gap:2px;overflow-x:auto;background:var(--doc-paper);border-bottom:1px solid var(--doc-line);margin-bottom:22px;}
+.dh-tab{appearance:none;border:0;background:none;font:inherit;font-size:14px;padding:10px 14px;color:var(--doc-ink-soft);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.dh-tab .n{font-family:var(--f-mono);color:var(--doc-accent);margin-right:6px;font-size:12px;}
+.dh-tab.active{color:var(--doc-ink);border-bottom-color:var(--doc-accent);font-weight:600;}
+.dh-panel{display:none;}
+.dh-panel.active{display:block;}
+
+/* ===================== 3. 正文排版、提示框、表格 ===================== */
+.dh-prose{max-width:92ch;color:var(--doc-ink-soft);}
+.dh-prose p{margin:0 0 10px;}
+.dh-prose strong{color:var(--doc-ink);}
+.dh-prose ul,.dh-prose ol{margin:0 0 10px;padding-left:1.4em;}
+.dh-prose li{margin-bottom:4px;}
+.req-block{max-width:1200px;margin:0 0 30px;}
+.req-block h2{font-size:22px;margin-bottom:12px;}
+.req-block h3{font-size:17px;margin:22px 0 10px;}
+.dh-callout{max-width:1200px;border-left:3px solid var(--doc-teal);background:var(--doc-paper-raised);padding:10px 14px;margin:12px 0;font-size:13.5px;color:var(--doc-ink-soft);border-radius:0 6px 6px 0;}
+.dh-callout.warn{border-left-color:var(--doc-p1);}
+.tag-new{display:inline-block;font-size:11px;background:var(--doc-accent);color:#fff;border-radius:3px;padding:0 5px;margin-left:6px;vertical-align:1px;font-weight:500;white-space:nowrap;}
+.tbl-wrap{overflow-x:auto;max-width:1200px;margin:10px 0 16px;}
+.dh-table-simple{width:100%;max-width:1200px;min-width:560px;border-collapse:separate;border-spacing:0;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:8px;overflow:hidden;font-size:13.5px;box-shadow:var(--shadow-card);}
+.dh-table-simple th,.dh-table-simple td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--doc-line-soft);overflow-wrap:anywhere;}
+.dh-table-simple th{background:var(--doc-line-soft);font-weight:600;color:var(--doc-ink);}
+.dh-table-simple tr:last-child td{border-bottom:0;}
+/* 首列允许换行，禁止 white-space:nowrap */
+.dh-table-simple td:first-child,.dh-table-simple th:first-child{min-width:7em;max-width:34em;}
+.dh-table-simple td{color:var(--doc-ink-soft);}
+.dh-table-simple td b{color:var(--doc-ink);}
+
+/* ===================== 4. 真实截图 ===================== */
+.dh-figure{max-width:520px;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:6px;padding:10px;box-shadow:var(--shadow-card);margin:12px 0 16px;}
+.dh-figure img{display:block;cursor:zoom-in;border-radius:4px;}
+.dh-figure .cap::before{content:"🔍 ";}
+
+/* ===================== 5. 流程图（只用于有先后 / 因果关系的过程） ===================== */
+.dh-flow{max-width:1200px;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:8px;padding:14px;margin:12px 0 16px;box-shadow:var(--shadow-card);cursor:zoom-in;}
+.flow-diagram{display:flex;flex-wrap:wrap;align-items:center;gap:2px;}
+.flow-step{background:var(--doc-paper);border:1px solid var(--doc-line);border-radius:6px;padding:8px 12px;font-size:12.5px;line-height:1.45;text-align:center;max-width:220px;color:var(--doc-ink);}
+.flow-step .sub{display:block;font-size:11px;color:var(--doc-ink-faint);margin-top:2px;}
+.flow-arrow{color:var(--doc-ink-faint);font-size:15px;padding:0 4px;}
+.flow-branches{display:flex;flex-direction:column;gap:7px;margin-top:10px;padding-left:10px;border-left:2px solid var(--doc-line);}
+.flow-branches.first{margin-top:0;margin-bottom:12px;}
+.flow-branch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--doc-ink-soft);}
+.flow-branch .arr{color:var(--doc-ink-faint);}
+.flow-branch .result{font-weight:600;padding:2px 10px;border-radius:100px;font-size:12px;}
+.flow-branch .result.good{color:var(--doc-status-done-fg);background:var(--doc-status-done-bg);}
+.flow-branch .result.bad{color:var(--doc-p1);background:var(--doc-p1-soft);}
+.flow-branch .result.neutral{color:var(--doc-ink-soft);background:var(--doc-line-soft);}
+.cap{font-size:12px;color:var(--doc-ink-faint);margin-top:10px;}
+
+/* ===================== 9. 交互原型区外围（文档层） ===================== */
+.proto-intro{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:14px;font-size:13px;color:var(--doc-ink-soft);}
+.proto-intro .grow{flex:1 1 320px;min-width:0;}
+.doc-btn{appearance:none;border:1px solid var(--doc-line);background:var(--doc-paper-raised);color:var(--doc-ink);border-radius:6px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer;}
+.doc-btn:hover{border-color:var(--doc-accent);color:var(--doc-accent);}
+.doc-check{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;}
+.proto-jump{display:inline-flex;align-items:center;gap:6px;appearance:none;border:1px solid var(--doc-teal);color:var(--doc-teal);background:var(--doc-teal-soft);border-radius:100px;padding:5px 14px;font:inherit;font-size:13px;cursor:pointer;margin:4px 0 14px;}
+.proto-tip{font-size:12.5px;color:var(--doc-ink-faint);margin:8px 2px 0;}
+
+
+
+/* ===================== 10. 演示控制 ===================== */
+.ctl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--doc-ink-soft);max-width:1200px;}
+.ctl label{display:inline-flex;align-items:center;gap:6px;}
+.ctl select{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--doc-line);border-radius:6px;background:var(--doc-paper);color:var(--doc-ink);max-width:100%;}
+.seg{display:inline-flex;border:1px solid var(--doc-line);border-radius:6px;overflow:hidden;}
+.seg button{appearance:none;border:0;background:var(--doc-paper);color:var(--doc-ink-soft);font:inherit;font-size:13px;padding:4px 12px;cursor:pointer;}
+.seg button.on{background:var(--doc-accent);color:#fff;}
+.ctl .hint{flex-basis:100%;font-size:12.5px;color:var(--doc-ink-faint);}
+.proto-stage{display:flex;justify-content:center;background:repeating-linear-gradient(45deg,var(--doc-line-soft) 0 10px,transparent 10px 20px);border:1px solid var(--doc-line);border-radius:10px;padding:28px 12px;max-width:1200px;}
+.dev-cap{text-align:center;font-size:12px;color:var(--doc-ink-faint);margin-top:8px;}
+
+
+/* ===================== 11. 标注 ===================== */
+.mk{position:absolute;font-size:10px;line-height:16px;padding:0 5px;border-radius:3px;background:#19be6b;color:#fff;font-weight:600;z-index:3;pointer-events:none;white-space:nowrap;font-family:-apple-system,"PingFang SC",sans-serif;}
+.mk.pk{background:#ff2fd0;}
+.nomk .mk{display:none;}
+.chg{outline:2.5px dashed #ff2fd0;outline-offset:4px;border-radius:4px;box-shadow:0 0 0 4px rgba(255,47,208,.18),0 0 18px rgba(255,47,208,.45);position:relative;}
+.nomk .chg{outline:0;box-shadow:none;}
+.chg-a{outline:2px dashed #19be6b;outline-offset:3px;border-radius:6px;position:relative;}
+.nomk .chg-a{outline:0;}
+.proto-stage.wide{display:block;padding:20px;overflow-x:auto;}
+.view{display:none;}.view.on{display:block;}
+.legend{display:inline-flex;align-items:center;gap:6px;}
+.legend i{display:inline-block;width:18px;height:10px;border-radius:2px;}
+
+
+/* ===================== 12. 运营管理后台复刻（浅色 Element Plus） ===================== */
+.adm{color-scheme:light;--a-bg:#edf0f4;--a-card:#fff;--a-line:#d8e0e8;--a-ink:#334;--a-mute:#778;--a-green:#0f8f78;--a-red:#e5484d;
+  min-width:1040px;max-width:1160px;margin:0 auto;background:var(--a-bg);border-radius:10px;overflow:hidden;color:var(--a-ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.12);position:relative;}
+.adm .top{height:52px;background:#fff;border-bottom:1px solid var(--a-line);display:flex;align-items:center;gap:12px;padding:0 18px;}
+.adm .top b{font-size:15px;color:#223}.adm .top .sp{flex:1}.adm .top .site{font-size:12px;color:var(--a-mute);border:1px solid var(--a-line);border-radius:4px;padding:2px 8px}
+.adm .body{display:grid;grid-template-columns:190px minmax(0,1fr);min-height:1010px}
+.adm .side{background:#0f2a2e;padding:8px 0;font-size:14px}
+.adm .side .g{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;color:#c9d6d8}
+.adm .side .g:after{content:"›";color:#6f8a8d}
+.adm .side .g.open{color:#fff;font-weight:600}.adm .side .g.open:after{content:"⌄"}
+.adm .side .it{padding:9px 18px 9px 34px;color:#9fb3b6;position:relative}
+.adm .side .it.on{color:#fff;background:#17443f;font-weight:600;border-left:3px solid #1fb89a}
+.adm .main{padding:16px 20px 24px;min-width:0}
+.adm .crumb{font-size:13px;color:var(--a-mute);margin-bottom:12px}.adm .crumb b{color:var(--a-ink);font-weight:500}
+.adm .acard{background:var(--a-card);border:1px solid var(--a-line);border-radius:12px;padding:14px 16px;position:relative}
+.adm .ahead{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.adm .ahead h4{margin:0;font-size:16px;color:#223;font-family:inherit}
+.adm .ahead .sp{flex:1}
+.adm .pill{font-size:12px;padding:1px 8px;border-radius:10px;border:1px solid #bfe6dd;color:var(--a-green);background:#fff}
+.adm .pill.g{border-color:#dcdfe6;color:#889}
+.adm .row{display:grid;grid-template-columns:118px minmax(0,1fr);gap:4px 12px;align-items:start;padding:8px 0}
+.adm .row>label{font-size:14px;color:#445;padding-top:6px;text-align:right}
+.adm .row>label i{color:var(--a-red);font-style:normal;margin-right:2px}
+.adm .inp{display:flex;align-items:center;border:1px solid #dcdfe6;border-radius:4px;background:#fff;height:32px;width:100%;overflow:hidden}
+.adm .inp.sm{width:180px}
+.adm .inp:focus-within{border-color:var(--a-green)}
+.adm .inp input,.adm .inp select{border:0;outline:0;flex:1;min-width:0;height:100%;padding:0 11px;font:inherit;color:#334;background:transparent}
+.adm .inp.dis{background:#f5f7fa}.adm .inp.dis input,.adm .inp.dis select{color:#a8abb2}
+.adm .inp.err,.adm .mx input.err{border-color:var(--a-red)}
+.adm textarea{width:100%;border:1px solid #dcdfe6;border-radius:4px;padding:8px 11px;font:inherit;color:#334;resize:vertical;min-height:64px;outline:0}
+.adm textarea:focus{border-color:var(--a-green)}
+.adm .help{font-size:12px;color:var(--a-mute);margin-top:4px}
+.adm .errmsg{font-size:12px;color:var(--a-red);margin-top:6px}
+.adm .sw{position:relative;width:40px;height:20px;border-radius:10px;background:#dcdfe6;cursor:pointer;border:0;padding:0;margin-top:6px;transition:background .2s;flex:none}
+.adm .sw:after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.adm .sw.on{background:var(--a-green)}.adm .sw.on:after{left:22px}
+.adm .btn{font:inherit;font-size:14px;border:1px solid #dcdfe6;background:#fff;border-radius:4px;padding:6px 16px;color:#445;cursor:pointer}
+.adm .btn.p{background:var(--a-green);border-color:var(--a-green);color:#fff}
+.adm .btn.s{padding:3px 10px;font-size:13px}
+.adm .btn[disabled]{color:#c0c4cc;cursor:not-allowed;background:#fff}
+.adm .lnk{appearance:none;border:0;background:none;font:inherit;font-size:13px;color:var(--a-green);cursor:pointer;padding:0 4px}
+.adm .lnk.r{color:var(--a-red)}.adm .lnk[disabled]{color:#c0c4cc;cursor:not-allowed}
+.adm .rad{display:flex;gap:22px;padding-top:6px;font-size:14px;color:#445;flex-wrap:wrap;align-items:center}
+.adm .rad label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.adm .rad input{accent-color:var(--a-green);margin:0}
+.adm .rad .note{font-size:12px;color:var(--a-mute)}
+.adm table.lst{width:100%;border-collapse:collapse;font-size:13px;background:#fff}
+.adm table.lst th{background:#f5f7fa;color:#556;font-weight:600;text-align:center;padding:9px 8px;border-bottom:1px solid #ebeef5;white-space:nowrap}
+.adm table.lst td{padding:11px 8px;border-bottom:1px solid #ebeef5;white-space:nowrap;text-align:center;color:#556}
+.adm .tag{font-size:12px;padding:1px 6px;border-radius:3px;border:1px solid #bfe6dd;color:var(--a-green);background:#f0faf7}
+.adm .tag.off{border-color:#e9e9eb;color:#909399;background:#f4f4f5}
+.adm .newrow td{background:#f1fbf6}
+/* 编辑弹窗 */
+.adm .mask{position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:flex-start;z-index:50;padding:28px 16px}
+.adm .mask.on{display:flex}
+.adm .dlg{background:#fff;border-radius:8px;width:920px;max-width:100%;box-shadow:0 12px 32px rgba(0,0,0,.2);display:flex;flex-direction:column;position:relative;max-height:100%}
+.adm .dlg>header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px;position:relative}
+.adm .dlg>header h5{margin:0;font-size:16px;color:#223;font-weight:600}
+.adm .dlg>header button{appearance:none;border:0;background:none;font-size:20px;color:#909399;cursor:pointer;line-height:1}
+.adm .dtabs{display:flex;gap:36px;border-bottom:2px solid #e4e7ed;margin:0 20px}
+.adm .dtabs button{appearance:none;border:0;background:none;font:inherit;font-size:14px;color:#445;padding:8px 0 10px;cursor:pointer;margin-bottom:-2px;border-bottom:2px solid transparent}
+.adm .dtabs button.on{color:var(--a-green);border-bottom-color:var(--a-green)}
+.adm .dbody{padding:10px 20px 6px;flex:1;min-height:0;overflow-y:auto}
+.adm .dpane{display:none}.adm .dpane.on{display:block}
+.adm .dlg>footer{display:flex;justify-content:flex-end;gap:10px;padding:12px 20px 18px;border-top:1px solid #f0f2f5}
+/* VIP 档位矩阵 */
+.adm .mxwrap{position:relative;border-radius:6px;padding:2px;margin-top:16px}
+.adm .mx{width:100%;border-collapse:collapse;font-size:13px;border:1px solid #ebeef5}
+.adm .mx th{background:#f5f7fa;color:#556;font-weight:600;padding:8px 4px;border:1px solid #ebeef5;white-space:nowrap;text-align:center}
+.adm .mx td{padding:5px 4px;border:1px solid #ebeef5;text-align:center;color:#556}
+.adm .mx input{width:100%;min-width:0;height:30px;border:1px solid #dcdfe6;border-radius:4px;padding:0 6px;font:inherit;font-size:13px;color:#334;text-align:center;outline:0;background:#fff}
+.adm .mx input:focus{border-color:var(--a-green)}
+.adm .mx select{height:30px;border:1px solid #dcdfe6;border-radius:4px;padding:0 4px;font:inherit;font-size:13px;color:#334;background:#fff;outline:0;width:76px;cursor:pointer}
+.adm .mx select:focus{border-color:var(--a-green)}
+.adm .mx select.err{border-color:var(--a-red)}
+.adm .mx .rng{display:flex;align-items:center;gap:4px;justify-content:center}
+.adm .mx .rng span{color:#99a}
+.adm .mxfoot{display:flex;align-items:center;gap:12px;margin-top:8px}
+.adm .toast{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#f0f9eb;border:1px solid #e1f3d8;color:#67c23a;padding:8px 16px;border-radius:4px;font-size:14px;display:none;z-index:60;white-space:nowrap}
+.adm .toast.on{display:block}
+.adm .toast.bad{background:#fef0f0;border-color:#fde2e2;color:#f56c6c}
+
+
+/* ===================== 14. 本批原型补充（列表页、筛选、状态标签、导出、明细弹窗） ===================== */
+.adm .mk.tip{pointer-events:auto;cursor:help}
+.adm .top .crumbs{font-size:13px;color:var(--a-mute)}.adm .top .crumbs b{color:var(--a-ink);font-weight:500}
+.adm .tagsbar{display:flex;gap:6px;padding:7px 14px;background:#fff;border-bottom:1px solid var(--a-line);font-size:12px;overflow-x:auto}
+.adm .tagsbar span{border:1px solid #dcdfe6;border-radius:3px;padding:2px 8px;color:#556;white-space:nowrap}
+.adm .tagsbar span.on{background:#e8f6f3;border-color:var(--a-green);color:var(--a-green)}
+.adm .fgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 16px}
+.adm .fitem label{display:block;font-size:13px;color:#556;margin-bottom:4px}
+.adm .fitem.span2{grid-column:span 2}
+.adm .fitem .rngbox{display:flex;align-items:center;gap:8px;border:1px solid #dcdfe6;border-radius:4px;height:32px;padding:0 10px;font-size:13px;color:#556;background:#fff}
+.adm .fitem .rngbox span{flex:1;text-align:center}
+.adm .factions{display:flex;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #ebeef5}
+.adm .acard+.acard{margin-top:14px}
+.adm .desc{font-size:12.5px;color:var(--a-mute);margin:-4px 0 10px}
+.adm .tblwrap{overflow-x:auto;border:1px solid #ebeef5;border-radius:6px}
+.adm table.lst td.l{text-align:left}
+.adm table.lst td.r,.adm table.lst th.r{text-align:right}
+.adm table.lst td.ops{min-width:132px}
+.adm .stag{display:inline-block;font-size:12px;line-height:18px;padding:0 7px;border-radius:3px;border:1px solid}
+.adm .stag.w{color:#e6a23c;background:#fdf6ec;border-color:#faecd8}
+.adm .stag.s{color:#67c23a;background:#f0f9eb;border-color:#e1f3d8}
+.adm .stag.i{color:#909399;background:#f4f4f5;border-color:#e9e9eb}
+.adm .stag.d{color:#f56c6c;background:#fef0f0;border-color:#fde2e2}
+.adm .stag.p{color:#409eff;background:#ecf5ff;border-color:#d9ecff}
+.adm .bot{display:inline-block;font-size:12px;padding:0 6px;border:1px solid #dcdfe6;border-radius:3px;color:#889;background:#fafafa}
+.adm .pager{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:10px;font-size:13px;color:#667}
+.adm .pager i{font-style:normal;border:1px solid #dcdfe6;border-radius:3px;padding:1px 8px}
+.adm .pager i.on{background:var(--a-green);border-color:var(--a-green);color:#fff}
+/* 导出进度（复刻现有导出组件） */
+.adm .expcard{position:absolute;right:24px;top:118px;z-index:55;width:300px;background:#fff;border:1px solid var(--a-line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);padding:12px 14px;display:none;font-size:13px}
+.adm .expcard.on{display:block}
+.adm .expcard .track{height:6px;border-radius:3px;background:#ebeef5;margin:8px 0;overflow:hidden}
+.adm .expcard .fill{height:100%;background:var(--a-green);width:0;transition:width .25s}
+.adm .expcard .act{display:flex;justify-content:flex-end}
+/* 小弹窗 */
+.adm .dlg.sm{width:500px}
+.adm .dlg .kv{display:grid;grid-template-columns:96px minmax(0,1fr);gap:6px 10px;font-size:13.5px;margin:4px 0 12px}
+.adm .dlg .kv span{color:#889}
+.adm .dlg .warnline{font-size:13px;color:#e6a23c;background:#fdf6ec;border:1px solid #faecd8;border-radius:4px;padding:8px 10px;margin-bottom:10px}
+.adm .dlg .req{font-size:13.5px;color:#445;margin-bottom:6px}.adm .dlg .req i{color:var(--a-red);font-style:normal}
+.adm .dlg .cnt{font-size:12px;color:#99a;text-align:right;margin-top:2px}
+/* 明细弹窗 */
+.adm .dlg.wide{width:1000px}
+.adm .sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 16px;border:1px solid #ebeef5;border-radius:6px;padding:12px 14px;font-size:13px;margin-bottom:12px}
+.adm .sum small{display:block;color:#889;font-size:12.5px}
+.adm .sum b{font-weight:500;color:#334}
+.adm .sum div{position:relative}
+.adm .subt{font-size:13.5px;color:#445;margin:0 0 10px}
+.adm .bulk{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:8px;border:1px solid #ebeef5;border-radius:6px;background:#fafcfc;font-size:13px;color:#556;position:relative}
+.adm .bulk .sp{flex:1}
+.adm input[type=checkbox]{accent-color:var(--a-green)}
+/* 编辑弹窗（榜单赛） */
+.adm .alert{font-size:13px;border-radius:4px;padding:8px 12px;margin-bottom:8px;display:flex;gap:8px}
+.adm .alert.info{background:#f4f4f5;color:#909399}
+.adm .alert.ok{background:#f0f9eb;color:#67c23a}
+.adm .sec-title{font-size:15px;font-weight:600;color:#223;margin:16px 0 10px}
+.adm .g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 16px}
+.adm .g4>div{position:relative}
+.adm .g4 label.t{display:block;font-size:13px;color:#556;margin-bottom:4px}
+.adm .hint2{font-size:12px;color:var(--a-mute);margin-top:6px}
+.adm .brands{border:1px solid #ebeef5;border-radius:6px;padding:6px 12px;margin-top:8px}
+.adm .brands .br{display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px;padding:6px 0;border-top:1px dashed #ebeef5;font-size:13px}
+.adm .brands .br:first-child{border-top:0}
+.adm .brands .br div{display:flex;flex-wrap:wrap;gap:4px 16px}
+.adm .brands label{display:inline-flex;gap:6px;align-items:center}
+.adm .warnbar{font-size:13px;color:#e6a23c;background:#fdf6ec;border-radius:4px;padding:8px 12px;margin-top:8px}
+.adm .total{font-size:13px;text-align:right;margin-top:8px;color:#556}.adm .total b{color:#67c23a}
+.adm .uploads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.adm .up{border:1px dashed #dcdfe6;border-radius:6px;padding:10px;font-size:12.5px;color:#889;text-align:center}
+.adm .up b{display:block;color:#556;font-weight:500;margin-bottom:6px}
+.adm .rte{border:1px solid #dcdfe6;border-radius:4px}
+.adm .rte .bar{border-bottom:1px solid #ebeef5;padding:5px 8px;font-size:12px;color:#889;letter-spacing:6px}
+.adm .rte textarea{border:0;min-height:90px}
+
+.adm [hidden]{display:none!important}
+
+/* ===================== 15. 外壳按现网结构：左侧菜单整高 + 右栏（顶栏 / 页签 / 内容） ===================== */
+.adm .body{grid-template-columns:222px minmax(0,1fr);min-height:860px}
+.adm .side{display:flex;flex-direction:column;padding:0;background:#0f2a2e;font-size:13.5px}
+.adm .side .logo{display:flex;align-items:center;gap:10px;padding:12px 14px 14px}
+.adm .side .logo i{width:34px;height:34px;border-radius:8px;background:#147a6a;color:#fff;font-style:normal;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.adm .side .logo b{display:block;color:#fff;font-size:15px;line-height:1.2}.adm .side .logo small{color:#9fb3b6;font-size:11.5px}
+.adm .side .g{padding:11px 14px 11px 18px;color:#d5e1e2}
+.adm .side .g::before{content:attr(data-ic);display:inline-block;width:22px;color:#c9d6d8}
+.adm .side .g:after{content:"⌄";color:#8fa6a9}
+.adm .side .g.open:after{content:"⌃"}
+.adm .side .g.cur{background:#17393c;margin:0 8px;border-radius:6px;padding-left:10px}
+.adm .side .it{padding:12px 14px 12px 46px;color:#c3d1d3}
+.adm .side .it::before{content:attr(data-ic);position:absolute;left:28px;color:#9fb3b6}
+.adm .side .it.on{background:#1d4a49;border-left:3px solid #2fc6a4;margin:0 8px;border-radius:6px;padding-left:35px;color:#fff}
+.adm .side .it.on::before{left:17px;color:#fff}
+.adm .side .sgrow{flex:1}
+.adm .side .fold{margin:10px 8px 12px;border:1px solid #2b4a4d;border-radius:6px;padding:7px 12px;color:#c3d1d3;font-size:12.5px}
+.adm .rcol{min-width:0;display:flex;flex-direction:column;background:var(--a-bg)}
+.adm .rcol .top{height:50px;gap:10px;padding:0 16px;flex-wrap:nowrap;overflow:hidden}
+.adm .rcol .top .hb{font-size:17px;color:#556}
+.adm .rcol .top .info{display:flex;align-items:center;gap:8px;font-size:12px;color:#556;white-space:nowrap}
+.adm .rcol .top .info .t{border-radius:10px;padding:0 7px;font-size:11px;border:1px solid}
+.adm .rcol .top .info .t.dev{color:#0f8f78;border-color:#9fd9cb;background:#eaf8f4}
+.adm .rcol .top .info .t.l3{color:#67a33a;border-color:#cde8b8;background:#f3faee}
+.adm .rcol .top .info .t.su{color:#e6a23c;border-color:#f5d9a8;background:#fdf6ec}
+.adm .rcol .top .info .wal{border:1px solid #dcdfe6;border-radius:12px;padding:1px 8px;font-size:11px}
+.adm .rcol .top .info .av{width:22px;height:22px;border-radius:50%;background:#0f8f78;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.adm .rcol .tagsbar{align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid var(--a-line)}
+.adm .rcol .tagsbar span{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;font-size:12px}
+.adm .rcol .tagsbar span em{font-style:normal;color:#99a;margin-left:4px}
+.adm .rcol .tagsbar span.on{background:#e8f6f3;border-color:var(--a-green);color:var(--a-green)}
+.adm .rcol .tagsbar .tr{margin-left:auto;color:#889;font-size:13px;border:0;letter-spacing:8px}
+.adm .rcol .main{flex:1}
+.adm .side .g{justify-content:flex-start}.adm .side .g:after{margin-left:auto}
+
+/* 操作列固定在右侧（同现网 el-table fixed right） */
+.adm table.lst th:last-child,.adm table.lst td:last-child{position:sticky;right:0;background:#fff;box-shadow:-6px 0 8px -6px rgba(0,0,0,.12);z-index:1}
+.adm table.lst th:last-child{background:#f5f7fa}
+/* 关闭活动确认 */
+.adm .cl-q{font-size:14px;color:#223;margin:0 0 10px;font-weight:600}
+.adm .cl-box{position:relative;border:1px solid #ebeef5;border-radius:6px;padding:8px 12px 8px 4px;margin-bottom:10px}
+.adm .cl-box ul{margin:0;padding-left:22px;font-size:13px;color:#445;line-height:1.7}
+.adm .cl-box ul b{color:#f56c6c}
+.dh-table-simple code{font-family:var(--f-mono);font-size:12.5px;background:var(--doc-line-soft);border-radius:4px;padding:1px 5px;color:var(--doc-ink)}
+.stage-h5{display:flex;justify-content:center;padding:14px 0}
+
+/* 后台编辑弹窗：按现网活动表单复刻（富文本、图片上传、数字输入、行内提示） */
+.adm .hint{margin:6px 0 0;font-size:12px;color:#8a8f99;line-height:1.5}
+.adm .hint b{color:#556}
+.adm .inline-hint{font-size:12px;color:#8a8f99;line-height:1.5}
+.adm .inline-hint.blk{display:block;margin-top:4px}
+.adm .inl{display:flex;align-items:center;gap:10px;min-height:32px}
+.adm .inl.wrap{flex-wrap:wrap}
+.adm .inp .wl{font-style:normal;font-size:12px;color:#909399;padding:0 10px;white-space:nowrap}
+.adm .inp.num{width:180px;position:relative}
+.adm .inp.num input{text-align:center;padding-right:30px}
+.adm .inp.num .spin{position:absolute;right:0;top:0;bottom:0;width:28px;display:flex;flex-direction:column;border-left:1px solid #e4e7ed;background:#f5f7fa;padding:0}
+.adm .inp.num .spin b{flex:1;display:flex;align-items:center;justify-content:center;font-size:9px;color:#909399;font-weight:400}
+.adm .inp.num .spin b+b{border-top:1px solid #e4e7ed}
+.adm .inp.sel select{appearance:auto}
+.adm .dt2{display:flex;gap:8px;align-items:center}
+.adm .dt2 .inp{flex:1}
+.adm .inp.dt .ico{border:0;background:none;color:#a8abb2;padding:0 0 0 10px;font-size:14px}
+.adm .sw.ip{width:46px;height:22px;border-radius:11px;margin-top:0}
+.adm .sw.ip:after{width:18px;height:18px}
+.adm .sw.ip.on:after{left:26px}
+.adm .sw.ip em{position:absolute;font-style:normal;font-size:11px;color:#fff;top:3px;right:7px;line-height:16px}
+.adm .sw.ip.on em{right:auto;left:7px}
+.adm .chk{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:#334;cursor:pointer;margin-top:5px}
+.adm .chk input{accent-color:var(--a-green);width:14px;height:14px;margin:0}
+.adm .chk input:checked+*{color:var(--a-green)}
+.adm .content-editor{border:1px solid #dcdfe6;border-radius:4px;overflow:hidden;background:#fff}
+.adm .rte-tb{border-bottom:1px solid #e8e8e8;padding:2px 8px}
+.adm .rte-tb .r{display:flex;align-items:center;flex-wrap:wrap;gap:2px;min-height:36px}
+.adm .rte-tb .r span{display:inline-flex;align-items:center;height:28px;padding:0 7px;font-size:13px;color:#595959;border-radius:3px;cursor:default;white-space:nowrap}
+.adm .rte-tb .r span:hover{background:#f1f1f1}
+.adm .rte-tb .r span.dd:after{content:"▾";font-size:9px;margin-left:3px;color:#999}
+.adm .rte-tb .r span.b{font-weight:700}.adm .rte-tb .r span.u{text-decoration:underline}.adm .rte-tb .r span.it{font-style:italic}
+.adm .rte-tb .sep{display:inline-block;width:1px;height:18px;background:#e8e8e8;margin:0 4px}
+.adm .content-body{min-height:150px;max-height:220px;overflow-y:auto;padding:10px 12px;font-size:14px;line-height:1.6;color:#333;outline:0}
+.adm .content-body--rules{min-height:170px}
+.adm .content-body p{margin:0 0 6px}
+.adm .cover-slot{width:100%}
+.adm .cover-box{display:flex;align-items:center;justify-content:center;border:1px dashed #dcdfe6;border-radius:4px;background:#fafafa;overflow:hidden}
+.adm .cover-box--pc{max-width:260px}
+.adm .cover-box--h5{max-width:150px}
+.adm .cover-box--icon{max-width:96px}
+.adm .cover-box img{display:block;max-width:100%}
+.adm .cover-box--pc img{max-height:140px}
+.adm .cover-box--h5 img{max-height:180px}
+.adm .cover-box--icon img{max-height:72px}
+.adm .cover-box--empty{width:260px;max-width:100%;height:96px;font-size:12px;color:#8a8f99}
+.adm .cover-actions{display:flex;gap:8px;margin-top:8px}
+
+/* ===================== 16. 本期新增：内容语言页签、站点语言表、前台取值表 ===================== */
+.adm .lbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 6px;padding:10px 12px;background:#f7faf9;border:1px solid #e3efeb;border-radius:8px;position:relative}
+.adm .lbar .lt{font-size:13px;color:#556;margin-right:4px}
+.adm .lbar button.lg{appearance:none;font:inherit;font-size:13px;border:1px solid #dcdfe6;background:#fff;color:#445;border-radius:16px;padding:3px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.adm .lbar button.lg.on{border-color:var(--a-green);background:#e8f6f3;color:var(--a-green);font-weight:600}
+.adm .lbar button.lg .df{font-size:11px;border-radius:3px;padding:0 4px;background:var(--a-green);color:#fff;font-weight:500}
+.adm .lbar button.lg .st{font-size:11px;color:#909399;font-weight:400}
+.adm .lbar button.lg .st.ok{color:#67c23a}
+.adm .lbar .sp{flex:1}
+.adm .lnote{font-size:12px;color:#8a8f99;margin:0 0 6px 130px}
+.adm .lnote b{color:#e6a23c;font-weight:500}
+.adm .shared{font-size:11px;color:#909399;border:1px solid #e4e7ed;border-radius:3px;padding:0 4px;margin-left:6px;font-weight:400;white-space:nowrap}
+.adm .fb{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;border:1px dashed #e6a23c;border-radius:6px;background:#fffaf0;padding:6px;color:#b88230;font-size:12px}
+.adm .fb img{opacity:.45;max-height:90px;max-width:100%}
+.adm .cover-box{min-height:72px;padding:6px;border:1px dashed #dcdfe6;border-radius:6px;background:#fafafa}
+.adm .cover-box.emp{color:#a8abb2;font-size:12px}
+.adm .copyl{display:flex;flex-direction:column;gap:8px}
+.adm .ph-fb::placeholder{color:#d0a45c}
+.adm .content-body:empty:before{content:attr(data-ph);color:#d0a45c;font-size:13px}
+/* 总控 */
+.mst{--a-green:#0f7f6c}
+.mst .side{background:#10232a}
+.mst .side .logo i{background:#0f7f6c}
+.adm table.lt2{width:100%;border-collapse:collapse;font-size:13px;border:1px solid #ebeef5}
+.adm table.lt2 th{background:#f5f7fa;color:#556;font-weight:600;padding:7px 10px;border:1px solid #ebeef5;text-align:left}
+.adm table.lt2 td{padding:6px 10px;border:1px solid #ebeef5;color:#445}
+.adm table.lt2 td.c,.adm table.lt2 th.c{text-align:center}
+.adm table.lt2 input{accent-color:var(--a-green);cursor:pointer}
+.adm table.lt2 input:disabled{cursor:not-allowed}
+.adm table.lt2 tr.off td{color:#b0b3b8}
+.adm .dtag{font-size:11px;border-radius:3px;padding:0 5px;background:var(--a-green);color:#fff}
+.adm .fx-hint{font-size:12px;color:#8a8f99;margin-top:4px}
+.adm .dlg.md{width:640px}
+.adm .dlg.sm{width:420px}
+.lres{margin-top:16px;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:8px;padding:12px 14px}
+.lres h4{margin:0 0 4px;font-size:14px}
+.lres p{margin:0 0 8px;font-size:12.5px;color:var(--doc-ink-faint)}
+.lres table{width:100%;border-collapse:collapse;font-size:12.5px}
+.lres th,.lres td{border:1px solid var(--doc-line);padding:6px 8px;text-align:left;vertical-align:top}
+.lres th{background:var(--doc-line-soft);font-weight:600}
+.lres td img{max-height:46px;max-width:120px;display:block}
+.lres .src{display:inline-block;font-size:11px;color:#b88230;background:#fff4e0;border-radius:3px;padding:0 4px;margin-top:2px}
+.lres .none{color:var(--doc-ink-faint)}
+</style>
+</head>
+<body>
+
+<header class="dh-header"><div class="dh-header-inner">
+  <h1>前台多语言：运营后台活动按语言配置文案和图片</h1>
+  <div class="dh-meta"><span>需求：<b><a href="../">R-FE-012 v0.5</a></b></span><span>模块：<b>运营管理后台 · 运营配置 › 活动列表 › 编辑活动</b></span><span>适用：<b>所有站点（演示用菲律宾站：English 默认 + Filipino）</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-24</b></span></div>
+</div></header>
+
+<nav class="dh-navbar"><div class="dh-navbar-inner dh-primary">
+  <button class="dh-primary-btn active" data-primary="proto" type="button">交互原型 <small>点按钮看效果</small></button>
+  <button class="dh-primary-btn" data-primary="docs" type="button">需求文档 <small>规则、接口与验收</small></button>
+</div></nav>
+
+<div class="dh-wrap"><main>
+
+<section class="dh-primary-panel active" data-primary-panel="proto">
+  <div class="ctl">
+        <label><input type="checkbox" id="mkT" checked> 显示改动标注</label>
+    <span class="legend"><i style="background:#19be6b"></i>本期新增 / 修改（悬停看说明）</span>
+    <button class="doc-btn" id="b-demoimg" type="button">模拟：给 Filipino 传图片</button>
+    <button class="doc-btn" id="resetAll" type="button">重置演示</button>
+    <div class="hint" id="hint">试一下：在编辑弹窗里点语言页签「Filipino」，看哪些字段没填（橙色提示会显示前台用的 English 内容）；点「复制 English 内容」把空的字段一次填上；下方「前台取值」表实时显示两种语言的玩家各看到什么。</div>
+  </div>
+
+  <div class="proto-stage wide">
+
+  <!-- ===================== 运营管理后台 ===================== -->
+  <div class="view on" id="v-ops">
+  <div class="adm" id="adm">
+    <div class="body">
+      <div class="side" aria-label="左侧菜单"><div class="logo"><i>77</i><div><b>77Slot</b><small>运营管理后台</small></div></div><div class="g" data-ic="♙">会员管理</div><div class="g" data-ic="▦">游戏管理</div><div class="g" data-ic="▭">支付配置管理</div><div class="g" data-ic="▭">财务订单管理</div><div class="g open" data-ic="⚙">运营配置</div><div class="it on" data-ic="➤">活动列表</div><div class="it" data-ic="☰">活动订单</div><div class="it" data-ic="◎">转盘轮次台账</div><div class="it" data-ic="♢">全站动态管理</div><div class="it" data-ic="⚙">广告图管理</div><div class="it" data-ic="⚙">榜单赛列表</div><div class="it" data-ic="⚙">榜单赛记录</div><div class="it" data-ic="⊕">渠道管理</div><div class="it" data-ic="▤">渠道回传记录</div><div class="g" data-ic="⋖">代理中心</div><div class="sgrow"></div><div class="fold">« 收起菜单</div></div>
+      <div class="rcol"><div class="top"><span class="hb">☰</span><span class="crumbs">运营管理后台 / <b>活动列表</b></span><span class="sp"></span><span class="info">🇵🇭 菲律宾时间：2026-11-24 15:41:12<span>币种 ₱ (PHP)</span><span class="t dev">DEV</span><span class="t l3">L3 op-sign 开</span><span class="t su">ops</span>🔔<span class="wal">0x690d…8fea</span><span class="av">O</span></span></div><div class="tagsbar"><span>⌂ 会员列表</span><span class="on">➤ 活动列表<em>×</em></span><span class="tr">+ ⌄</span></div>
+      <div class="main">
+        <div class="acard">
+          <div class="ahead"><h4>活动配置</h4><span class="pill g">11 条</span><span class="pill">正在开启 11 个</span><span class="sp"></span><button class="btn p" type="button" disabled style="background:#0f8f78;color:#fff;opacity:.6">新建活动</button><button class="btn" type="button" disabled>新建展示类活动</button><button class="btn" type="button" disabled>刷新C端缓存</button><button class="btn" type="button" disabled>刷新</button></div>
+          <div class="tblwrap" style="overflow-x:auto"><table class="lst">
+            <thead><tr><th>活动编号</th><th>后台名称</th><th>客户端名称</th><th>活动文案</th><th>类型</th><th>状态</th><th>派发</th><th>流水倍数</th><th>流水基数</th><th>最低 VIP</th><th>操作</th></tr></thead>
+            <tbody>
+            <tr><td>ACT10011</td><td>推广赚钱</td><td>Refer &amp; Earn</td><td><span class="tag">已配置</span></td><td>代理展示</td><td><span class="tag">开启</span></td><td>—</td><td>—</td><td>—</td><td>0</td><td><button class="lnk" type="button" disabled>编辑</button><button class="lnk" type="button" disabled>关闭</button><button class="lnk" type="button" disabled>订单</button></td></tr>
+            <tr><td>ACT10010</td><td>VIP等级奖励</td><td>VIP Bonus</td><td><span class="tag">已配置</span></td><td>VIP展示</td><td><span class="tag">开启</span></td><td>—</td><td>—</td><td>—</td><td>0</td><td><button class="lnk" type="button" disabled>编辑</button><button class="lnk" type="button" disabled>关闭</button><button class="lnk" type="button" disabled>订单</button></td></tr>
+            <tr><td>ACT10009</td><td>Free Spin</td><td>Free Spin</td><td><span class="tag">已配置</span></td><td>免费转盘</td><td><span class="tag">开启</span></td><td>自动派发</td><td>2</td><td>赠送金额</td><td>0</td><td><button class="lnk" type="button" disabled>编辑</button><button class="lnk" type="button" disabled>关闭</button><button class="lnk" type="button" disabled>订单</button></td></tr>
+            <tr><td>ACT10008</td><td>Bind Email</td><td>Bind Email</td><td><span class="tag">已配置</span></td><td>绑定邮箱奖励</td><td><span class="tag">开启</span></td><td>自动派发</td><td>5</td><td>赠送金额</td><td>0</td><td><button class="lnk" type="button" disabled>编辑</button><button class="lnk" type="button" disabled>关闭</button><button class="lnk" type="button" disabled>订单</button></td></tr>
+            <tr><td>ACT10007</td><td>Daily Login Bonus</td><td>Daily Login Bonus</td><td><span class="tag">已配置</span></td><td>每日登录</td><td><span class="tag">开启</span></td><td>手动领取</td><td>2</td><td>赠送金额</td><td>0</td><td><button class="lnk" type="button" disabled>编辑</button><button class="lnk" type="button" disabled>关闭</button><button class="lnk" type="button" disabled>订单</button></td></tr>
+            <tr class="newrow"><td>ACT10006</td><td>Loss Rescue 30%</td><td id="l-cname">Loss Rescue 30%</td><td><span class="tag">已配置</span></td><td>亏损救援</td><td><span class="tag">开启</span></td><td>手动领取</td><td>5</td><td>赠送金额</td><td>0</td><td><button class="lnk" type="button" id="b-edit">编辑</button><button class="lnk" type="button" disabled>关闭</button><button class="lnk" type="button" disabled>订单</button></td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- 编辑活动弹窗 -->
+    <div class="mask on" id="dlg">
+      <div class="dlg">
+        <header><h5>编辑活动 · ACT10006</h5><button type="button" id="d-x" aria-label="关闭">×</button></header>
+        <div class="dtabs"><button type="button" class="on" data-d="txt">文案与图片</button><button type="button" data-d="cfg">活动配置</button></div>
+        <div class="dbody">
+          <div class="dpane on" id="d-txt">
+            <div class="lbar chg-a" id="lbar"><span class="mk tip" style="right:8px;top:-9px" title="原：文案与图片只有一套，所有语言的玩家看到的都一样。现：按站点开启的语言（总控「站点管理」里该站点的支持语言）各填一套，页签顺序 = 默认语言在最前；页签上显示这套填了几项">新增：内容语言</span><span class="lt">内容语言</span><span id="lg-btns"></span><span class="sp"></span><button class="btn s" type="button" id="b-copy">复制 English 内容</button></div>
+            <p class="lnote" id="lnote"></p>
+            <div class="row"><label id="lb-cname"><i>*</i>客户端名称</label><div><div class="inp" id="w-cname"><input id="f-cname" class="ph-fb" maxlength="128" placeholder="玩家端展示名称" data-k="cname"></div></div></div>
+            <div class="row"><label id="lb-title"><i>*</i>活动标题</label><div><div class="inp" id="w-title"><input id="f-title" class="ph-fb" maxlength="128" placeholder="玩家端活动标题，例如 Daily Rebate 2%" data-k="title"><em class="wl" id="c-title">0 / 128</em></div></div></div>
+            <div class="row"><label>活动文案</label><div><div class="content-editor"><div class="rte-tb"><div class="r"><span class="dd">正文</span><i class="sep"></i><span>❝</span><i class="sep"></i><span class="b">B</span><span class="u">U</span><span class="it">I</span><span class="dd">···</span><i class="sep"></i><span class="dd">A</span><span class="dd">▧</span><i class="sep"></i><span class="dd">默认字号</span><span class="dd">默认字体</span><span class="dd">默认行高</span><i class="sep"></i><span>☰</span><span>⒈</span></div><div class="r"><span>☑</span><i class="sep"></i><span class="dd">≡</span><span class="dd">⇥</span><i class="sep"></i><span>🔗</span><span class="dd">🖼</span><span>⎯</span><i class="sep"></i><span>↶</span><span>↷</span></div></div><div class="content-body" id="f-desc" contenteditable="true" data-k="desc"></div></div><p class="hint">玩家端活动页展示的正文，留空则不展示文案区。当前 <span id="b-desc">0</span> / 65536 字节。</p></div></div>
+            <div class="row"><label>规则文案</label><div><div class="content-editor"><div class="rte-tb"><div class="r"><span class="dd">正文</span><i class="sep"></i><span>❝</span><i class="sep"></i><span class="b">B</span><span class="u">U</span><span class="it">I</span><span class="dd">···</span><i class="sep"></i><span class="dd">A</span><span class="dd">▧</span><i class="sep"></i><span class="dd">默认字号</span><span class="dd">默认字体</span><span class="dd">默认行高</span><i class="sep"></i><span>☰</span><span>⒈</span></div><div class="r"><span>☑</span><i class="sep"></i><span class="dd">≡</span><span class="dd">⇥</span><i class="sep"></i><span>🔗</span><span class="dd">🖼</span><span>⎯</span><i class="sep"></i><span>↶</span><span>↷</span></div></div><div class="content-body content-body--rules" id="f-rules" contenteditable="true" data-k="rules"></div></div><p class="hint">玩家端活动页的规则区。留空则不展示规则区。当前 <span id="b-rules">0</span> / 65536 字节。</p></div></div>
+            <div class="row"><label>列表图标</label><div><div class="cover-slot"><div class="cover-box cover-box--icon" data-img="icon"></div><div class="cover-actions"><button class="btn" type="button" data-up="icon">上传图片</button><button class="btn" type="button" data-clr="icon">清除</button></div><p class="hint">Bonus / Free Bonus 列表小图（3D 图标）。最长边 512px、≤400 KB。</p></div></div></div>
+            <div class="row"><label>详情背景图 · PC</label><div><div class="cover-slot"><div class="cover-box cover-box--pc" data-img="pc"></div><div class="cover-actions"><button class="btn" type="button" data-up="pc">上传图片</button><button class="btn" type="button" data-clr="pc">清除</button></div><p class="hint">PC 详情弹窗顶栏。对标站若是「背景 + 前景」两层，请先合成 <b>一张</b>再上传。建议宽幅约 16:9，最长边 1680px、≤400 KB。不用于 Promotion 宽卡。</p></div></div></div>
+            <div class="row"><label>详情背景图 · H5</label><div><div class="cover-slot"><div class="cover-box cover-box--h5" data-img="h5"></div><div class="cover-actions"><button class="btn" type="button" data-up="h5">上传图片</button><button class="btn" type="button" data-clr="h5">清除</button></div><p class="hint">手机端详情弹窗顶栏，与 PC 不是同一张。最长边 1280px、≤400 KB。未上传时手机端详情背景为空。</p></div></div></div>
+            <div class="row"><label>展示位置<span class="shared">所有语言共用</span></label><div><label class="chk"><input type="checkbox" id="f-promo" checked>Promotion 宽卡</label><p class="hint">勾选后，该活动出现在 /promotion 宽卡区，标题和简介用上面的活动标题、活动文案。不勾选不影响 Bonus 和其它活动。</p></div></div>
+            <div id="promo-rows">
+            <div class="row"><label>宽卡排序<span class="shared">所有语言共用</span></label><div><div class="inp num"><input id="f-psort" inputmode="numeric" value="3"><span class="spin"><b>▴</b><b>▾</b></span></div><p class="hint">数字小的排在前面。只影响 Promotion 宽卡顺序。</p></div></div>
+            <div class="row"><label>PC 宽卡图</label><div><div class="cover-slot"><div class="cover-box cover-box--pc" data-img="promo"></div><div class="cover-actions"><button class="btn" type="button" data-up="promo">上传图片</button><button class="btn" type="button" data-clr="promo">清除</button></div><p class="hint">只给 PC 两列宽卡用。最长边 1680px、≤400 KB。H5 请用下面单独的一张，不要用这张顶。</p></div></div></div>
+            <div class="row"><label>H5 宽卡图</label><div><div class="cover-slot"><div class="cover-box cover-box--pc" data-img="promoH5"></div><div class="cover-actions"><button class="btn" type="button" data-up="promoH5">上传图片</button><button class="btn" type="button" data-clr="promoH5">清除</button></div><p class="hint">只给手机单列宽卡用，和 PC 宽卡不是同一张图。最长边 1280px、≤400 KB。未上传时玩家端 H5 宽卡为空。</p></div></div></div>
+            </div>
+            <div class="row"><label>文案设置</label><div class="copyl">
+              <div class="inp"><input class="ph-fb" data-k="c1" data-ph="The currency used to participate in the activity must be the same as the deposit currency."></div>
+              <div class="inp"><input class="ph-fb" data-k="c2" data-ph="The bonus will be settled 24 hours after the deposit reaches 5.00."></div>
+              <div class="inp"><input class="ph-fb" data-k="c3" data-ph="We will compensate you for your losses in the specified games, as long as the single deposit reaches 5.00"></div>
+              <div class="inp"><input class="ph-fb" data-k="c4" data-ph="净亏计算公式展示文案，例如 Loss amount = game loss - bonus received"></div>
+            </div></div>
+            <input type="file" id="filePick" accept="image/jpeg,image/png,image/webp" hidden>
+          </div>
+
+          <div class="dpane" id="d-cfg">
+            <p class="lnote" style="margin-left:0">「活动配置」页的字段不分语言，本期不改。</p>
+            <div class="row"><label><i>*</i>后台名称</label><div><div class="inp"><input value="Loss Rescue 30%" placeholder="运营列表里看到的名称"></div></div></div>
+            <div class="row"><label><i>*</i>活动类型</label><div><div class="inp dis sel"><select disabled><option>亏损救援</option></select></div></div></div>
+            <div class="row"><label><i>*</i>开窗门槛</label><div><p class="hint" style="margin:0 0 6px">活动进行中门槛、结算周期与档位已冻结，标题、规则、封面、文案与「参与品牌」仍可改。</p><div class="inl wrap"><span class="inline-hint">最低单笔存款</span><div class="inp num"><input value="300" placeholder="例如 5"><span class="spin"><b>▴</b><b>▾</b></span></div><span class="inline-hint">结算周期小时（1 到 168）</span><div class="inp num"><input value="24"><span class="spin"><b>▴</b><b>▾</b></span></div></div><p class="hint">单笔充值达到门槛即开一个观察窗。亏损统计方式固定为净亏损（窗口内参与品牌的有效投注 − 返奖，结果为 0 或负数不赔）。</p></div></div>
+            <div class="row"><label><i>*</i>档位设置</label><div>
+              <table class="mx"><thead><tr><th>档</th><th>最低亏损</th><th>最高亏损</th><th>返还比例 %</th></tr></thead><tbody>
+              <tr><td>1</td><td><input value="300"></td><td><input value="1000"></td><td><input value="30"></td></tr>
+              <tr><td>2</td><td><input value="1000"></td><td><input value="5000"></td><td><input value="30"></td></tr>
+              <tr><td>3</td><td><input value="5000"></td><td><input value="10000"></td><td><input value="30"></td></tr>
+              <tr><td>4</td><td><input value="10000"></td><td><input value="50000"></td><td><input value="30"></td></tr>
+              <tr><td>5</td><td><input value="50000"></td><td><input value="100000"></td><td><input value="30"></td></tr>
+              <tr><td>6</td><td><input value="100000"></td><td>不限</td><td><input value="30"></td></tr>
+              </tbody></table>
+              <p class="hint">6 档区间首尾相接：本档最高亏损必须等于下一档最低亏损；最后一档最高亏损固定为不限。（档位金额为演示值）</p></div></div>
+            <div class="row"><label>活动时间</label><div class="dt2"><div class="inp dt"><span class="ico">◷</span><input placeholder="开始，空 = 不限" readonly></div><span>至</span><div class="inp dt"><span class="ico">◷</span><input placeholder="结束，空 = 不限" readonly></div></div></div>
+            <div class="row"><label>最低 VIP</label><div><div class="inp num"><input value="0"><span class="spin"><b>▴</b><b>▾</b></span></div><p class="hint">0 表示全部用户</p></div></div>
+            <div class="row"><label>需登录展示</label><div><button class="sw ip" type="button"><em>关</em></button><p class="hint">开启后未登录访客在活动列表与详情中看不到该活动；仅收窄展示，不影响触发与派发；默认关闭</p></div></div>
+            <div class="row"><label>列表排序</label><div><div class="inl"><div class="inp num"><input value="0"><span class="spin"><b>▴</b><b>▾</b></span></div><button class="btn s" type="button">置顶</button></div><p class="hint">数字大的排在前面，同值保持原有顺序；只影响客户端活动列表的充值区与普通区，不影响 Promotion 宽卡排序；默认 0 不调整。</p></div></div>
+            <div class="row"><label>账号去重</label><div><label class="chk"><input type="checkbox">同 IP 只能参加一次</label>　<label class="chk"><input type="checkbox">同设备只能参加一次</label><p class="hint">勾选后同 IP 或同设备的其他账号不能再参加本活动；首笔成功订单即占位，两个都勾为任一命中即拦；多档与周期类按整个活动实例占位，同一账号自己的后续档位与次日结算不受影响；免费转盘在提现时校验。</p></div></div>
+            <div class="row"><label>参与品牌</label><div><div class="rad"><label><input type="radio" name="brand" checked>全部</label><label><input type="radio" name="brand">指定</label></div><p class="hint">亏损救援按开窗时的参与范围结算：改品牌只影响之后新开的窗口，已开窗口仍按开窗时的范围。</p></div></div>
+            <div class="row"><label>派发方式</label><div class="rad"><label><input type="radio" name="disp">自动派发</label><label><input type="radio" name="disp" checked>手动领取</label></div></div>
+            <div class="row"><label>流水倍数</label><div><div class="inp num"><input value="5"><span class="spin"><b>▴</b><b>▾</b></span></div><p class="hint">奖励打码量 = 奖励金额 × 倍数，0 表示不加打码</p></div></div>
+            <div class="row"><label>流水基数</label><div><div class="rad"><label><input type="radio" name="base" checked>赠送金额</label><label><input type="radio" name="base">本金 + 赠送</label></div><p class="hint">赠送金额：打码量 = 奖励金额 × 倍数；本金 + 赠送：打码量 =（触发本单的充值金额 + 奖励金额）× 倍数。注册、绑定等非充值活动本金按 0 计，两种基数结果一致。改基数只影响之后新产生的订单，已发订单按出单时的快照执行。</p></div></div>
+            <div class="row"><label>领取有效天数</label><div><div class="inp num"><input value="7"><span class="spin"><b>▴</b><b>▾</b></span></div></div></div>
+          </div>
+        </div>
+        <footer><button class="btn" type="button" id="d-cancel">取消</button><button class="btn p" type="button" id="d-save">保存</button></footer>
+      </div>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="lres">
+    <h4>前台取值（按上面填写实时计算）</h4>
+    <p>玩家当前语言填了就用这一份；没填 / 没传的字段，逐项用站点默认语言（English）那一份。</p>
+    <table><thead><tr><th style="width:120px">字段</th><th>English 玩家看到</th><th>Filipino 玩家看到</th></tr></thead><tbody id="res"></tbody></table>
+  </div>
+  </div>
+
+  </div>
+  <p class="proto-tip">列表和档位金额为演示数据；图片为示意图。演示站点：菲律宾站，站点语言 English（默认）+ Filipino。</p>
+</section>
+
+<section class="dh-primary-panel" data-primary-panel="docs">
+  <nav class="dh-tabs"><button class="dh-tab active" data-tab="spec" type="button"><span class="n">1</span>需求说明</button><button class="dh-tab" data-tab="acc" type="button"><span class="n">2</span>验收</button></nav>
+
+  <div class="dh-panel active" data-panel="spec"><div class="req-block">
+    <h2>改什么</h2>
+    <div class="dh-prose"><ul>
+      <li><b>运营后台 · 活动编辑</b>：「文案与图片」页加一排<b>内容语言</b>页签，按站点开启的语言各填一套文字、各传一套图片。示例用「亏损救援 · Loss Rescue 30%」，其它活动类型、Banner、公告、站内信等后台内容按同样方式改。</li>
+      <li>站点开哪些语言、默认哪种，用总控「站点管理 › 编辑站点」已有的「默认语言」「支持语言」，本需求不改总控。</li>
+    </ul></div>
+    <div class="dh-callout">现状：活动「文案与图片」只有一套，所有语言的玩家看到的一样。</div>
+
+    <h3>一、运营后台：活动按语言配置</h3>
+    <table class="dh-table-simple"><thead><tr><th style="width:150px">项</th><th>规则</th></tr></thead><tbody>
+      <tr><td>内容语言页签</td><td>放在「文案与图片」页最上面。页签 = 总控里该站点的<b>支持语言</b>，默认语言排第一并标「默认」；页签上显示这套填了几项（如「已填 6 / 13」）。总控给站点加一种支持语言，这里自动多一个页签；总控改了默认语言，「默认」标记和必填跟着变</td></tr>
+      <tr><td>分语言的字段</td><td>客户端名称、活动标题、活动文案、规则文案、列表图标、详情背景图 · PC、详情背景图 · H5、PC 宽卡图、H5 宽卡图、文案设置（4 行），共 13 项，每种语言各一份</td></tr>
+      <tr><td>不分语言的字段</td><td>展示位置（Promotion 宽卡）、宽卡排序，标「所有语言共用」；「活动配置」页全部字段不分语言，本期不改</td></tr>
+      <tr><td>必填</td><td>默认语言那一套按现网规则：客户端名称、活动标题必填；其它语言全部选填，不显示红色 *</td></tr>
+      <tr><td>没填的提示</td><td>非默认语言的空字段，输入框里用橙色占位文字显示「没填，前台显示：&lt;默认语言的内容&gt;」；空图片位显示默认语言那张的淡色缩略图，写「未上传 · 前台用 English 图」</td></tr>
+      <tr><td>复制默认语言内容</td><td>非默认语言页签右侧有「复制 English 内容」按钮：把默认语言的内容填进当前语言<b>还空着</b>的字段（文字和图片），已填的不覆盖，方便在原文上改成译文</td></tr>
+      <tr><td>保存</td><td>一次保存所有语言；默认语言必填项没填时，自动切到默认语言页签并标红，提示「请填写 English 的客户端名称、活动标题」</td></tr>
+      <tr><td>存量数据</td><td>上线时现有活动的文字和图片全部作为站点默认语言（菲站 = English）那一套，不用运营重填</td></tr>
+      <tr><td>活动列表</td><td>「客户端名称」列显示默认语言那一份</td></tr>
+    </tbody></table>
+
+    <h3>二、前台取值</h3>
+    <table class="dh-table-simple"><tbody>
+      <tr><td style="width:150px">规则</td><td><b>逐个字段</b>取：玩家当前语言填了 → 用这份；没填 / 没传 → 用站点默认语言那份；默认语言也没有 → 用 English 那份。文字和图片各自回退，互不影响（如 Filipino 只填了标题，图片仍显示 English 图）</td></tr>
+      <tr><td>接口</td><td>C 端活动接口带当前语言（如 <code>lang=tl-PH</code>），后端按上面的规则合并好再返回，前端不用自己判断回退</td></tr>
+    </tbody></table>
+
+    <h3>请开发确认</h3>
+    <div class="dh-prose"><ol>
+      <li>活动文案和图片按语言存的方式（例如每个活动加一张多语言内容表，按 活动 + 语言 存 14 个字段），以及 Banner、公告、站内信、转盘等其它后台内容是否用同一套。</li>
+      <li>C 端活动接口按 <code>lang</code> 合并返回是否可行，缓存（「刷新C端缓存」）是否要按语言分。</li>
+    </ol></div>
+
+    <h3>不做</h3>
+    <div class="dh-prose"><ul><li>「活动配置」页字段（门槛、档位、流水等）不分语言</li><li>总控（默认语言、支持语言已有）</li><li>运营后台、总控界面本身的多语言</li><li>自动翻译（运营自己填译文，或用「复制 English 内容」后改）</li></ul></div>
+  </div></div>
+
+  <div class="dh-panel" data-panel="acc"><div class="req-block">
+    <h2>验收</h2>
+    <table class="dh-table-simple"><thead><tr><th style="width:44px">#</th><th>操作</th><th>预期</th></tr></thead><tbody>
+      <tr><td>B1</td><td>菲站打开任一活动编辑，看「文案与图片」</td><td>最上面有「English 默认」「Filipino」两个页签；English 那套是现有内容</td></tr>
+      <tr><td>B2</td><td>Filipino 只填活动标题，保存；Filipino 玩家看活动</td><td>标题是 Filipino；客户端名称、文案、规则、所有图片都显示 English 那份</td></tr>
+      <tr><td>B3</td><td>Filipino 补传 PC / H5 详情背景图</td><td>Filipino 玩家 PC、H5 各显示对应的 Filipino 图；English 玩家不变</td></tr>
+      <tr><td>B4</td><td>清空 English 的客户端名称后保存</td><td>切回 English 页签，客户端名称标红，不能保存</td></tr>
+      <tr><td>B5</td><td>Filipino 页签点「复制 English 内容」</td><td>只有空着的字段被填上，已填的不变</td></tr>
+      <tr><td>B6</td><td>改「展示位置 / 宽卡排序」</td><td>两种语言同时生效</td></tr>
+      <tr><td>B7</td><td>总控给菲站加一种支持语言（如 Español）</td><td>活动编辑多一个 Español 页签，内容全空，前台 Español 玩家看到 English 内容</td></tr>
+      <tr><td>B8</td><td>上线后看现有活动</td><td>文字和图片不变，不用重填 / 重传</td></tr>
+    </tbody></table>
+  </div></div>
+</section>
+
+</main></div>
+<script>
+(function(){
+  function $(id){return document.getElementById(id);}
+  // 文档层：主 Tab / 子 Tab / 标注开关
+  document.querySelectorAll('.dh-primary-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.dh-primary-btn').forEach(function(x){x.classList.toggle('active',x===b);});document.querySelectorAll('.dh-primary-panel').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-primary-panel')===b.getAttribute('data-primary'));});});});
+  document.querySelectorAll('.dh-tab').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.dh-tab').forEach(function(x){x.classList.toggle('active',x===b);});document.querySelectorAll('.dh-panel').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-panel')===b.getAttribute('data-tab'));});});});
+  $('mkT').addEventListener('change',function(){document.body.classList.toggle('nomk',!this.checked);});
+
+  // 示意图（SVG）
+  function img(lang,kind,w,h){var c=lang==='en-US'?['#0f5f8a','#1fb8a0']:lang==='tl-PH'?['#8a2b0f','#e0a21f']:['#4b2a8a','#2f8fd8'];var tx={'en-US':'Loss Rescue 30%','tl-PH':'Sagip sa Talo 30%','bn-BD':'লস রেসকিউ ৩০%','es-MX':'Rescate 30%'}[lang];var tag={'en-US':'EN','tl-PH':'TL','bn-BD':'BN','es-MX':'ES'}[lang];var fs=Math.round(Math.min(w,h*2.2)/9);var s='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+c[0]+'"/><stop offset="1" stop-color="'+c[1]+'"/></linearGradient></defs><rect width="100%" height="100%" rx="10" fill="url(#g)"/>'+(kind==='icon'?'<circle cx="'+w/2+'" cy="'+h/2+'" r="'+(w*0.32)+'" fill="#fff" fill-opacity=".25"/><text x="50%" y="56%" text-anchor="middle" font-family="Arial" font-weight="700" font-size="'+(w*0.26)+'" fill="#fff">'+tag+'</text>':'<text x="50%" y="52%" text-anchor="middle" font-family="Arial" font-weight="700" font-size="'+fs+'" fill="#fff">'+tx+'</text><text x="50%" y="74%" text-anchor="middle" font-family="Arial" font-size="'+Math.round(fs*0.55)+'" fill="#fff" fill-opacity=".85">'+kind.toUpperCase()+' · '+tag+'</text>')+'</svg>';return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s);}
+  var IMGK={icon:[120,120],pc:[320,180],h5:[180,220],promo:[320,140],promoH5:[200,120]};
+  var IMGN={icon:'列表图标',pc:'详情背景图 · PC',h5:'详情背景图 · H5',promo:'PC 宽卡图',promoH5:'H5 宽卡图'};
+  function demoImg(lang,k){return img(lang,k,IMGK[k][0],IMGK[k][1]);}
+
+  var LANGS=[{code:'en-US',name:'English',label:'English (en-US)'},{code:'tl-PH',name:'Filipino',label:'Filipino (tl-PH)'},{code:'bn-BD',name:'বাংলা',label:'বাংলা (bn-BD)'},{code:'es-MX',name:'Español',label:'Español (es-MX)'}];
+  function L(code){return LANGS.filter(function(x){return x.code===code;})[0];}
+  var FIELDS=[['cname','客户端名称'],['title','活动标题'],['desc','活动文案'],['rules','规则文案'],['icon','列表图标'],['pc','详情背景图 · PC'],['h5','详情背景图 · H5'],['promo','PC 宽卡图'],['promoH5','H5 宽卡图'],['c1','文案设置 1'],['c2','文案设置 2'],['c3','文案设置 3'],['c4','文案设置 4']];
+  var IMG_KEYS=['icon','pc','h5','promo','promoH5'];
+  var S,M,cur;
+  function initState(){
+    S={'en-US':{cname:'Loss Rescue 30%',title:'Loss Rescue 30%',desc:'<p>New user Cashback on slot losses</p>',rules:'<p>1. This is a daily loss relief bonus event. Members who deposited at least 300 yesterday and incurred losses are eligible to claim the relief bonus.</p><p>2. The bonus needs to be claimed manually, and will expire if not claimed within 7 days.</p>',icon:demoImg('en-US','icon'),pc:demoImg('en-US','pc'),h5:demoImg('en-US','h5'),promo:demoImg('en-US','promo'),promoH5:demoImg('en-US','promoH5'),c1:'',c2:'',c3:'',c4:''},
+       'tl-PH':{cname:'',title:'Sagip sa Talo 30%',desc:'<p>Cashback para sa bagong user sa talo sa slot</p>',rules:'',icon:'',pc:'',h5:'',promo:'',promoH5:'',c1:'',c2:'',c3:'',c4:''}};
+    M={sites:[{key:'us-main',name:'美国站',tpl:'默认模板',dom:'77slot.com',cur:'USD',api:'api.dg58.com',fiat:'$ USD',rate:'1.00',cty:'美国 (US)',tz:'GMT-5（美国站固定，无夏令时）',web:'77slot.com',adm:'admin.dg58.com',def:'en-US',on:['en-US'],ct:'2026-10-28 11:20:05'},
+              {key:'ph-77slot',name:'菲律宾 77Slot',tpl:'默认模板',dom:'77slot.com',cur:'PHP',api:'api.ph.dg58.com',fiat:'₱ PHP',rate:'58.62',cty:'菲律宾 (PH)',tz:'Asia/Manila (UTC+8)',web:'77slot.com',adm:'admin.ph.dg58.com',def:'en-US',on:['en-US','tl-PH'],ct:'2026-11-12 16:03:41'}]};
+    cur='en-US';
+  }
+  function ph(){return M.sites[1];}
+  function site(){return ph();}
+  function langsOn(){var s=site();var a=[s.def].concat(s.on.filter(function(c){return c!==s.def;}));return a;}
+  function ensure(code){if(!S[code]){S[code]={};FIELDS.forEach(function(f){S[code][f[0]]='';});}}
+  function strip(h){var d=document.createElement('div');d.innerHTML=h||'';return d.textContent.trim();}
+  function filled(code,k){var v=S[code][k];return k==='desc'||k==='rules'?!!strip(v):!!v;}
+  function cnt(code){return FIELDS.filter(function(f){return filled(code,f[0]);}).length+'';}
+  function resolve(code,k){if(filled(code,k))return {v:S[code][k],from:null};var d=site().def;if(S[d]&&filled(d,k))return {v:S[d][k],from:d};if(filled('en-US',k))return {v:S['en-US'][k],from:'en-US'};return {v:'',from:null};}
+
+  // ---------- 运营后台：活动编辑 ----------
+  function saveCur(){
+    var o=S[cur];
+    document.querySelectorAll('#d-txt input[data-k]').forEach(function(i){o[i.dataset.k]=i.value.trim();});
+    o.desc=$('f-desc').innerHTML.trim();o.rules=$('f-rules').innerHTML.trim();
+  }
+  function bytes(h){return new Blob([h||'']).size;}
+  function loadCur(){
+    var d=site().def,isDef=cur===d,o=S[cur],dn=L(d).name;
+    document.querySelectorAll('#d-txt input[data-k]').forEach(function(i){var k=i.dataset.k;i.value=o[k]||'';var base=i.dataset.ph||(k==='cname'?'玩家端展示名称':'玩家端活动标题，例如 Daily Rebate 2%');if(isDef){i.placeholder=base;}else{var r=resolve(d,k);i.placeholder=r.v?('没填，前台显示 '+dn+'：'+r.v):base;}});
+    ['desc','rules'].forEach(function(k){var el=$('f-'+k);el.innerHTML=o[k]||'';el.setAttribute('data-ph',isDef?'':('没填，前台显示 '+dn+' 那份'));});
+    $('lb-cname').innerHTML=(isDef?'<i>*</i>':'')+'客户端名称';$('lb-title').innerHTML=(isDef?'<i>*</i>':'')+'活动标题';
+    $('w-cname').classList.remove('err');$('w-title').classList.remove('err');
+    IMG_KEYS.forEach(function(k){var box=document.querySelector('[data-img="'+k+'"]');var v=o[k];if(v){box.className=box.className.replace(/ ?emp/,'');box.innerHTML='<img alt="'+IMGN[k]+'" src="'+v+'">';}else if(!isDef&&S[d][k]){box.innerHTML='<div class="fb"><img alt="" src="'+S[d][k]+'"><span>未上传 · 前台用 '+dn+' 图</span></div>';}else{box.innerHTML='<span>未上传</span>';box.classList.add('emp');}
+      var up=document.querySelector('[data-up="'+k+'"]');up.textContent=v?'替换图片':'上传图片';});
+    $('b-copy').style.display=isDef?'none':'';$('b-copy').textContent='复制 '+dn+' 内容';
+    $('lnote').innerHTML=isDef?('当前编辑 <b style="color:#0f8f78">'+L(cur).name+'（默认语言）</b>：客户端名称、活动标题必填；其它语言没填的字段，前台都用这一份。'):('当前编辑 <b>'+L(cur).name+'</b>：全部选填。没填的字段（橙色提示）前台显示 '+dn+' 那一份。');
+    counts();
+  }
+  function counts(){
+    $('c-title').textContent=($('f-title').value.length)+' / 128';
+    $('b-desc').textContent=bytes($('f-desc').innerHTML);$('b-rules').textContent=bytes($('f-rules').innerHTML);
+  }
+  function renderBar(){
+    var d=site().def;var h='';langsOn().forEach(function(c){ensure(c);var n=cnt(c);h+='<button type="button" class="lg'+(c===cur?' on':'')+'" data-l="'+c+'">'+L(c).name+(c===d?' <span class="df">默认</span>':'')+' <span class="st'+(n==='13'?' ok':'')+'">已填 '+n+' / 13</span></button> ';});
+    $('lg-btns').innerHTML=h;
+    $('lg-btns').querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){saveCur();cur=b.dataset.l;renderBar();loadCur();renderRes();});});
+  }
+  function renderRes(){
+    var en='en-US',ls=langsOn();var h='<tr><th style="width:120px">字段</th>';ls.forEach(function(c){h+='<th>'+L(c).name+' 玩家看到</th>';});h+='</tr>';
+    document.querySelector('.lres thead').innerHTML=h;
+    var b='';FIELDS.forEach(function(f){var k=f[0];b+='<tr><td>'+f[1]+'</td>';ls.forEach(function(c){var r=resolve(c,k);var cell;if(!r.v)cell='<span class="none">不显示</span>';else if(IMG_KEYS.indexOf(k)>=0)cell='<img alt="" src="'+r.v+'">';else cell=(k==='desc'||k==='rules')?strip(r.v).slice(0,90)+(strip(r.v).length>90?'…':''):r.v.replace(/</g,'&lt;');if(r.from)cell+='<br><span class="src">没填，用 '+L(r.from).name+'</span>';b+='<td>'+cell+'</td>';});b+='</tr>';});
+    $('res').innerHTML=b;
+  }
+  function renderAll(){var ls=langsOn();if(ls.indexOf(cur)<0)cur=site().def;renderBar();loadCur();renderRes();}
+  function liveUpd(){saveCur();renderBar();renderRes();counts();}
+  document.querySelectorAll('#d-txt input[data-k]').forEach(function(i){i.addEventListener('input',liveUpd);});
+  ['f-desc','f-rules'].forEach(function(id){$(id).addEventListener('input',liveUpd);});
+  var pickK=null;
+  document.querySelectorAll('[data-up]').forEach(function(b){b.addEventListener('click',function(){pickK=b.dataset.up;$('filePick').value='';$('filePick').click();});});
+  $('filePick').addEventListener('change',function(){var f=this.files[0];if(!f||!pickK)return;if(f.size>400*1024){toast('图片不能超过 400 KB',1);return;}var r=new FileReader();r.onload=function(){S[cur][pickK]=r.result;loadCur();renderBar();renderRes();};r.readAsDataURL(f);});
+  document.querySelectorAll('[data-clr]').forEach(function(b){b.addEventListener('click',function(){S[cur][b.dataset.clr]='';loadCur();renderBar();renderRes();});});
+  $('b-copy').addEventListener('click',function(){saveCur();var d=site().def,n=0;FIELDS.forEach(function(f){var k=f[0];if(!filled(cur,k)&&filled(d,k)){S[cur][k]=S[d][k];n++;}});loadCur();renderBar();renderRes();toast(n?('已把 '+L(d).name+' 的 '+n+' 项填进空着的字段，已填的没动'):'没有空着的字段');});
+  $('b-demoimg').addEventListener('click',function(){saveCur();ensure('tl-PH');['pc','h5'].forEach(function(k){S['tl-PH'][k]=demoImg('tl-PH',k);});if(langsOn().indexOf('tl-PH')>=0)cur='tl-PH';renderAll();toast('已给 Filipino 传 PC / H5 详情背景图');});
+  document.querySelectorAll('.dtabs button').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.dtabs button').forEach(function(x){x.classList.toggle('on',x===b);});$('d-txt').classList.toggle('on',b.dataset.d==='txt');$('d-cfg').classList.toggle('on',b.dataset.d==='cfg');});});
+  $('f-promo').addEventListener('change',function(){$('promo-rows').style.display=this.checked?'':'none';});
+  function closeDlg(){$('dlg').classList.remove('on');}
+  $('d-x').addEventListener('click',closeDlg);$('d-cancel').addEventListener('click',closeDlg);
+  $('b-edit').addEventListener('click',function(){$('dlg').classList.add('on');renderAll();});
+  $('d-save').addEventListener('click',function(){saveCur();var d=site().def,miss=[];if(!S[d].cname)miss.push('客户端名称');if(!S[d].title)miss.push('活动标题');
+    if(miss.length){cur=d;document.querySelector('.dtabs [data-d="txt"]').click();renderBar();loadCur();if(!S[d].cname)$('w-cname').classList.add('err');if(!S[d].title)$('w-title').classList.add('err');toast('请填写 '+L(d).name+' 的'+miss.join('、'),1);return;}
+    $('l-cname').textContent=S[d].cname;closeDlg();toast('保存成功');});
+  function toast(m,bad){var t=$('toast');t.textContent=m;t.classList.toggle('bad',!!bad);t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('on');},2400);}
+
+  function resetAll(){initState();$('dlg').classList.add('on');document.querySelector('.dtabs [data-d="txt"]').click();$('f-promo').checked=true;$('promo-rows').style.display='';$('l-cname').textContent='Loss Rescue 30%';renderAll();}
+  $('resetAll').addEventListener('click',resetAll);
+  resetAll();
+})();
+</script>
+</body></html>
