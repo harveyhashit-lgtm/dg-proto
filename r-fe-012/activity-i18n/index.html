@@ -566,7 +566,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   <div class="dh-panel active" data-panel="spec"><div class="req-block">
     <h2>改什么</h2>
     <div class="dh-prose"><ul>
-      <li><b>运营后台 · 活动编辑</b>：「文案与图片」页加一排<b>内容语言</b>页签，按站点开启的语言各填一套文字、各传一套图片。示例用「亏损救援 · Loss Rescue 30%」，其它活动类型、Banner、公告、站内信等后台内容按同样方式改。</li>
+      <li><b>运营后台 · 活动编辑</b>：「文案与图片」页加一排<b>内容语言</b>页签，按站点开启的语言各填一套文字、各传一套图片。示例用「亏损救援 · Loss Rescue 30%」。<b>这里只演示样式，开发统一给所有后台内容加</b>：全部活动类型（含展示类活动）、Banner / 广告图、公告、站内信、全站动态、转盘、榜单赛等所有在后台配置、前台展示的文字和图片，都按同样方式，不再逐个出原型。</li>
       <li>站点开哪些语言、默认哪种，用总控「站点管理 › 编辑站点」已有的「默认语言」「支持语言」，本需求不改总控。</li>
     </ul></div>
     <div class="dh-callout">现状：活动「文案与图片」只有一套，所有语言的玩家看到的一样。</div>
@@ -592,7 +592,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
     <h3>请开发确认</h3>
     <div class="dh-prose"><ol>
-      <li>活动文案和图片按语言存的方式（例如每个活动加一张多语言内容表，按 活动 + 语言 存 14 个字段），以及 Banner、公告、站内信、转盘等其它后台内容是否用同一套。</li>
+      <li>文案和图片按语言存的方式（例如按 内容 + 语言 存），所有后台内容是否用同一套，以及完整的页面 / 字段清单。</li>
       <li>C 端活动接口按 <code>lang</code> 合并返回是否可行，缓存（「刷新C端缓存」）是否要按语言分。</li>
     </ol></div>
 
