@@ -357,7 +357,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 <section class="dh-primary-panel active" data-primary-panel="proto">
   <div class="ctl">
-    <label>页面 <span class="seg" id="viewSeg"><button type="button" class="on" data-v="rec">榜单赛记录 · 期次奖励明细</button><button type="button" data-v="list">榜单赛列表 · 编辑</button></span></label>
+    <label>页面 <span class="seg" id="viewSeg"><button type="button" class="on" data-v="rec">榜单赛记录 · 期次奖励明细</button><button type="button" data-v="list">榜单赛列表 · 编辑 / 关闭</button></span></label>
     <label><input type="checkbox" id="mkT" checked> 显示改动标注</label>
     <span class="legend"><i style="background:#19be6b"></i>本期新增 / 修改（悬停看说明）</span>
     <button class="doc-btn" id="resetAll" type="button">重置演示</button>
@@ -449,7 +449,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
           <div><label class="t">客户端展示名称</label><div class="inp"><input value="Betting Rank Jackpot (Daily)" maxlength="128"></div></div>
           <div><label class="t">后台展示名称</label><div class="inp"><input value="每日投注排行" maxlength="128"></div></div>
           <div><label class="t">榜单赛类型</label><div class="inp dis"><input value="每日投注排行" disabled></div></div>
-          <div><label class="t">状态</label><div class="inp"><select id="e-status"><option value="1">开启</option><option value="2" selected>关闭</option></select></div></div>
+          <div class="chg-a" style="padding:2px"><span class="mk tip" style="right:0;top:-10px" title="原：状态改「关闭」直接保存，只停止新参与和计分，当期照常结算、待领取仍可领。现：从「开启」改为「关闭」点保存时，先弹「关闭榜单赛」确认，确认后当期不结算、待领取全部作废">修改：改关闭试试</span><label class="t">状态</label><div class="inp"><select id="e-status"><option value="1">开启</option><option value="2" selected>关闭</option></select></div></div>
           <div><label class="t">排名周期</label><div class="inp dis"><input value="每日" disabled></div></div>
           <div><label class="t">排名指标</label><div class="inp dis"><input value="当日有效投注总额" disabled></div></div>
         </div>
@@ -648,7 +648,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   /* ---------- 视图切换 ---------- */
   var seg=document.querySelectorAll('#viewSeg button');
   function show(v){seg.forEach(function(x){x.classList.toggle('on',x.dataset.v===v);});$('v-rec').classList.toggle('on',v==='rec');$('v-list').classList.toggle('on',v==='list');$('m-rec').classList.toggle('on',v==='rec');$('m-list').classList.toggle('on',v==='list');$('tg-rec').classList.toggle('on',v==='rec');$('tg-list').classList.toggle('on',v==='list');$('crumb').textContent=v==='rec'?'榜单赛记录':'榜单赛列表';
-    $('hint').textContent=v==='rec'?'已默认打开期次奖励明细（关闭后点第二行「明细」可再打开）：试单条「强制通过 / 强制拒绝」、勾选后批量处理、底部「导出」。':'已默认打开编辑弹窗（关闭后点「编辑」可再打开）：改结算发奖时间、领取方式、过期天数、未领取处理后保存；领取方式选「系统自动派发」时后两项置灰。';}
+    $('hint').textContent=v==='rec'?'已默认打开期次奖励明细（关闭后点第二行「明细」可再打开）：试单条「强制通过 / 强制拒绝」、勾选后批量处理、底部「导出」。':'已默认打开编辑弹窗（关闭后点「编辑」可再打开）：改结算发奖时间、领取方式、过期天数、未领取处理后保存；把「状态」从「开启」改成「关闭」再点保存，看关闭确认。';}
   function openDefault(v){if(v==='rec'){renderDet();$('dlg-det').classList.add('on');}else{$('b-edit').click();}}
   seg.forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.mask').forEach(function(m){m.classList.remove('on');});show(b.dataset.v);openDefault(b.dataset.v);});});
   document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',function(){b.closest('.mask').classList.remove('on');});});
