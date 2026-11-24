@@ -334,12 +334,17 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 /* 操作列固定在右侧（同现网 el-table fixed right） */
 .adm table.lst th:last-child,.adm table.lst td:last-child{position:sticky;right:0;background:#fff;box-shadow:-6px 0 8px -6px rgba(0,0,0,.12);z-index:1}
 .adm table.lst th:last-child{background:#f5f7fa}
+/* 关闭活动确认 */
+.adm .cl-q{font-size:14px;color:#223;margin:0 0 10px;font-weight:600}
+.adm .cl-box{position:relative;border:1px solid #ebeef5;border-radius:6px;padding:8px 12px 8px 4px;margin-bottom:10px}
+.adm .cl-box ul{margin:0;padding-left:22px;font-size:13px;color:#445;line-height:1.7}
+.adm .cl-box ul b{color:#f56c6c}
 </style>
 </head>
 <body>
 
 <header class="dh-header"><div class="dh-header-inner">
-  <h1>榜单赛：明细导出 + 待领取奖励强制通过 / 强制拒绝 + 发奖配置可改</h1>
+  <h1>榜单赛：明细导出 + 待领取奖励强制通过 / 强制拒绝 + 发奖配置可改；关闭时结束后续结算与待领取</h1>
   <div class="dh-meta"><span>模块：<b>运营管理后台 · 运营配置 › 榜单赛记录、榜单赛列表</b></span><span>适用：<b>菲律宾站、美国站</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-24</b></span></div>
 </div></header>
 
@@ -396,7 +401,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
             <div class="tblwrap"><table class="lst">
               <thead><tr><th>榜单赛 ID</th><th>后台展示名称</th><th>客户端展示名称</th><th>类型</th><th>排名周期</th><th>奖池来源</th><th>奖池比例</th><th class="r">当前期奖池</th><th>结算时间</th><th>状态</th><th>最近操作人</th><th>操作</th></tr></thead>
               <tbody>
-                <tr><td>RANK10001</td><td>每日投注排行</td><td class="l">Betting Rank Jackpot (Daily)</td><td>每日投注排行</td><td>每日</td><td>前一自然日</td><td>5.00%</td><td class="r">₱ 9,203.31</td><td id="l-settle" style="position:relative"></td><td><span class="stag i">关闭</span></td><td>运营账号</td><td><button class="lnk" type="button" id="b-edit">编辑</button></td></tr>
+                <tr><td>RANK10001</td><td>每日投注排行</td><td class="l">Betting Rank Jackpot (Daily)</td><td>每日投注排行</td><td>每日</td><td>前一自然日</td><td>5.00%</td><td class="r">₱ 9,203.31</td><td id="l-settle" style="position:relative"></td><td id="l-status"></td><td>运营账号</td><td><button class="lnk" type="button" id="b-edit">编辑</button></td></tr>
                 <tr><td>RANK10002</td><td>每周积分赛</td><td class="l">Live Casino Battle (Weekly)</td><td>每周积分赛</td><td>每周</td><td>实时累计</td><td>3.00%</td><td class="r">₱ 8,645.34</td><td>每周一 01:00</td><td><span class="stag i">关闭</span></td><td>运营账号</td><td><button class="lnk" type="button" disabled>编辑</button></td></tr>
               </tbody>
             </table></div>
@@ -501,6 +506,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <footer><button class="btn" type="button" data-close>取消</button><button class="btn p" type="button" id="e-save">保存配置</button></footer>
     </div></div>
 
+    <div class="mask" id="dlg-close" style="z-index:80"><div class="dlg sm"><header><h5>关闭榜单赛</h5><button type="button" data-close>×</button></header>
+      <div class="dbody"><p class="cl-q">确认关闭「每日投注排行」？</p><div class="cl-box chg-a"><span class="mk tip" style="right:8px;top:-9px" title="原：状态改「关闭」直接保存，只停止新参与和计分，当期照常结算发奖、待领取仍可领。现：关闭时当期不再结算、待领取作废，保存前弹窗列出影响">新增</span><ul id="cl-list"></ul></div><div class="warnline">关闭后不可撤销：当期不会补结算，作废的奖励不会恢复；重新开启从新的一期开始。</div></div>
+      <footer><button class="btn" type="button" data-close>取消</button><button class="btn p" type="button" id="cl-go" style="background:#f56c6c;border-color:#f56c6c">确认关闭</button></footer></div></div>
     <div class="toast" id="toast"></div>
   </div>
   </div>
@@ -514,7 +522,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <h2>改什么</h2>
     <div class="dh-prose"><ul>
       <li><b>榜单赛记录 › 期次奖励明细</b>：加「导出」；「待领取」的真实玩家奖励可「强制通过」「强制拒绝」，支持勾选批量。</li>
-      <li><b>榜单赛列表 › 编辑</b>：「结算发奖时间」「奖励领取方式」「领取过期时间」「未领取奖励处理」四项支持配置。</li></ul></div>
+      <li><b>榜单赛列表 › 编辑</b>：「结算发奖时间」「奖励领取方式」「领取过期时间」「未领取奖励处理」四项支持配置。</li>
+      <li><b>关闭榜单赛</b>：状态改为「关闭」并保存时，当期不再结算，所有待领取奖励作废。</li></ul></div>
     <div class="dh-callout warn">现状：明细弹窗只能看、只有「关闭」；发错的奖励只能找开发清库。编辑页四项是灰的：结算时间、过期天数后端已存但界面锁着，领取方式写死「用户手动领取」，未领取处理写死（固定奖池作废、其它奖池滚入下一期）。</div>
 
     <h3>强制处理流程</h3>
@@ -559,6 +568,23 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>强制拒绝没填原因</td><td>提示「请填写拒绝原因」，不提交</td></tr>
     </table></div>
 
+    <h3>关闭榜单赛<span class="tag-new">修改</span></h3>
+    <div class="dh-prose"><p>现状：状态改「关闭」只停止新参与和计分，当期照常结算发奖，待领取仍可领。关闭时结束这个榜单赛的后续事项：</p></div>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>项</th><th>关闭后</th></tr>
+      <tr><td><b>参与与计分</b></td><td>停止，前台不再展示进行中</td></tr>
+      <tr><td><b>当期</b></td><td>进行中或「待结算」的那一期不再结算，奖池不发放；比赛状态显示「已关闭（不结算）」</td></tr>
+      <tr><td><b>待领取奖励</b></td><td>这个榜单赛所有期次里待领取的奖励全部作废，状态「已取消」，会员端不再显示，金额不滚入下一期</td></tr>
+      <tr><td><b>已领取</b></td><td>不受影响</td></tr>
+      <tr><td><b>重新开启</b></td><td>从新的一期开始计分；已作废的不恢复</td></tr>
+    </table></div>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>触发</th><th>系统反馈</th></tr>
+      <tr><td>编辑弹窗把状态从「开启」改为「关闭」，点保存配置</td><td>先弹「关闭榜单赛」确认：列出停止计分、当期不再结算、待领取几人共多少金额作废、已领取不受影响；写明不可撤销；按钮「确认关闭」为红色</td></tr>
+      <tr><td>确认关闭</td><td>保存成功，列表状态「关闭」；提示「已关闭，当期不结算，作废 N 人待领取」；写操作日志（含作废人数、金额）</td></tr>
+      <tr><td>状态本来就是「关闭」，改其它配置保存</td><td>直接保存，不弹关闭确认</td></tr>
+    </table></div>
+
     <h3>接口</h3>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>接口</th><th>说明</th></tr>
@@ -567,10 +593,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>期次明细</td><td>奖励行加 <code>status=cancelled</code>、处理时间、处理人、原因；汇总加 <code>cancelledCount</code> / <code>cancelledAmount</code></td></tr>
       <tr><td>赛制保存</td><td>加 <code>claimMode</code>（manual / auto）、<code>unclaimedAction</code>（void / auto_credit）；<code>settleTime</code>、<code>claimExpireDays</code> 放开可写，生效从下一期</td></tr>
       <tr><td>前台榜单赛奖励</td><td>不返回已取消的奖励</td></tr>
+      <tr><td>赛制保存（状态改关闭）</td><td>服务端同时取消当期结算、作废所有待领取，返回作废人数和金额；新增关闭前预览接口，返回确认弹窗要显示的数量</td></tr>
     </table></div>
 
     <h3>不做</h3>
-    <div class="dh-prose"><p>撤销强制操作；已领取奖励扣回；打码倍数配置位置调整；参赛门槛、奖池上限等保护项。</p></div>
+    <div class="dh-prose"><p>撤销强制操作或关闭；已领取奖励扣回；打码倍数配置位置调整；参赛门槛、奖池上限等保护项。</p></div>
   </div></div>
 
   <div class="dh-panel" data-panel="qa"><div class="req-block">
@@ -588,9 +615,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>A9</td><td>领取过期时间填 0 或 31 保存</td><td>提示「领取过期时间须为 1 到 30 的整数天」</td></tr>
       <tr><td>A10</td><td>赛制开启状态下改四项</td><td>可以保存；资金与范围类字段仍冻结</td></tr>
       <tr><td>A11</td><td>查后台操作日志</td><td>强制操作、配置修改都有记录</td></tr>
+      <tr><td>A12</td><td>开启中的每日榜单，状态改「关闭」点保存</td><td>先弹「关闭榜单赛」确认，列出当期不结算、待领取人数和金额</td></tr>
+      <tr><td>A13</td><td>确认关闭</td><td>当期不结算（比赛状态「已关闭（不结算）」），所有期次待领取变「已取消」，会员端看不到；已领取不变</td></tr>
+      <tr><td>A14</td><td>关闭时恰好在结算发奖时间</td><td>以先完成的为准：已结算出来的待领取也一并作废，不出现关闭后还能领</td></tr>
+      <tr><td>A15</td><td>关闭后重新开启</td><td>从新的一期开始；已作废的不恢复</td></tr>
     </table></div>
     <h3>开发测试重点</h3>
     <div class="dh-prose"><ul>
+      <li><b>关闭要拦住结算任务</b>：结算发奖任务执行前检查赛制状态，已关闭的不结算；关闭与结算并发时，结算出的待领取也要作废。</li>
       <li><b>只认待领取的真实玩家</b>：机器人奖励只展示、不发奖，接口要拒绝机器人行。</li>
       <li><b>批量逐行校验</b>：每行以提交时的状态为准，已变的跳过，不整批失败、不重复入账。</li>
       <li><b>已取消不外显、不结转</b>：会员端榜单赛奖励、可领汇总都要排除；取消的金额不进下一期奖池。</li>
@@ -628,7 +660,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   function init(){
     rw=[];BOTS.forEach(function(b){rw.push({rank:b[0],bot:true,uid:'Bot',score:b[1],amt:b[2],st:'claimed',no:''});});
     REAL.forEach(function(r,i){rw.push({rank:r[0],bot:false,uid:r[2],score:r[1],amt:r[3],st:i===2?'claimed':(i===9?'expired':'pending'),no:'REWARD2026112300010'+String(r[0]).padStart(3,'0')});});
-    sel={};cfg={settle:'01:00',mode:'manual',exp:1,un:'void',status:'2'};renderRec();renderDet();settleCell();
+    sel={};cfg={settle:'01:00',mode:'manual',exp:1,un:'void',status:'1'};closed=false;renderRec();renderDet();settleCell();
   }
   var STL={pending:['待领取','w'],claimed:['已领取','s'],expired:['已过期','i'],cancelled:['已取消','d']};
   function agg(){var a={pc:0,pa:0,cc:0,ca:0,xc:0,xa:0,ea:0,bot:0,tot:0};rw.forEach(function(r){if(r.bot){a.bot+=r.amt;return;}a.tot+=r.amt;if(r.st==='pending'){a.pc++;a.pa+=r.amt;}if(r.st==='claimed'){a.cc++;a.ca+=r.amt;}if(r.st==='cancelled'){a.xc++;a.xa+=r.amt;}if(r.st==='expired'){a.ea+=r.amt;}});return a;}
@@ -636,7 +668,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     var a=agg();
     var r1='<tr><td>MATCH202611230001</td><td>每日投注排行</td><td>2026-11-23 00:00</td><td>2026-11-23 23:59</td><td>每日</td><td class="r">₱ 184,066.20</td><td>前一自然日</td><td class="r">₱ 0.00</td><td class="r">₱ 9,203.31</td><td class="r">₱ '+money(a.tot)+'</td><td class="r">₱ 9,203.31</td><td>'+a.pc+'</td><td>10</td><td>'+a.cc+'</td><td class="r">₱ '+money(a.pa)+'</td><td class="r">₱ '+money(a.ca)+'</td><td class="r">₱ '+money(a.ea)+'</td><td class="r">₱ 0.00</td><td><span class="stag s">已结算</span></td><td><button class="lnk" type="button" id="b-det">明细</button></td></tr>';
     var r2='<tr><td>MATCH202611220001</td><td>每日投注排行</td><td>2026-11-22 00:00</td><td>2026-11-22 23:59</td><td>每日</td><td class="r">₱ 176,510.00</td><td>前一自然日</td><td class="r">₱ 0.00</td><td class="r">₱ 8,825.50</td><td class="r">₱ 6,860.00</td><td class="r">₱ 8,825.50</td><td>0</td><td>10</td><td>9</td><td class="r">₱ 0.00</td><td class="r">₱ 6,440.00</td><td class="r">₱ 420.00</td><td class="r">₱ 0.00</td><td><span class="stag s">已结算</span></td><td><button class="lnk" type="button" disabled>明细</button></td></tr>';
-    var r3='<tr><td>MATCH202611240001</td><td>每日投注排行</td><td>2026-11-24 00:00</td><td>2026-11-24 23:59</td><td>每日</td><td class="r">₱ 92,330.00</td><td>前一自然日</td><td class="r">₱ 0.00</td><td class="r">₱ 4,616.50</td><td class="r">₱ 0.00</td><td class="r">₱ 4,616.50</td><td>0</td><td>0</td><td>0</td><td class="r">₱ 0.00</td><td class="r">₱ 0.00</td><td class="r">₱ 0.00</td><td class="r">₱ 0.00</td><td><span class="stag p">进行中</span></td><td><button class="lnk" type="button" disabled>明细</button></td></tr>';
+    var r3='<tr><td>MATCH202611240001</td><td>每日投注排行</td><td>2026-11-24 00:00</td><td>2026-11-24 23:59</td><td>每日</td><td class="r">₱ 92,330.00</td><td>前一自然日</td><td class="r">₱ 0.00</td><td class="r">₱ 4,616.50</td><td class="r">₱ 0.00</td><td class="r">₱ 4,616.50</td><td>0</td><td>0</td><td>0</td><td class="r">₱ 0.00</td><td class="r">₱ 0.00</td><td class="r">₱ 0.00</td><td class="r">₱ 0.00</td><td>'+(closed?'<span class="stag i">已关闭（不结算）</span>':'<span class="stag p">进行中</span>')+'</td><td><button class="lnk" type="button" disabled>明细</button></td></tr>';
     $('rec-tb').innerHTML=r3+r1+r2;$('b-det').addEventListener('click',function(){renderDet();$('dlg-det').classList.add('on');});
   }
   function renderDet(){
@@ -670,7 +702,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   /* ---------- 编辑榜单赛 ---------- */
   var cfg;
   for(var h=0;h<24;h++){['00','30'].forEach(function(m){var o=document.createElement('option');o.value=o.textContent=String(h).padStart(2,'0')+':'+m;$('e-settle').appendChild(o);});}
-  function settleCell(){$('l-settle').textContent=cfg.settle;}
+  function settleCell(){$('l-settle').textContent=cfg.settle;$('l-status').innerHTML=cfg.status==='1'?'<span class="stag s">开启</span>':'<span class="stag i">关闭</span>';}
   var PRZ=[['第1名',1,0,15],['第2名',1,0,13],['第3名',1,0,8],['第4名',1,0,5.5],['第5-20名',16,0,21],['第21-50名',30,0,21],['第51-100名',50,0,16.5]];
   $('prize-tb').innerHTML=PRZ.map(function(p){return '<tr><td class="l">'+p[0]+'</td><td>'+p[1]+'</td><td><div class="inp" style="width:110px;margin:0 auto;height:28px"><input value="'+p[2]+'" style="text-align:center"></div></td><td><div class="inp" style="width:180px;margin:0 auto;height:28px"><input value="'+p[3]+'" style="text-align:center"><span style="padding:0 8px;color:#889">%</span></div></td></tr>';}).join('');
   function syncMode(){var auto=$('e-mode').value==='auto';$('e-exp').disabled=auto;$('e-un').disabled=auto;$('w-exp').classList.toggle('dis',auto);$('w-un').classList.toggle('dis',auto);
@@ -684,8 +716,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   $('e-save').addEventListener('click',function(){
     var auto=$('e-mode').value==='auto',v=$('e-exp').value.trim();
     if(!auto&&!/^\d+$/.test(v)||(!auto&&(Number(v)<1||Number(v)>30))){$('exp-err').hidden=false;$('w-exp').classList.add('err');return;}
-    cfg={settle:$('e-settle').value,mode:$('e-mode').value,exp:auto?cfg.exp:Number(v),un:$('e-un').value,status:$('e-status').value};
-    $('dlg-edit').classList.remove('on');settleCell();toast('已保存配置，发奖设置从下一期生效');});
+    var nc={settle:$('e-settle').value,mode:$('e-mode').value,exp:auto?cfg.exp:Number(v),un:$('e-un').value,status:$('e-status').value};
+    if(cfg.status==='1'&&nc.status==='2'){var a=agg();pendCfg=nc;
+      $('cl-list').innerHTML='<li>停止新的参与和计分，前台不再展示进行中</li><li>当期 MATCH202611240001（进行中）<b>不再结算</b>，奖池不发放</li><li>'+(a.pc?'历史各期待领取奖励 <b>'+a.pc+' 人，共 ₱ '+money(a.pa)+'</b> 作废，状态改为「已取消」，会员端不再显示':'没有待领取的奖励')+'</li><li>已领取的奖励不受影响</li>';
+      $('dlg-close').classList.add('on');return;}
+    cfg=nc;$('dlg-edit').classList.remove('on');settleCell();toast('已保存配置，发奖设置从下一期生效');});
+  var pendCfg=null,closed=false;
+  $('cl-go').addEventListener('click',function(){var n=0;rw.forEach(function(r){if(!r.bot&&r.st==='pending'){r.st='cancelled';n++;}});sel={};cfg=pendCfg;closed=true;$('dlg-close').classList.remove('on');$('dlg-edit').classList.remove('on');settleCell();renderRec();renderDet();toast(n?'已关闭，当期不结算，作废 '+n+' 人待领取':'已关闭，当期不结算');});
   $('resetAll').addEventListener('click',function(){document.querySelectorAll('.mask').forEach(function(m){m.classList.remove('on');});init();show('rec');openDefault('rec');});
   init();show('rec');openDefault('rec');
 })();

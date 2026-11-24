@@ -334,13 +334,18 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 /* 操作列固定在右侧（同现网 el-table fixed right） */
 .adm table.lst th:last-child,.adm table.lst td:last-child{position:sticky;right:0;background:#fff;box-shadow:-6px 0 8px -6px rgba(0,0,0,.12);z-index:1}
 .adm table.lst th:last-child{background:#f5f7fa}
+/* 关闭活动确认 */
+.adm .cl-q{font-size:14px;color:#223;margin:0 0 10px;font-weight:600}
+.adm .cl-box{position:relative;border:1px solid #ebeef5;border-radius:6px;padding:8px 12px 8px 4px;margin-bottom:10px}
+.adm .cl-box ul{margin:0;padding-left:22px;font-size:13px;color:#445;line-height:1.7}
+.adm .cl-box ul b{color:#f56c6c}
 </style>
 </head>
 <body>
 
 <header class="dh-header"><div class="dh-header-inner">
-  <h1>活动订单：导出 + 待领取奖励强制通过 / 强制拒绝</h1>
-  <div class="dh-meta"><span>模块：<b>运营管理后台 · 运营配置 › 活动订单</b></span><span>适用：<b>菲律宾站、美国站</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-24</b></span></div>
+  <h1>活动订单：导出 + 待领取奖励强制通过 / 强制拒绝；关闭活动时结束后续派送与待领取</h1>
+  <div class="dh-meta"><span>模块：<b>运营管理后台 · 运营配置 › 活动订单、活动列表</b></span><span>适用：<b>菲律宾站、美国站</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-24</b></span></div>
 </div></header>
 
 <nav class="dh-navbar"><div class="dh-navbar-inner dh-primary">
@@ -352,18 +357,20 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 <section class="dh-primary-panel active" data-primary-panel="proto">
   <div class="ctl">
+    <label>页面 <span class="seg" id="viewSeg"><button type="button" class="on" data-v="ord">活动订单</button><button type="button" data-v="act">活动列表 · 关闭活动</button></span></label>
     <label><input type="checkbox" id="mkT" checked> 显示改动标注</label>
     <span class="legend"><i style="background:#19be6b"></i>本期新增（悬停看说明）</span>
     <button class="doc-btn" id="resetAll" type="button">重置演示</button>
-    <div class="hint">试一下：点「导出」；对「待领取」的订单点「强制通过」或「强制拒绝」（拒绝要填原因）；勾选几笔「待领取」后用上方的批量按钮；状态筛选选「待领取」后点「查询」。</div>
+    <div class="hint" id="hint">试一下：点「导出」；对「待领取」的订单点「强制通过」或「强制拒绝」（拒绝要填原因）；勾选几笔「待领取」后用上方的批量按钮；状态筛选选「待领取」后点「查询」。</div>
   </div>
 
   <div class="proto-stage wide">
   <div class="adm" id="adm">
     <div class="body">
-      <div class="side" aria-label="左侧菜单"><div class="logo"><i>77</i><div><b>77Slot</b><small>运营管理后台</small></div></div><div class="g" data-ic="♙">会员管理</div><div class="g" data-ic="▦">游戏管理</div><div class="g cur" data-ic="▭">支付配置管理</div><div class="g" data-ic="▭">财务订单管理</div><div class="g open" data-ic="⚙">运营配置</div><div class="it" data-ic="➤">活动列表</div><div class="it on" data-ic="☰">活动订单</div><div class="it" data-ic="◎">转盘轮次台账</div><div class="it" data-ic="♢">全站动态管理</div><div class="it" data-ic="⚙">广告图管理</div><div class="it" data-ic="⚙">榜单赛列表</div><div class="it" data-ic="⚙">榜单赛记录</div><div class="it" data-ic="⊕">渠道管理</div><div class="it" data-ic="▤">渠道回传记录</div><div class="it" data-ic="▤">数据字典</div><div class="it" data-ic="☊">在线客服</div><div class="g" data-ic="⋖">代理中心</div><div class="sgrow"></div><div class="fold">« 收起菜单</div></div>
-      <div class="rcol"><div class="top"><span class="hb">☰</span><span class="crumbs">运营管理后台 / <b>活动订单</b></span><span class="sp"></span><span class="info">🇵🇭 菲律宾时间：2026-11-24 16:28:32<span>币种 ₱ (PHP)</span><span class="t dev">DEV</span><span class="t l3">L3 op-sign 开</span><span class="t su">super</span>🔔<span class="wal">0x8db6…040f</span><span class="av">S</span></span></div><div class="tagsbar"><span>⌂ 会员列表</span><span>⚙ 榜单赛列表<em>×</em></span><span>⚙ 榜单赛记录<em>×</em></span><span>⇪ 三方出款订单<em>×</em></span><span>☺ 管理员<em>×</em></span><span>▭ 平台运营报表<em>×</em></span><span class="on">☰ 活动订单<em>×</em></span><span>⋖ 代理列表<em>×</em></span><span class="tr">+ ⌄</span></div>
+      <div class="side" aria-label="左侧菜单"><div class="logo"><i>77</i><div><b>77Slot</b><small>运营管理后台</small></div></div><div class="g" data-ic="♙">会员管理</div><div class="g" data-ic="▦">游戏管理</div><div class="g cur" data-ic="▭">支付配置管理</div><div class="g" data-ic="▭">财务订单管理</div><div class="g open" data-ic="⚙">运营配置</div><div class="it" id="m-act" data-ic="➤">活动列表</div><div class="it on" id="m-ord" data-ic="☰">活动订单</div><div class="it" data-ic="◎">转盘轮次台账</div><div class="it" data-ic="♢">全站动态管理</div><div class="it" data-ic="⚙">广告图管理</div><div class="it" data-ic="⚙">榜单赛列表</div><div class="it" data-ic="⚙">榜单赛记录</div><div class="it" data-ic="⊕">渠道管理</div><div class="it" data-ic="▤">渠道回传记录</div><div class="it" data-ic="▤">数据字典</div><div class="it" data-ic="☊">在线客服</div><div class="g" data-ic="⋖">代理中心</div><div class="sgrow"></div><div class="fold">« 收起菜单</div></div>
+      <div class="rcol"><div class="top"><span class="hb">☰</span><span class="crumbs">运营管理后台 / <b id="crumb">活动订单</b></span><span class="sp"></span><span class="info">🇵🇭 菲律宾时间：2026-11-24 16:28:32<span>币种 ₱ (PHP)</span><span class="t dev">DEV</span><span class="t l3">L3 op-sign 开</span><span class="t su">super</span>🔔<span class="wal">0x8db6…040f</span><span class="av">S</span></span></div><div class="tagsbar"><span>⌂ 会员列表</span><span>⚙ 榜单赛列表<em>×</em></span><span>⚙ 榜单赛记录<em>×</em></span><span>⇪ 三方出款订单<em>×</em></span><span>☺ 管理员<em>×</em></span><span>▭ 平台运营报表<em>×</em></span><span id="tg-act">➤ 活动列表<em>×</em></span><span class="on" id="tg-ord">☰ 活动订单<em>×</em></span><span>⋖ 代理列表<em>×</em></span><span class="tr">+ ⌄</span></div>
       <div class="main">
+        <div class="view on" id="v-ord">
         <div class="acard">
           <div class="fgrid">
             <div class="fitem"><label>活动 ID</label><div class="inp"><input placeholder="从活动列表点进来会自动填"></div></div>
@@ -386,6 +393,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
           </table></div>
           <div class="pager"><span id="pg-total"></span><i>&lt;</i><i class="on">1</i><i>&gt;</i><span>20 条/页</span></div>
         </div>
+        </div>
+        <div class="view" id="v-act">
+          <div class="acard">
+            <div class="ahead"><h4>活动配置</h4><span class="pill g" id="a-cnt"></span><span class="pill" id="a-on"></span><span class="sp"></span><button class="btn p" type="button" disabled>新建活动</button><button class="btn" type="button" disabled>新建展示类活动</button><button class="btn" type="button" disabled>刷新C端缓存</button><button class="btn" type="button" disabled>刷新</button></div>
+            <div class="tblwrap"><table class="lst">
+              <thead><tr><th>活动编号</th><th>后台名称</th><th>客户端名称</th><th>类型</th><th>状态</th><th>派发</th><th>流水倍数</th><th>流水基数</th><th>最近更新</th><th style="position:relative">操作<span class="mk tip" style="right:0;top:-2px" title="原：点「关闭」后只是不再产生新订单，已产生的待领取订单仍可领取，已开始的结算周期照常派送。现：关闭时同时结束后续派送、作废待领取；确认弹窗先列出影响范围">修改</span></th></tr></thead>
+              <tbody id="a-tb"></tbody>
+            </table></div>
+          </div>
+        </div>
       </div>
       </div>
     </div>
@@ -401,10 +418,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
         <div class="req"><i>*</i> 拒绝原因</div><textarea id="no-r" maxlength="200" placeholder="例如：配置错误导致的异常奖励"></textarea><div class="cnt"><span id="no-c">0</span> / 200</div><div class="errmsg" id="no-e" hidden>请填写拒绝原因</div></div>
       <footer><button class="btn" type="button" data-close>取消</button><button class="btn p" type="button" id="no-go" style="background:#f56c6c;border-color:#f56c6c">确认拒绝</button></footer></div></div>
 
+    <div class="mask" id="dlg-close"><div class="dlg sm"><header><h5 id="cl-h">关闭活动</h5><button type="button" data-close>×</button></header>
+      <div class="dbody"><p class="cl-q" id="cl-q"></p><div class="cl-box chg-a" id="cl-box"><span class="mk tip" style="right:8px;top:-9px" title="原：确认文案为「已产生的订单仍可领取，只是不再产生新订单」。现：关闭会结束后续派送并作废待领取，弹窗先列出这次会影响多少笔、多少金额">修改</span><ul id="cl-list"></ul></div><div class="warnline">关闭后不可撤销：作废的奖励不会恢复，重新开启只对之后新的参与生效。已到账的奖励不受影响。</div></div>
+      <footer><button class="btn" type="button" data-close>取消</button><button class="btn p" type="button" id="cl-go" style="background:#f56c6c;border-color:#f56c6c">确认关闭</button></footer></div></div>
+    <div class="mask" id="dlg-open"><div class="dlg sm"><header><h5>开启活动</h5><button type="button" data-close>×</button></header>
+      <div class="dbody"><p class="cl-q" id="op-q"></p></div>
+      <footer><button class="btn" type="button" data-close>取消</button><button class="btn p" type="button" id="op-go">确定</button></footer></div></div>
     <div class="toast" id="toast"></div>
   </div>
   </div>
-  <p class="proto-tip">列表数据为演示数据。时间按站点时区（菲律宾站为菲律宾时间）。</p>
+  <p class="proto-tip">列表数据为演示数据。「活动列表 · 关闭活动」里关闭某个活动后，切回「活动订单」能看到该活动的待领取订单变成「已取消」。时间按站点时区。</p>
 </section>
 
 <section class="dh-primary-panel" data-primary-panel="docs">
@@ -414,7 +437,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <h2>改什么</h2>
     <div class="dh-prose"><p>运营配置 › 活动订单页加两项：</p><ul>
       <li><b>导出</b>：按当前筛选条件把发奖记录导出为 CSV。</li>
-      <li><b>待领取奖励人工处理</b>：「待领取」的订单可以「强制通过」（直接到账）或「强制拒绝」（作废，会员端不显示），支持单条和勾选批量。</li></ul></div>
+      <li><b>待领取奖励人工处理</b>：「待领取」的订单可以「强制通过」（直接到账）或「强制拒绝」（作废，会员端不显示），支持单条和勾选批量。</li>
+      <li><b>关闭活动</b>：活动列表点「关闭」时，同时结束该活动后续的派送，并作废还没领的奖励。</li></ul></div>
     <div class="dh-callout">现状：「操作」列只有「派发失败」的订单有「重试」，其它显示「—」；没有导出。异常奖励目前只能找开发手工处理。</div>
 
     <h3>强制处理流程</h3>
@@ -447,6 +471,24 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>批量提交完成</td><td>提示「成功 N 笔，跳过 M 笔（状态已变化）」；成功的行更新状态，勾选清空</td></tr>
     </table></div>
 
+    <h3>活动列表 · 关闭活动<span class="tag-new">修改</span></h3>
+    <div class="dh-prose"><p>现状：点「关闭」只是不再产生新订单，已产生的待领取仍可领取，已开始的结算周期照常派送。关闭时结束这个活动所有后续事项：</p></div>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>项</th><th>关闭后</th></tr>
+      <tr><td><b>新的参与和触发</b></td><td>停止，不再产生新订单</td></tr>
+      <tr><td><b>还没派送的部分</b></td><td>不再派送：每日返水当日已累计未结算的部分、亏损救援还在观察中的窗口、连续存款进行中的后续档位、免费转盘未用完的次数等，都不再结算或发放</td></tr>
+      <tr><td><b>待领取 / 派发失败的订单</b></td><td>全部作废，状态「已取消」，会员端不再显示、不能领取；派发失败的不再重试</td></tr>
+      <tr><td><b>派发中的订单</b></td><td>照常完成</td></tr>
+      <tr><td><b>已到账的奖励</b></td><td>不受影响，打码要求不变</td></tr>
+      <tr><td><b>重新开启</b></td><td>只对之后新的参与生效；已作废的不恢复</td></tr>
+    </table></div>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>触发</th><th>系统反馈</th></tr>
+      <tr><td>点某个开启中活动的「关闭」</td><td>弹出「关闭活动」确认：第一行「确认关闭「活动名」？」，下面逐条列出影响：停止新参与；进行中的周期 / 窗口 / 进度数量（该类型有时）；待领取和派发失败共几笔、多少金额将作废。底部写明不可撤销、已到账不受影响；按钮「确认关闭」为红色</td></tr>
+      <tr><td>确认关闭</td><td>状态变「关闭」，提示「已关闭，作废 N 笔待领取」（没有待领取时提示「已关闭」）；写操作日志（含作废笔数、金额）</td></tr>
+      <tr><td>点关闭中活动的「开启」</td><td>沿用现有确认「确认开启「活动名」？」，开启后只对新的参与生效</td></tr>
+    </table></div>
+
     <h3>接口</h3>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>接口</th><th>说明</th></tr>
@@ -454,10 +496,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td><code>POST …/activity-orders/force-reject</code></td><td>body <code>{ orderNos: [], reason }</code>；同上</td></tr>
       <tr><td>导出</td><td>复用现有导出：按活动订单列表接口分页拉取，完成后写导出审计</td></tr>
       <tr><td>前台活动订单 / Bonus 列表</td><td>「已取消」的订单不返回</td></tr>
+      <tr><td>活动开关 <code>PATCH …/activities/{id}/state</code></td><td>关闭时服务端同时作废该活动的待领取、派发失败订单，取消未结算的周期 / 窗口 / 进度；返回作废笔数和金额。新增关闭前预览接口，返回确认弹窗要显示的影响数量</td></tr>
     </table></div>
 
     <h3>不做</h3>
-    <div class="dh-prose"><p>跨页批量；撤销强制操作；已到账订单扣回。</p></div>
+    <div class="dh-prose"><p>跨页批量；撤销强制操作或关闭；已到账订单扣回。</p></div>
   </div></div>
 
   <div class="dh-panel" data-panel="qa"><div class="req-block">
@@ -480,9 +523,15 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>A14</td><td>勾选 3 笔批量强制拒绝并填原因</td><td>3 笔「已取消」，共用同一原因</td></tr>
       <tr><td>A15</td><td>批量时其中 1 笔会员刚领取</td><td>提示「成功 2 笔，跳过 1 笔（状态已变化）」，不重复入账</td></tr>
       <tr><td>A16</td><td>勾选后翻页或改筛选</td><td>勾选清空</td></tr>
+      <tr><td>A17</td><td>关闭一个有 2 笔待领取、1 笔派发失败的活动</td><td>确认弹窗列出「3 笔，共 X 作废」；确认后 3 笔都「已取消」，会员端看不到；已到账的订单不变</td></tr>
+      <tr><td>A18</td><td>关闭「每日返水」后到第二天</td><td>前一天已累计的返水不再结算</td></tr>
+      <tr><td>A19</td><td>关闭「亏损救援」时有观察中的窗口</td><td>弹窗显示窗口数量；窗口到期不再结算</td></tr>
+      <tr><td>A20</td><td>关闭后再开启</td><td>已作废的不恢复；新的参与正常产生订单</td></tr>
+      <tr><td>A21</td><td>查操作日志</td><td>关闭有记录，含作废笔数和金额</td></tr>
     </table></div>
     <h3>开发测试重点</h3>
     <div class="dh-prose"><ul>
+      <li><b>关闭要覆盖所有后续</b>：各活动类型的定时结算任务（返水、亏损救援、连续存款等）在执行前都要检查活动是否关闭；关闭和会员领取并发时，以先完成的为准，不能已作废又到账。</li>
       <li><b>批量逐笔校验</b>：每笔以提交时的状态为准，已变的跳过，不整批失败、不重复入账；打码按每笔自己的快照算。</li>
       <li><b>只认待领取</b>：前端按钮和后端接口都要校验状态，后端以提交时的状态为准，防止和会员领取、过期任务并发造成重复入账。</li>
       <li><b>打码用订单快照</b>：强制通过按订单上的流水倍数 / 基数 / 本金快照计算，不读活动当前配置。</li>
@@ -566,8 +615,37 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       if(k>=n){clearInterval(timer);setTimeout(function(){$('exp').classList.remove('on');toast('已导出 '+n+' 行（活动订单_20261124_1630.csv）');},300);}},300);
   });
   $('exp-c').addEventListener('click',function(){clearInterval(timer);$('exp').classList.remove('on');toast('已取消导出',true);});
-  $('resetAll').addEventListener('click',init);
-  init();
+  /* ---------- 活动列表 · 关闭活动 ---------- */
+  var ADEF=[
+    ['ACT10001','Register Bonuses','Register Bonus','注册奖励',1,'自动派发',5,'赠送金额','2026-11-21 10:12:40',''],
+    ['ACT10003','119% Extra First 5 Deposits','119% Extra First 5 Deposits','连续存款',1,'自动派发',2,'本金+赠送','2026-11-20 19:37:02','进行中的 5 档充值进度：37 人，后续档位不再发放'],
+    ['ACT10004','Loss Rescue 30%','Loss Rescue 30%','亏损救援',1,'自动派发',5,'赠送金额','2026-11-20 19:37:20','还在观察中的亏损窗口：12 个，到期不再结算'],
+    ['ACT10005','Daily Rebate 1%','Daily Rebate 1%','每日返水',1,'手动领取',2,'赠送金额','2026-11-20 19:37:44','今日已累计的投注返水：208 人，明日不再结算'],
+    ['ACT10006','Bind Email','Bind Email','绑定邮箱',1,'自动派发',5,'赠送金额','2026-11-20 19:38:10',''],
+    ['ACT10007','Daily Login Bonus','Daily Login Bonus','每日登录',1,'手动领取',2,'赠送金额','2026-11-20 20:20:33','']
+  ];
+  var acts,curAct;
+  function initActs(){acts=ADEF.map(function(a){return {no:a[0],name:a[1],cname:a[2],type:a[3],st:a[4],grant:a[5],wm:a[6],wb:a[7],upd:a[8],run:a[9]};});}
+  function renderActs(){var on=acts.filter(function(a){return a.st===1;}).length;$('a-cnt').textContent=acts.length+' 条';$('a-on').textContent='正在开启 '+on+' 个';
+    $('a-tb').innerHTML=acts.map(function(a,i){return '<tr><td>'+a.no+'</td><td class="l">'+esc(a.name)+'</td><td class="l">'+esc(a.cname)+'</td><td>'+a.type+'</td><td><span class="stag '+(a.st===1?'s':'i')+'">'+(a.st===1?'开启':'关闭')+'</span></td><td>'+a.grant+'</td><td>'+a.wm+'</td><td>'+a.wb+'</td><td>'+a.upd+'</td><td class="ops"><button class="lnk" disabled>编辑</button><button class="lnk'+(a.st===1?' r':'')+'" data-tg="'+i+'">'+(a.st===1?'关闭':'开启')+'</button><button class="lnk" data-od="'+i+'">订单</button></td></tr>';}).join('');}
+  function pendOf(a){return rows.filter(function(r){return r.act===a.name&&(r.st===1||r.st===6);});}
+  $('a-tb').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+    if(b.dataset.od){var a=acts[b.dataset.od];showView('ord');flt={uid:'',type:a.type,st:''};$('q-type').value=a.type;render();return;}
+    if(b.dataset.tg===undefined)return;curAct=acts[b.dataset.tg];
+    if(curAct.st===2){$('op-q').textContent='确认开启「'+curAct.name+'」？';$('dlg-open').classList.add('on');return;}
+    var p=pendOf(curAct),sum=0;p.forEach(function(r){sum+=r.amt;});
+    var li=['停止新的参与和触发（不再产生新订单）'];
+    if(curAct.run) li.push(curAct.run);
+    li.push(p.length?'待领取 / 派发失败的订单 <b>'+p.length+' 笔，共 ₱ '+money(sum)+'</b> 作废，状态改为「已取消」，会员端不再显示':'没有待领取的订单');
+    $('cl-q').textContent='确认关闭「'+curAct.name+'」？';$('cl-list').innerHTML=li.map(function(x){return '<li>'+x+'</li>';}).join('');$('dlg-close').classList.add('on');});
+  $('cl-go').addEventListener('click',function(){var p=pendOf(curAct);p.forEach(function(r){r.st=4;delete sel[r.no];});curAct.st=2;curAct.upd=now();$('dlg-close').classList.remove('on');renderActs();render();toast(p.length?'已关闭，作废 '+p.length+' 笔待领取':'已关闭');});
+  $('op-go').addEventListener('click',function(){curAct.st=1;curAct.upd=now();$('dlg-open').classList.remove('on');renderActs();toast('已开启');});
+  var HINT={ord:'试一下：点「导出」；对「待领取」的订单点「强制通过」或「强制拒绝」（拒绝要填原因）；勾选几笔「待领取」后用上方的批量按钮；状态筛选选「待领取」后点「查询」。',act:'试一下：点「Register Bonuses」或「Loss Rescue 30%」的「关闭」，看确认弹窗列出的影响；确认后点该行「订单」，能看到它的待领取订单变成「已取消」。'};
+  var segB=document.querySelectorAll('#viewSeg button');
+  function showView(v){segB.forEach(function(x){x.classList.toggle('on',x.dataset.v===v);});$('v-ord').classList.toggle('on',v==='ord');$('v-act').classList.toggle('on',v==='act');$('m-ord').classList.toggle('on',v==='ord');$('m-act').classList.toggle('on',v==='act');$('tg-ord').classList.toggle('on',v==='ord');$('tg-act').classList.toggle('on',v==='act');$('crumb').textContent=v==='ord'?'活动订单':'活动列表';$('hint').textContent=HINT[v];}
+  segB.forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.mask').forEach(function(m){m.classList.remove('on');});showView(b.dataset.v);});});
+  $('resetAll').addEventListener('click',function(){init();initActs();renderActs();showView('ord');});
+  init();initActs();renderActs();
 })();
 </script>
 </body></html>

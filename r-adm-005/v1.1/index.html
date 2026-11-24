@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>活动订单导出与强制处理</title>
+<style>
+/* ===================== 1. 交付文档层令牌（dh-*，通用，不随被复刻的后台变化） ===================== */
+:root{
+  color-scheme:light;
+  --doc-paper:#faf8f4;--doc-paper-raised:#ffffff;--doc-ink:#211f1a;--doc-ink-soft:#5c584e;--doc-ink-faint:#8b8677;
+  --doc-line:#e4ded1;--doc-line-soft:#eee9de;--doc-accent:#a8481f;--doc-accent-soft:#f4e2d3;
+  --doc-teal:#0d6d66;--doc-teal-soft:#dcefec;--doc-p0:#b3261e;--doc-p1:#a8481f;--doc-p1-soft:#f4e2d3;--doc-p2:#6b6a5f;
+  --doc-status-done-fg:#0d6d66;--doc-status-done-bg:#dcefec;--doc-status-open-fg:#8a7f5f;--doc-status-open-bg:#f1ecdc;
+  --shadow-card:0 1px 2px rgba(33,31,26,.06),0 4px 14px rgba(33,31,26,.06);
+  --f-serif:'Source Serif 4',Georgia,'Songti SC',serif;
+  --f-sans:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-mono:'IBM Plex Mono',Consolas,Menlo,monospace;
+}
+/* 深色令牌：跟随系统 + 显式切换两处都写 */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--doc-paper:#18160f;--doc-paper-raised:#221f17;--doc-ink:#f1ece0;--doc-ink-soft:#c2bba8;--doc-ink-faint:#8f8877;
+  --doc-line:#3b3627;--doc-line-soft:#2c2919;--doc-accent:#e2925e;--doc-accent-soft:#3c2a1a;--doc-teal:#63c2b8;--doc-teal-soft:#183430;
+  --doc-p0:#f2766d;--doc-p1:#e2925e;--doc-p1-soft:#3c2a1a;--doc-p2:#a8a693;
+  --doc-status-done-fg:#63c2b8;--doc-status-done-bg:#183430;--doc-status-open-fg:#cfc29a;--doc-status-open-bg:#2e2a1c;
+  --shadow-card:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.35);}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--doc-paper:#18160f;--doc-paper-raised:#221f17;--doc-ink:#f1ece0;--doc-ink-soft:#c2bba8;--doc-ink-faint:#8f8877;
+  --doc-line:#3b3627;--doc-line-soft:#2c2919;--doc-accent:#e2925e;--doc-accent-soft:#3c2a1a;--doc-teal:#63c2b8;--doc-teal-soft:#183430;
+  --doc-p0:#f2766d;--doc-p1:#e2925e;--doc-p1-soft:#3c2a1a;--doc-p2:#a8a693;
+  --doc-status-done-fg:#63c2b8;--doc-status-done-bg:#183430;--doc-status-open-fg:#cfc29a;--doc-status-open-bg:#2e2a1c;
+  --shadow-card:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.35);}
+
+/* ===================== 2. 基础重置与页头 / 导航 / 模块 Tab ===================== */
+*{box-sizing:border-box;}
+img{max-width:100%;}
+body{margin:0;background:var(--doc-paper);color:var(--doc-ink);font-family:var(--f-sans);font-size:14.5px;line-height:1.6;}
+h1,h2,h3{font-family:var(--f-serif);font-weight:600;text-wrap:balance;margin:0;}
+.mono{font-family:var(--f-mono);}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--doc-paper-raised);}
+.dh-header{background:var(--doc-paper-raised);border-bottom:1px solid var(--doc-line);}
+.dh-header-inner,.dh-navbar-inner{max-width:1600px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));}
+.dh-header-inner{padding-block:22px 16px;}
+.dh-header h1{font-size:26px;letter-spacing:.01em;}
+.dh-meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:6px;font-size:12.5px;color:var(--doc-ink-faint);}
+.dh-meta b{color:var(--doc-ink-soft);font-weight:500;}
+.dh-navbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--doc-paper-raised);border-bottom:1px solid var(--doc-line);}
+.dh-primary{display:flex;gap:4px;overflow-x:auto;}
+.dh-primary-btn{appearance:none;border:0;background:none;padding:12px 16px 10px;font:inherit;font-weight:600;color:var(--doc-ink-soft);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;}
+.dh-primary-btn small{font-weight:400;color:var(--doc-ink-faint);margin-left:6px;font-size:12px;}
+.dh-primary-btn.active{color:var(--doc-ink);border-bottom-color:var(--doc-accent);}
+.dh-primary-btn:focus-visible,.dh-tab:focus-visible,.proto-jump:focus-visible,.sub-btn:focus-visible{outline:2px solid var(--doc-teal);outline-offset:2px;}
+.dh-wrap{max-width:1600px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:20px 64px;}
+.dh-primary-panel{display:none;}
+.dh-primary-panel.active{display:block;}
+.dh-tabs{position:sticky;top:calc(env(safe-area-inset-top,0px) + 47px);z-index:20;display:flex;gap:2px;overflow-x:auto;background:var(--doc-paper);border-bottom:1px solid var(--doc-line);margin-bottom:22px;}
+.dh-tab{appearance:none;border:0;background:none;font:inherit;font-size:14px;padding:10px 14px;color:var(--doc-ink-soft);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+.dh-tab .n{font-family:var(--f-mono);color:var(--doc-accent);margin-right:6px;font-size:12px;}
+.dh-tab.active{color:var(--doc-ink);border-bottom-color:var(--doc-accent);font-weight:600;}
+.dh-panel{display:none;}
+.dh-panel.active{display:block;}
+
+/* ===================== 3. 正文排版、提示框、表格 ===================== */
+.dh-prose{max-width:92ch;color:var(--doc-ink-soft);}
+.dh-prose p{margin:0 0 10px;}
+.dh-prose strong{color:var(--doc-ink);}
+.dh-prose ul,.dh-prose ol{margin:0 0 10px;padding-left:1.4em;}
+.dh-prose li{margin-bottom:4px;}
+.req-block{max-width:1200px;margin:0 0 30px;}
+.req-block h2{font-size:22px;margin-bottom:12px;}
+.req-block h3{font-size:17px;margin:22px 0 10px;}
+.dh-callout{max-width:1200px;border-left:3px solid var(--doc-teal);background:var(--doc-paper-raised);padding:10px 14px;margin:12px 0;font-size:13.5px;color:var(--doc-ink-soft);border-radius:0 6px 6px 0;}
+.dh-callout.warn{border-left-color:var(--doc-p1);}
+.tag-new{display:inline-block;font-size:11px;background:var(--doc-accent);color:#fff;border-radius:3px;padding:0 5px;margin-left:6px;vertical-align:1px;font-weight:500;white-space:nowrap;}
+.tbl-wrap{overflow-x:auto;max-width:1200px;margin:10px 0 16px;}
+.dh-table-simple{width:100%;max-width:1200px;min-width:560px;border-collapse:separate;border-spacing:0;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:8px;overflow:hidden;font-size:13.5px;box-shadow:var(--shadow-card);}
+.dh-table-simple th,.dh-table-simple td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--doc-line-soft);overflow-wrap:anywhere;}
+.dh-table-simple th{background:var(--doc-line-soft);font-weight:600;color:var(--doc-ink);}
+.dh-table-simple tr:last-child td{border-bottom:0;}
+/* 首列允许换行，禁止 white-space:nowrap */
+.dh-table-simple td:first-child,.dh-table-simple th:first-child{min-width:7em;max-width:34em;}
+.dh-table-simple td{color:var(--doc-ink-soft);}
+.dh-table-simple td b{color:var(--doc-ink);}
+
+/* ===================== 4. 真实截图 ===================== */
+.dh-figure{max-width:520px;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:6px;padding:10px;box-shadow:var(--shadow-card);margin:12px 0 16px;}
+.dh-figure img{display:block;cursor:zoom-in;border-radius:4px;}
+.dh-figure .cap::before{content:"🔍 ";}
+
+/* ===================== 5. 流程图（只用于有先后 / 因果关系的过程） ===================== */
+.dh-flow{max-width:1200px;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:8px;padding:14px;margin:12px 0 16px;box-shadow:var(--shadow-card);cursor:zoom-in;}
+.flow-diagram{display:flex;flex-wrap:wrap;align-items:center;gap:2px;}
+.flow-step{background:var(--doc-paper);border:1px solid var(--doc-line);border-radius:6px;padding:8px 12px;font-size:12.5px;line-height:1.45;text-align:center;max-width:220px;color:var(--doc-ink);}
+.flow-step .sub{display:block;font-size:11px;color:var(--doc-ink-faint);margin-top:2px;}
+.flow-arrow{color:var(--doc-ink-faint);font-size:15px;padding:0 4px;}
+.flow-branches{display:flex;flex-direction:column;gap:7px;margin-top:10px;padding-left:10px;border-left:2px solid var(--doc-line);}
+.flow-branches.first{margin-top:0;margin-bottom:12px;}
+.flow-branch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--doc-ink-soft);}
+.flow-branch .arr{color:var(--doc-ink-faint);}
+.flow-branch .result{font-weight:600;padding:2px 10px;border-radius:100px;font-size:12px;}
+.flow-branch .result.good{color:var(--doc-status-done-fg);background:var(--doc-status-done-bg);}
+.flow-branch .result.bad{color:var(--doc-p1);background:var(--doc-p1-soft);}
+.flow-branch .result.neutral{color:var(--doc-ink-soft);background:var(--doc-line-soft);}
+.cap{font-size:12px;color:var(--doc-ink-faint);margin-top:10px;}
+
+/* ===================== 9. 交互原型区外围（文档层） ===================== */
+.proto-intro{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:14px;font-size:13px;color:var(--doc-ink-soft);}
+.proto-intro .grow{flex:1 1 320px;min-width:0;}
+.doc-btn{appearance:none;border:1px solid var(--doc-line);background:var(--doc-paper-raised);color:var(--doc-ink);border-radius:6px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer;}
+.doc-btn:hover{border-color:var(--doc-accent);color:var(--doc-accent);}
+.doc-check{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;}
+.proto-jump{display:inline-flex;align-items:center;gap:6px;appearance:none;border:1px solid var(--doc-teal);color:var(--doc-teal);background:var(--doc-teal-soft);border-radius:100px;padding:5px 14px;font:inherit;font-size:13px;cursor:pointer;margin:4px 0 14px;}
+.proto-tip{font-size:12.5px;color:var(--doc-ink-faint);margin:8px 2px 0;}
+
+
+
+/* ===================== 10. 演示控制 ===================== */
+.ctl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--doc-paper-raised);border:1px solid var(--doc-line);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--doc-ink-soft);max-width:1200px;}
+.ctl label{display:inline-flex;align-items:center;gap:6px;}
+.ctl select{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--doc-line);border-radius:6px;background:var(--doc-paper);color:var(--doc-ink);max-width:100%;}
+.seg{display:inline-flex;border:1px solid var(--doc-line);border-radius:6px;overflow:hidden;}
+.seg button{appearance:none;border:0;background:var(--doc-paper);color:var(--doc-ink-soft);font:inherit;font-size:13px;padding:4px 12px;cursor:pointer;}
+.seg button.on{background:var(--doc-accent);color:#fff;}
+.ctl .hint{flex-basis:100%;font-size:12.5px;color:var(--doc-ink-faint);}
+.proto-stage{display:flex;justify-content:center;background:repeating-linear-gradient(45deg,var(--doc-line-soft) 0 10px,transparent 10px 20px);border:1px solid var(--doc-line);border-radius:10px;padding:28px 12px;max-width:1200px;}
+.dev-cap{text-align:center;font-size:12px;color:var(--doc-ink-faint);margin-top:8px;}
+
+
+/* ===================== 11. 标注 ===================== */
+.mk{position:absolute;font-size:10px;line-height:16px;padding:0 5px;border-radius:3px;background:#19be6b;color:#fff;font-weight:600;z-index:3;pointer-events:none;white-space:nowrap;font-family:-apple-system,"PingFang SC",sans-serif;}
+.mk.pk{background:#ff2fd0;}
+.nomk .mk{display:none;}
+.chg{outline:2.5px dashed #ff2fd0;outline-offset:4px;border-radius:4px;box-shadow:0 0 0 4px rgba(255,47,208,.18),0 0 18px rgba(255,47,208,.45);position:relative;}
+.nomk .chg{outline:0;box-shadow:none;}
+.chg-a{outline:2px dashed #19be6b;outline-offset:3px;border-radius:6px;position:relative;}
+.nomk .chg-a{outline:0;}
+.proto-stage.wide{display:block;padding:20px;overflow-x:auto;}
+.view{display:none;}.view.on{display:block;}
+.legend{display:inline-flex;align-items:center;gap:6px;}
+.legend i{display:inline-block;width:18px;height:10px;border-radius:2px;}
+
+
+/* ===================== 12. 运营管理后台复刻（浅色 Element Plus） ===================== */
+.adm{color-scheme:light;--a-bg:#edf0f4;--a-card:#fff;--a-line:#d8e0e8;--a-ink:#334;--a-mute:#778;--a-green:#0f8f78;--a-red:#e5484d;
+  min-width:1040px;max-width:1160px;margin:0 auto;background:var(--a-bg);border-radius:10px;overflow:hidden;color:var(--a-ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.12);position:relative;}
+.adm .top{height:52px;background:#fff;border-bottom:1px solid var(--a-line);display:flex;align-items:center;gap:12px;padding:0 18px;}
+.adm .top b{font-size:15px;color:#223}.adm .top .sp{flex:1}.adm .top .site{font-size:12px;color:var(--a-mute);border:1px solid var(--a-line);border-radius:4px;padding:2px 8px}
+.adm .body{display:grid;grid-template-columns:190px minmax(0,1fr);min-height:1010px}
+.adm .side{background:#0f2a2e;padding:8px 0;font-size:14px}
+.adm .side .g{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;color:#c9d6d8}
+.adm .side .g:after{content:"›";color:#6f8a8d}
+.adm .side .g.open{color:#fff;font-weight:600}.adm .side .g.open:after{content:"⌄"}
+.adm .side .it{padding:9px 18px 9px 34px;color:#9fb3b6;position:relative}
+.adm .side .it.on{color:#fff;background:#17443f;font-weight:600;border-left:3px solid #1fb89a}
+.adm .main{padding:16px 20px 24px;min-width:0}
+.adm .crumb{font-size:13px;color:var(--a-mute);margin-bottom:12px}.adm .crumb b{color:var(--a-ink);font-weight:500}
+.adm .acard{background:var(--a-card);border:1px solid var(--a-line);border-radius:12px;padding:14px 16px;position:relative}
+.adm .ahead{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.adm .ahead h4{margin:0;font-size:16px;color:#223;font-family:inherit}
+.adm .ahead .sp{flex:1}
+.adm .pill{font-size:12px;padding:1px 8px;border-radius:10px;border:1px solid #bfe6dd;color:var(--a-green);background:#fff}
+.adm .pill.g{border-color:#dcdfe6;color:#889}
+.adm .row{display:grid;grid-template-columns:118px minmax(0,1fr);gap:4px 12px;align-items:start;padding:8px 0}
+.adm .row>label{font-size:14px;color:#445;padding-top:6px;text-align:right}
+.adm .row>label i{color:var(--a-red);font-style:normal;margin-right:2px}
+.adm .inp{display:flex;align-items:center;border:1px solid #dcdfe6;border-radius:4px;background:#fff;height:32px;width:100%;overflow:hidden}
+.adm .inp.sm{width:180px}
+.adm .inp:focus-within{border-color:var(--a-green)}
+.adm .inp input,.adm .inp select{border:0;outline:0;flex:1;min-width:0;height:100%;padding:0 11px;font:inherit;color:#334;background:transparent}
+.adm .inp.dis{background:#f5f7fa}.adm .inp.dis input,.adm .inp.dis select{color:#a8abb2}
+.adm .inp.err,.adm .mx input.err{border-color:var(--a-red)}
+.adm textarea{width:100%;border:1px solid #dcdfe6;border-radius:4px;padding:8px 11px;font:inherit;color:#334;resize:vertical;min-height:64px;outline:0}
+.adm textarea:focus{border-color:var(--a-green)}
+.adm .help{font-size:12px;color:var(--a-mute);margin-top:4px}
+.adm .errmsg{font-size:12px;color:var(--a-red);margin-top:6px}
+.adm .sw{position:relative;width:40px;height:20px;border-radius:10px;background:#dcdfe6;cursor:pointer;border:0;padding:0;margin-top:6px;transition:background .2s;flex:none}
+.adm .sw:after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.adm .sw.on{background:var(--a-green)}.adm .sw.on:after{left:22px}
+.adm .btn{font:inherit;font-size:14px;border:1px solid #dcdfe6;background:#fff;border-radius:4px;padding:6px 16px;color:#445;cursor:pointer}
+.adm .btn.p{background:var(--a-green);border-color:var(--a-green);color:#fff}
+.adm .btn.s{padding:3px 10px;font-size:13px}
+.adm .btn[disabled]{color:#c0c4cc;cursor:not-allowed;background:#fff}
+.adm .lnk{appearance:none;border:0;background:none;font:inherit;font-size:13px;color:var(--a-green);cursor:pointer;padding:0 4px}
+.adm .lnk.r{color:var(--a-red)}.adm .lnk[disabled]{color:#c0c4cc;cursor:not-allowed}
+.adm .rad{display:flex;gap:22px;padding-top:6px;font-size:14px;color:#445;flex-wrap:wrap;align-items:center}
+.adm .rad label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.adm .rad input{accent-color:var(--a-green);margin:0}
+.adm .rad .note{font-size:12px;color:var(--a-mute)}
+.adm table.lst{width:100%;border-collapse:collapse;font-size:13px;background:#fff}
+.adm table.lst th{background:#f5f7fa;color:#556;font-weight:600;text-align:center;padding:9px 8px;border-bottom:1px solid #ebeef5;white-space:nowrap}
+.adm table.lst td{padding:11px 8px;border-bottom:1px solid #ebeef5;white-space:nowrap;text-align:center;color:#556}
+.adm .tag{font-size:12px;padding:1px 6px;border-radius:3px;border:1px solid #bfe6dd;color:var(--a-green);background:#f0faf7}
+.adm .tag.off{border-color:#e9e9eb;color:#909399;background:#f4f4f5}
+.adm .newrow td{background:#f1fbf6}
+/* 编辑弹窗 */
+.adm .mask{position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:flex-start;z-index:50;padding:28px 16px}
+.adm .mask.on{display:flex}
+.adm .dlg{background:#fff;border-radius:8px;width:920px;max-width:100%;box-shadow:0 12px 32px rgba(0,0,0,.2);display:flex;flex-direction:column;position:relative;max-height:100%}
+.adm .dlg>header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px;position:relative}
+.adm .dlg>header h5{margin:0;font-size:16px;color:#223;font-weight:600}
+.adm .dlg>header button{appearance:none;border:0;background:none;font-size:20px;color:#909399;cursor:pointer;line-height:1}
+.adm .dtabs{display:flex;gap:36px;border-bottom:2px solid #e4e7ed;margin:0 20px}
+.adm .dtabs button{appearance:none;border:0;background:none;font:inherit;font-size:14px;color:#445;padding:8px 0 10px;cursor:pointer;margin-bottom:-2px;border-bottom:2px solid transparent}
+.adm .dtabs button.on{color:var(--a-green);border-bottom-color:var(--a-green)}
+.adm .dbody{padding:10px 20px 6px;flex:1;min-height:0;overflow-y:auto}
+.adm .dpane{display:none}.adm .dpane.on{display:block}
+.adm .dlg>footer{display:flex;justify-content:flex-end;gap:10px;padding:12px 20px 18px;border-top:1px solid #f0f2f5}
+/* VIP 档位矩阵 */
+.adm .mxwrap{position:relative;border-radius:6px;padding:2px;margin-top:16px}
+.adm .mx{width:100%;border-collapse:collapse;font-size:13px;border:1px solid #ebeef5}
+.adm .mx th{background:#f5f7fa;color:#556;font-weight:600;padding:8px 4px;border:1px solid #ebeef5;white-space:nowrap;text-align:center}
+.adm .mx td{padding:5px 4px;border:1px solid #ebeef5;text-align:center;color:#556}
+.adm .mx input{width:100%;min-width:0;height:30px;border:1px solid #dcdfe6;border-radius:4px;padding:0 6px;font:inherit;font-size:13px;color:#334;text-align:center;outline:0;background:#fff}
+.adm .mx input:focus{border-color:var(--a-green)}
+.adm .mx select{height:30px;border:1px solid #dcdfe6;border-radius:4px;padding:0 4px;font:inherit;font-size:13px;color:#334;background:#fff;outline:0;width:76px;cursor:pointer}
+.adm .mx select:focus{border-color:var(--a-green)}
+.adm .mx select.err{border-color:var(--a-red)}
+.adm .mx .rng{display:flex;align-items:center;gap:4px;justify-content:center}
+.adm .mx .rng span{color:#99a}
+.adm .mxfoot{display:flex;align-items:center;gap:12px;margin-top:8px}
+.adm .toast{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#f0f9eb;border:1px solid #e1f3d8;color:#67c23a;padding:8px 16px;border-radius:4px;font-size:14px;display:none;z-index:60;white-space:nowrap}
+.adm .toast.on{display:block}
+.adm .toast.bad{background:#fef0f0;border-color:#fde2e2;color:#f56c6c}
+
+
+/* ===================== 14. 本批原型补充（列表页、筛选、状态标签、导出、明细弹窗） ===================== */
+.adm .mk.tip{pointer-events:auto;cursor:help}
+.adm .top .crumbs{font-size:13px;color:var(--a-mute)}.adm .top .crumbs b{color:var(--a-ink);font-weight:500}
+.adm .tagsbar{display:flex;gap:6px;padding:7px 14px;background:#fff;border-bottom:1px solid var(--a-line);font-size:12px;overflow-x:auto}
+.adm .tagsbar span{border:1px solid #dcdfe6;border-radius:3px;padding:2px 8px;color:#556;white-space:nowrap}
+.adm .tagsbar span.on{background:#e8f6f3;border-color:var(--a-green);color:var(--a-green)}
+.adm .fgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 16px}
+.adm .fitem label{display:block;font-size:13px;color:#556;margin-bottom:4px}
+.adm .fitem.span2{grid-column:span 2}
+.adm .fitem .rngbox{display:flex;align-items:center;gap:8px;border:1px solid #dcdfe6;border-radius:4px;height:32px;padding:0 10px;font-size:13px;color:#556;background:#fff}
+.adm .fitem .rngbox span{flex:1;text-align:center}
+.adm .factions{display:flex;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #ebeef5}
+.adm .acard+.acard{margin-top:14px}
+.adm .desc{font-size:12.5px;color:var(--a-mute);margin:-4px 0 10px}
+.adm .tblwrap{overflow-x:auto;border:1px solid #ebeef5;border-radius:6px}
+.adm table.lst td.l{text-align:left}
+.adm table.lst td.r,.adm table.lst th.r{text-align:right}
+.adm table.lst td.ops{min-width:132px}
+.adm .stag{display:inline-block;font-size:12px;line-height:18px;padding:0 7px;border-radius:3px;border:1px solid}
+.adm .stag.w{color:#e6a23c;background:#fdf6ec;border-color:#faecd8}
+.adm .stag.s{color:#67c23a;background:#f0f9eb;border-color:#e1f3d8}
+.adm .stag.i{color:#909399;background:#f4f4f5;border-color:#e9e9eb}
+.adm .stag.d{color:#f56c6c;background:#fef0f0;border-color:#fde2e2}
+.adm .stag.p{color:#409eff;background:#ecf5ff;border-color:#d9ecff}
+.adm .bot{display:inline-block;font-size:12px;padding:0 6px;border:1px solid #dcdfe6;border-radius:3px;color:#889;background:#fafafa}
+.adm .pager{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:10px;font-size:13px;color:#667}
+.adm .pager i{font-style:normal;border:1px solid #dcdfe6;border-radius:3px;padding:1px 8px}
+.adm .pager i.on{background:var(--a-green);border-color:var(--a-green);color:#fff}
+/* 导出进度（复刻现有导出组件） */
+.adm .expcard{position:absolute;right:24px;top:118px;z-index:55;width:300px;background:#fff;border:1px solid var(--a-line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.15);padding:12px 14px;display:none;font-size:13px}
+.adm .expcard.on{display:block}
+.adm .expcard .track{height:6px;border-radius:3px;background:#ebeef5;margin:8px 0;overflow:hidden}
+.adm .expcard .fill{height:100%;background:var(--a-green);width:0;transition:width .25s}
+.adm .expcard .act{display:flex;justify-content:flex-end}
+/* 小弹窗 */
+.adm .dlg.sm{width:500px}
+.adm .dlg .kv{display:grid;grid-template-columns:96px minmax(0,1fr);gap:6px 10px;font-size:13.5px;margin:4px 0 12px}
+.adm .dlg .kv span{color:#889}
+.adm .dlg .warnline{font-size:13px;color:#e6a23c;background:#fdf6ec;border:1px solid #faecd8;border-radius:4px;padding:8px 10px;margin-bottom:10px}
+.adm .dlg .req{font-size:13.5px;color:#445;margin-bottom:6px}.adm .dlg .req i{color:var(--a-red);font-style:normal}
+.adm .dlg .cnt{font-size:12px;color:#99a;text-align:right;margin-top:2px}
+/* 明细弹窗 */
+.adm .dlg.wide{width:1000px}
+.adm .sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 16px;border:1px solid #ebeef5;border-radius:6px;padding:12px 14px;font-size:13px;margin-bottom:12px}
+.adm .sum small{display:block;color:#889;font-size:12.5px}
+.adm .sum b{font-weight:500;color:#334}
+.adm .sum div{position:relative}
+.adm .subt{font-size:13.5px;color:#445;margin:0 0 10px}
+.adm .bulk{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:8px;border:1px solid #ebeef5;border-radius:6px;background:#fafcfc;font-size:13px;color:#556;position:relative}
+.adm .bulk .sp{flex:1}
+.adm input[type=checkbox]{accent-color:var(--a-green)}
+/* 编辑弹窗（榜单赛） */
+.adm .alert{font-size:13px;border-radius:4px;padding:8px 12px;margin-bottom:8px;display:flex;gap:8px}
+.adm .alert.info{background:#f4f4f5;color:#909399}
+.adm .alert.ok{background:#f0f9eb;color:#67c23a}
+.adm .sec-title{font-size:15px;font-weight:600;color:#223;margin:16px 0 10px}
+.adm .g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 16px}
+.adm .g4>div{position:relative}
+.adm .g4 label.t{display:block;font-size:13px;color:#556;margin-bottom:4px}
+.adm .hint2{font-size:12px;color:var(--a-mute);margin-top:6px}
+.adm .brands{border:1px solid #ebeef5;border-radius:6px;padding:6px 12px;margin-top:8px}
+.adm .brands .br{display:grid;grid-template-columns:110px minmax(0,1fr);gap:6px;padding:6px 0;border-top:1px dashed #ebeef5;font-size:13px}
+.adm .brands .br:first-child{border-top:0}
+.adm .brands .br div{display:flex;flex-wrap:wrap;gap:4px 16px}
+.adm .brands label{display:inline-flex;gap:6px;align-items:center}
+.adm .warnbar{font-size:13px;color:#e6a23c;background:#fdf6ec;border-radius:4px;padding:8px 12px;margin-top:8px}
+.adm .total{font-size:13px;text-align:right;margin-top:8px;color:#556}.adm .total b{color:#67c23a}
+.adm .uploads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.adm .up{border:1px dashed #dcdfe6;border-radius:6px;padding:10px;font-size:12.5px;color:#889;text-align:center}
+.adm .up b{display:block;color:#556;font-weight:500;margin-bottom:6px}
+.adm .rte{border:1px solid #dcdfe6;border-radius:4px}
+.adm .rte .bar{border-bottom:1px solid #ebeef5;padding:5px 8px;font-size:12px;color:#889;letter-spacing:6px}
+.adm .rte textarea{border:0;min-height:90px}
+
+.adm [hidden]{display:none!important}
+
+/* ===================== 15. 外壳按现网结构：左侧菜单整高 + 右栏（顶栏 / 页签 / 内容） ===================== */
+.adm .body{grid-template-columns:222px minmax(0,1fr);min-height:860px}
+.adm .side{display:flex;flex-direction:column;padding:0;background:#0f2a2e;font-size:13.5px}
+.adm .side .logo{display:flex;align-items:center;gap:10px;padding:12px 14px 14px}
+.adm .side .logo i{width:34px;height:34px;border-radius:8px;background:#147a6a;color:#fff;font-style:normal;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.adm .side .logo b{display:block;color:#fff;font-size:15px;line-height:1.2}.adm .side .logo small{color:#9fb3b6;font-size:11.5px}
+.adm .side .g{padding:11px 14px 11px 18px;color:#d5e1e2}
+.adm .side .g::before{content:attr(data-ic);display:inline-block;width:22px;color:#c9d6d8}
+.adm .side .g:after{content:"⌄";color:#8fa6a9}
+.adm .side .g.open:after{content:"⌃"}
+.adm .side .g.cur{background:#17393c;margin:0 8px;border-radius:6px;padding-left:10px}
+.adm .side .it{padding:12px 14px 12px 46px;color:#c3d1d3}
+.adm .side .it::before{content:attr(data-ic);position:absolute;left:28px;color:#9fb3b6}
+.adm .side .it.on{background:#1d4a49;border-left:3px solid #2fc6a4;margin:0 8px;border-radius:6px;padding-left:35px;color:#fff}
+.adm .side .it.on::before{left:17px;color:#fff}
+.adm .side .sgrow{flex:1}
+.adm .side .fold{margin:10px 8px 12px;border:1px solid #2b4a4d;border-radius:6px;padding:7px 12px;color:#c3d1d3;font-size:12.5px}
+.adm .rcol{min-width:0;display:flex;flex-direction:column;background:var(--a-bg)}
+.adm .rcol .top{height:50px;gap:10px;padding:0 16px;flex-wrap:nowrap;overflow:hidden}
+.adm .rcol .top .hb{font-size:17px;color:#556}
+.adm .rcol .top .info{display:flex;align-items:center;gap:8px;font-size:12px;color:#556;white-space:nowrap}
+.adm .rcol .top .info .t{border-radius:10px;padding:0 7px;font-size:11px;border:1px solid}
+.adm .rcol .top .info .t.dev{color:#0f8f78;border-color:#9fd9cb;background:#eaf8f4}
+.adm .rcol .top .info .t.l3{color:#67a33a;border-color:#cde8b8;background:#f3faee}
+.adm .rcol .top .info .t.su{color:#e6a23c;border-color:#f5d9a8;background:#fdf6ec}
+.adm .rcol .top .info .wal{border:1px solid #dcdfe6;border-radius:12px;padding:1px 8px;font-size:11px}
+.adm .rcol .top .info .av{width:22px;height:22px;border-radius:50%;background:#0f8f78;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.adm .rcol .tagsbar{align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid var(--a-line)}
+.adm .rcol .tagsbar span{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;font-size:12px}
+.adm .rcol .tagsbar span em{font-style:normal;color:#99a;margin-left:4px}
+.adm .rcol .tagsbar span.on{background:#e8f6f3;border-color:var(--a-green);color:var(--a-green)}
+.adm .rcol .tagsbar .tr{margin-left:auto;color:#889;font-size:13px;border:0;letter-spacing:8px}
+.adm .rcol .main{flex:1}
+.adm .side .g{justify-content:flex-start}.adm .side .g:after{margin-left:auto}
+
+/* 操作列固定在右侧（同现网 el-table fixed right） */
+.adm table.lst th:last-child,.adm table.lst td:last-child{position:sticky;right:0;background:#fff;box-shadow:-6px 0 8px -6px rgba(0,0,0,.12);z-index:1}
+.adm table.lst th:last-child{background:#f5f7fa}
+</style>
+</head>
+<body>
+
+<header class="dh-header"><div class="dh-header-inner">
+  <h1>活动订单：导出 + 待领取奖励强制通过 / 强制拒绝</h1>
+  <div class="dh-meta"><span>模块：<b>运营管理后台 · 运营配置 › 活动订单</b></span><span>适用：<b>菲律宾站、美国站</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-24</b></span></div>
+</div></header>
+
+<nav class="dh-navbar"><div class="dh-navbar-inner dh-primary">
+  <button class="dh-primary-btn active" data-primary="proto" type="button">交互原型 <small>点按钮看效果</small></button>
+  <button class="dh-primary-btn" data-primary="docs" type="button">需求文档 <small>规则、接口与验收</small></button>
+</div></nav>
+
+<div class="dh-wrap"><main>
+
+<section class="dh-primary-panel active" data-primary-panel="proto">
+  <div class="ctl">
+    <label><input type="checkbox" id="mkT" checked> 显示改动标注</label>
+    <span class="legend"><i style="background:#19be6b"></i>本期新增（悬停看说明）</span>
+    <button class="doc-btn" id="resetAll" type="button">重置演示</button>
+    <div class="hint">试一下：点「导出」；对「待领取」的订单点「强制通过」或「强制拒绝」（拒绝要填原因）；勾选几笔「待领取」后用上方的批量按钮；状态筛选选「待领取」后点「查询」。</div>
+  </div>
+
+  <div class="proto-stage wide">
+  <div class="adm" id="adm">
+    <div class="body">
+      <div class="side" aria-label="左侧菜单"><div class="logo"><i>77</i><div><b>77Slot</b><small>运营管理后台</small></div></div><div class="g" data-ic="♙">会员管理</div><div class="g" data-ic="▦">游戏管理</div><div class="g cur" data-ic="▭">支付配置管理</div><div class="g" data-ic="▭">财务订单管理</div><div class="g open" data-ic="⚙">运营配置</div><div class="it" data-ic="➤">活动列表</div><div class="it on" data-ic="☰">活动订单</div><div class="it" data-ic="◎">转盘轮次台账</div><div class="it" data-ic="♢">全站动态管理</div><div class="it" data-ic="⚙">广告图管理</div><div class="it" data-ic="⚙">榜单赛列表</div><div class="it" data-ic="⚙">榜单赛记录</div><div class="it" data-ic="⊕">渠道管理</div><div class="it" data-ic="▤">渠道回传记录</div><div class="it" data-ic="▤">数据字典</div><div class="it" data-ic="☊">在线客服</div><div class="g" data-ic="⋖">代理中心</div><div class="sgrow"></div><div class="fold">« 收起菜单</div></div>
+      <div class="rcol"><div class="top"><span class="hb">☰</span><span class="crumbs">运营管理后台 / <b>活动订单</b></span><span class="sp"></span><span class="info">🇵🇭 菲律宾时间：2026-11-24 16:28:32<span>币种 ₱ (PHP)</span><span class="t dev">DEV</span><span class="t l3">L3 op-sign 开</span><span class="t su">super</span>🔔<span class="wal">0x8db6…040f</span><span class="av">S</span></span></div><div class="tagsbar"><span>⌂ 会员列表</span><span>⚙ 榜单赛列表<em>×</em></span><span>⚙ 榜单赛记录<em>×</em></span><span>⇪ 三方出款订单<em>×</em></span><span>☺ 管理员<em>×</em></span><span>▭ 平台运营报表<em>×</em></span><span class="on">☰ 活动订单<em>×</em></span><span>⋖ 代理列表<em>×</em></span><span class="tr">+ ⌄</span></div>
+      <div class="main">
+        <div class="acard">
+          <div class="fgrid">
+            <div class="fitem"><label>活动 ID</label><div class="inp"><input placeholder="从活动列表点进来会自动填"></div></div>
+            <div class="fitem"><label>会员 ID</label><div class="inp"><input id="q-uid" placeholder="完整 UID"></div></div>
+            <div class="fitem"><label>活动名称</label><div class="inp"><input placeholder="下单时的后台名称"></div></div>
+            <div class="fitem"><label>类型</label><div class="inp"><select id="q-type"><option value="">全部类型</option></select></div></div>
+            <div class="fitem"><label>状态</label><div class="inp"><select id="q-state"><option value="">全部状态</option></select></div></div>
+            <div class="fitem span2"><label>创建时间</label><div class="rngbox">🕓<span>2026-10-24 16:18:24</span>—<span>2026-11-24 16:18:24</span></div></div>
+          </div>
+          <div class="factions"><button class="btn p" type="button" id="b-q">查询</button><button class="btn" type="button" id="b-reset">重置</button></div>
+        </div>
+        <div class="acard">
+          <div class="ahead"><h4>发奖记录</h4><span class="pill g" id="cnt"></span><span class="sp"></span>
+            <span class="chg-a" style="display:inline-block;border-radius:5px"><button class="btn" type="button" id="b-exp">导出</button><span class="mk tip" style="right:-8px;top:-12px" title="原：没有导出。现：按当前筛选条件导出全部记录（不只当前页）为 CSV，列与列表一致（不含操作列）；复用后台现有导出，单次上限 10,000 行，可取消，写导出日志">新增</span></span>
+            <button class="btn" type="button" id="b-ref">刷新</button></div>
+          <div class="bulk chg-a"><span id="bulk-t">勾选「待领取」的订单可批量处理</span><span class="sp"></span><button class="btn s" type="button" id="bk-ok" disabled>批量强制通过</button><button class="btn s" type="button" id="bk-no" disabled>批量强制拒绝</button><span class="mk tip" style="right:8px;top:-9px" title="原：没有批量操作。现：勾选「待领取」的订单后显示已选笔数和合计金额，可批量强制通过 / 强制拒绝（当前页内，最多 100 笔）；翻页、改筛选、刷新后清空勾选">新增</span></div>
+          <div class="tblwrap"><table class="lst">
+            <thead><tr><th style="position:relative"><input type="checkbox" id="ck-all" aria-label="全选待领取"><span class="mk tip" style="left:20px;top:-2px" title="原：没有勾选列。现：只有「待领取」的订单可勾选；表头勾选 = 全选当前页的待领取订单">新增</span></th><th>订单号</th><th>会员 ID</th><th>活动</th><th>类型</th><th>档位</th><th class="r">奖励金额</th><th>流水倍数</th><th>流水基数</th><th class="r">本金快照</th><th>状态</th><th>触发单号</th><th>创建时间</th><th>过期时间</th><th>到账时间</th><th style="position:relative">操作<span class="mk tip" style="right:2px;top:-2px" title="原：只有「派发失败」的订单有「重试」，其它显示「—」。现：「待领取」的订单增加「强制通过」「强制拒绝」；其它状态不变">新增</span></th></tr></thead>
+            <tbody id="tb"></tbody>
+          </table></div>
+          <div class="pager"><span id="pg-total"></span><i>&lt;</i><i class="on">1</i><i>&gt;</i><span>20 条/页</span></div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="expcard" id="exp"><div id="exp-t">导出…</div><div class="track"><div class="fill" id="exp-f"></div></div><div class="act"><button class="btn s" type="button" id="exp-c">取消</button></div></div>
+
+    <div class="mask" id="dlg-ok"><div class="dlg sm"><header><h5 id="ok-h">强制通过</h5><button type="button" data-close>×</button></header>
+      <div class="dbody"><div class="kv" id="ok-kv"></div><div class="warnline">确认后奖励立即到账会员红利钱包，按订单上的流水倍数加打码，效果和会员自己领取一样。操作不可撤销。</div></div>
+      <footer><button class="btn" type="button" data-close>取消</button><button class="btn p" type="button" id="ok-go">确认通过</button></footer></div></div>
+
+    <div class="mask" id="dlg-no"><div class="dlg sm"><header><h5 id="no-h">强制拒绝</h5><button type="button" data-close>×</button></header>
+      <div class="dbody"><div class="kv" id="no-kv"></div><div class="warnline">确认后订单变为「已取消」，会员端不显示这笔奖励，也不能领取。操作不可撤销。</div>
+        <div class="req"><i>*</i> 拒绝原因</div><textarea id="no-r" maxlength="200" placeholder="例如：配置错误导致的异常奖励"></textarea><div class="cnt"><span id="no-c">0</span> / 200</div><div class="errmsg" id="no-e" hidden>请填写拒绝原因</div></div>
+      <footer><button class="btn" type="button" data-close>取消</button><button class="btn p" type="button" id="no-go" style="background:#f56c6c;border-color:#f56c6c">确认拒绝</button></footer></div></div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+  </div>
+  <p class="proto-tip">列表数据为演示数据。时间按站点时区（菲律宾站为菲律宾时间）。</p>
+</section>
+
+<section class="dh-primary-panel" data-primary-panel="docs">
+  <nav class="dh-tabs"><button class="dh-tab active" data-tab="spec" type="button"><span class="n">1</span>需求说明</button><button class="dh-tab" data-tab="qa" type="button"><span class="n">2</span>验收与开发测试</button></nav>
+
+  <div class="dh-panel active" data-panel="spec"><div class="req-block">
+    <h2>改什么</h2>
+    <div class="dh-prose"><p>运营配置 › 活动订单页加两项：</p><ul>
+      <li><b>导出</b>：按当前筛选条件把发奖记录导出为 CSV。</li>
+      <li><b>待领取奖励人工处理</b>：「待领取」的订单可以「强制通过」（直接到账）或「强制拒绝」（作废，会员端不显示），支持单条和勾选批量。</li></ul></div>
+    <div class="dh-callout">现状：「操作」列只有「派发失败」的订单有「重试」，其它显示「—」；没有导出。异常奖励目前只能找开发手工处理。</div>
+
+    <h3>强制处理流程</h3>
+    <div class="dh-flow">
+      <div class="flow-diagram"><span class="flow-step">订单状态「待领取」<span class="sub">其它状态不显示这两个按钮</span></span><span class="flow-arrow">→</span><span class="flow-step">单条点按钮，或勾选后批量</span><span class="flow-arrow">→</span><span class="flow-step">确认弹窗<span class="sub">拒绝须填原因</span></span><span class="flow-arrow">→</span><span class="flow-step">后端逐笔再查状态</span></div>
+      <div class="flow-branches">
+        <div class="flow-branch"><span>强制通过</span><span class="arr">→</span><span class="result good">已到账：入红利钱包，按订单流水快照加打码</span></div>
+        <div class="flow-branch"><span>强制拒绝</span><span class="arr">→</span><span class="result bad">已取消：会员端不显示、不能领取</span></div>
+        <div class="flow-branch"><span>状态已变（会员刚领取 / 刚过期）</span><span class="arr">→</span><span class="result neutral">单条提示「订单状态已变化，请刷新」；批量跳过该笔</span></div>
+      </div>
+    </div>
+
+    <h3>按钮与规则</h3>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>位置</th><th>规则</th></tr>
+      <tr><td><b>导出</b><span class="tag-new">新增</span></td><td>「发奖记录」卡片右上角、「刷新」左边。导出当前筛选条件下的全部记录（不只当前页），列与列表一致（不含「操作」）。复用后台现有导出：单次上限 10,000 行，超出提示缩小时间范围或只导出前 10,000 行；导出中可取消；写导出日志（操作人、时间、筛选条件、行数）。文件名 <code>活动订单_YYYYMMDD_HHmm.csv</code></td></tr>
+      <tr><td><b>操作 · 强制通过</b><span class="tag-new">新增</span></td><td>只对「待领取」显示。确认后状态「已到账」、写到账时间，奖励进会员红利钱包，按订单上的流水倍数、流水基数快照加打码（赠送金额：奖励 × 倍数；本金+赠送：（本金快照 + 奖励）× 倍数）</td></tr>
+      <tr><td><b>操作 · 强制拒绝</b><span class="tag-new">新增</span></td><td>只对「待领取」显示。必须填原因（1–200 字）。确认后状态「已取消」，会员端 Bonus / 活动记录不显示，不能领取，不加打码</td></tr>
+      <tr><td><b>勾选与批量</b><span class="tag-new">新增</span></td><td>列表第一列加勾选框，只有「待领取」可勾选；表头勾选 = 全选当前页的待领取订单。勾选后上方显示「已选 N 笔 / 合计 ₱X」，「批量强制通过」「批量强制拒绝」可点。只处理当前页勾选的订单，一次最多 100 笔；翻页、改筛选、刷新后清空勾选。批量通过的确认弹窗显示笔数、涉及会员数、合计奖励、合计打码要求（各笔按自己的流水快照算）；批量拒绝共用一个原因</td></tr>
+      <tr><td><b>操作 · 其它状态</b></td><td>「派发失败」仍是「重试」；已到账、已过期、已取消、派发中显示「—」</td></tr>
+    </table></div>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>触发</th><th>系统反馈</th></tr>
+      <tr><td>点「导出」</td><td>右上角出现导出进度「导出… 已获取 x / N 行」；完成后下载文件并提示「已导出 N 行」</td></tr>
+      <tr><td>导出时筛选结果超过 10,000 行</td><td>提示上限，可选「导出前 10,000 行」或取消</td></tr>
+      <tr><td>强制通过 · 确认</td><td>提示「已强制通过」，该行变「已到账」，到账时间为当前时间；写操作日志</td></tr>
+      <tr><td>强制拒绝 · 没填原因点确认</td><td>原因框下提示「请填写拒绝原因」，不提交</td></tr>
+      <tr><td>强制拒绝 · 填原因确认</td><td>提示「已强制拒绝」，该行变「已取消」；写操作日志（含原因）</td></tr>
+      <tr><td>提交时订单已不是「待领取」</td><td>单条：提示「订单状态已变化，请刷新」，不入账、不改状态</td></tr>
+      <tr><td>批量提交完成</td><td>提示「成功 N 笔，跳过 M 笔（状态已变化）」；成功的行更新状态，勾选清空</td></tr>
+    </table></div>
+
+    <h3>接口</h3>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>接口</th><th>说明</th></tr>
+      <tr><td><code>POST …/activity-orders/force-approve</code></td><td>body <code>{ orderNos: [] }</code>（1–100 笔），单条与批量共用；只处理待领取，返回成功 / 跳过明细</td></tr>
+      <tr><td><code>POST …/activity-orders/force-reject</code></td><td>body <code>{ orderNos: [], reason }</code>；同上</td></tr>
+      <tr><td>导出</td><td>复用现有导出：按活动订单列表接口分页拉取，完成后写导出审计</td></tr>
+      <tr><td>前台活动订单 / Bonus 列表</td><td>「已取消」的订单不返回</td></tr>
+    </table></div>
+
+    <h3>不做</h3>
+    <div class="dh-prose"><p>跨页批量；撤销强制操作；已到账订单扣回。</p></div>
+  </div></div>
+
+  <div class="dh-panel" data-panel="qa"><div class="req-block">
+    <h2>验收</h2>
+    <div class="tbl-wrap"><table class="dh-table-simple">
+      <tr><th>编号</th><th>前置条件与操作</th><th>期望结果</th></tr>
+      <tr><td>A1</td><td>打开活动订单页</td><td>「刷新」左边有「导出」；待领取的订单有「强制通过」「强制拒绝」；派发失败的仍是「重试」</td></tr>
+      <tr><td>A2</td><td>状态筛选「待领取」，点导出</td><td>下载 CSV，行数 = 筛选结果总数，列与列表一致</td></tr>
+      <tr><td>A3</td><td>筛选结果超过 10,000 行导出</td><td>提示上限，可选只导出前 10,000 行</td></tr>
+      <tr><td>A4</td><td>导出后查导出日志</td><td>有一条：操作人、时间、筛选条件、行数</td></tr>
+      <tr><td>A5</td><td>₱12、流水倍数 5、赠送金额的待领取订单，强制通过</td><td>「已到账」，到账时间为当前；会员红利钱包 +₱12，打码要求 +₱60</td></tr>
+      <tr><td>A6</td><td>本金+赠送、本金快照 ₱100、奖励 ₱119、倍数 2 的订单，强制通过</td><td>打码要求 +₱438</td></tr>
+      <tr><td>A7</td><td>强制拒绝不填原因</td><td>提示「请填写拒绝原因」，不提交</td></tr>
+      <tr><td>A8</td><td>填原因确认强制拒绝</td><td>「已取消」；会员端 Bonus 看不到；余额、打码不变</td></tr>
+      <tr><td>A9</td><td>会员刚领取后，运营在旧页面点强制通过</td><td>提示「订单状态已变化，请刷新」，不重复入账</td></tr>
+      <tr><td>A10</td><td>已到账 / 已过期 / 已取消的订单</td><td>「操作」为「—」</td></tr>
+      <tr><td>A11</td><td>查后台操作日志</td><td>每笔强制通过、强制拒绝各有记录，含订单号、会员、金额、原因</td></tr>
+      <tr><td>A12</td><td>只有待领取的订单有勾选框；勾选 3 笔</td><td>上方显示「已选 3 笔 / 合计 ₱X」，批量按钮可点</td></tr>
+      <tr><td>A13</td><td>勾选 3 笔批量强制通过</td><td>3 笔「已到账」，各自按自己的流水快照加打码</td></tr>
+      <tr><td>A14</td><td>勾选 3 笔批量强制拒绝并填原因</td><td>3 笔「已取消」，共用同一原因</td></tr>
+      <tr><td>A15</td><td>批量时其中 1 笔会员刚领取</td><td>提示「成功 2 笔，跳过 1 笔（状态已变化）」，不重复入账</td></tr>
+      <tr><td>A16</td><td>勾选后翻页或改筛选</td><td>勾选清空</td></tr>
+    </table></div>
+    <h3>开发测试重点</h3>
+    <div class="dh-prose"><ul>
+      <li><b>批量逐笔校验</b>：每笔以提交时的状态为准，已变的跳过，不整批失败、不重复入账；打码按每笔自己的快照算。</li>
+      <li><b>只认待领取</b>：前端按钮和后端接口都要校验状态，后端以提交时的状态为准，防止和会员领取、过期任务并发造成重复入账。</li>
+      <li><b>打码用订单快照</b>：强制通过按订单上的流水倍数 / 基数 / 本金快照计算，不读活动当前配置。</li>
+      <li><b>已取消不外显</b>：会员端所有奖励列表、可领金额汇总都要排除已取消。</li>
+      <li><b>导出范围</b>：是筛选条件下的全部数据，不是当前页；时间按站点时区。</li>
+    </ul></div>
+  </div></div>
+</section>
+
+</main></div>
+
+<script>
+(function(){
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var pb=document.querySelectorAll('.dh-primary-btn');
+  pb.forEach(function(b){b.addEventListener('click',function(){var n=b.getAttribute('data-primary');pb.forEach(function(x){x.classList.toggle('active',x===b);});document.querySelectorAll('.dh-primary-panel').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-primary-panel')===n);});});});
+  var tb=document.querySelectorAll('.dh-tab');
+  tb.forEach(function(t){t.addEventListener('click',function(){var n=t.getAttribute('data-tab');tb.forEach(function(x){x.classList.toggle('active',x===t);});document.querySelectorAll('.dh-panel').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-panel')===n);});});});
+  $('mkT').addEventListener('change',function(){document.body.classList.toggle('nomk',!this.checked);});
+
+  var ST={1:['待领取','w'],2:['已到账','s'],3:['已过期','i'],4:['已取消','i'],5:['派发中','p'],6:['派发失败','d']};
+  var TYPES=['注册奖励','绑定邮箱','绑定手机','下载APP奖励','每日登录','每日返水','亏损救援','连续存款','免费转盘'];
+  TYPES.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;$('q-type').appendChild(o);});
+  Object.keys(ST).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=ST[k][0];$('q-state').appendChild(o);});
+  var DEF=[
+    ['BON2124790012301','52018841','Register Bonuses','注册奖励',1,12,5,1,0,1,'act:register_gift','2026-11-24 16:21:39','2026-12-01 16:21:39',''],
+    ['BON2124790011876','52017720','119% Extra First 5 Deposits','连续存款',1,119,2,2,100,1,'fiat:DEP2124789960','2026-11-24 16:20:58','2026-12-01 16:20:58',''],
+    ['BON2124790011245','52016693','Daily Login Bonus','每日登录',1,3,2,1,0,2,'act:daily_login:20261124','2026-11-24 16:20:42','2026-12-01 16:20:42','2026-11-24 16:20:42'],
+    ['BON2124790010588','52015407','Register Bonuses','注册奖励',1,12,5,1,0,1,'act:register_gift','2026-11-24 16:14:30','2026-12-01 16:14:30',''],
+    ['BON2124790009933','52014352','APP Download','下载APP奖励',1,8,5,1,0,2,'act:app_download','2026-11-24 16:12:31','2026-12-01 16:12:31','2026-11-24 16:12:31'],
+    ['BON2124790009120','52013318','Loss Rescue 30%','亏损救援',2,45,5,1,0,1,'act:loss_rescue:W2124','2026-11-24 15:58:02','2026-12-01 15:58:02',''],
+    ['BON2124790008471','52012204','Bind Email','绑定邮箱',1,8,5,1,0,6,'act:bind_email','2026-11-24 15:40:11','2026-12-01 15:40:11',''],
+    ['BON2124780007752','52009917','Register Bonuses','注册奖励',1,12,5,1,0,3,'act:register_gift','2026-11-16 10:02:45','2026-11-23 10:02:45',''],
+    ['BON2124780007019','52008865','Free Spin','免费转盘',1,20,1,1,0,2,'act:free_spin:R118','2026-11-16 09:31:20','2026-11-23 09:31:20','2026-11-16 09:31:20']
+  ];
+  var rows,flt,cur,sel={};
+  function money(n){return Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+  function now(){return '2026-11-24 16:30:05';}
+  function init(){rows=DEF.map(function(r){return {no:r[0],uid:r[1],act:r[2],type:r[3],tier:r[4],amt:r[5],wm:r[6],wb:r[7],base:r[8],st:r[9],trig:r[10],c:r[11],e:r[12],cr:r[13]};});flt={uid:'',type:'',st:''};sel={};$('q-uid').value='';$('q-type').value='';$('q-state').value='';render();}
+  function vis(){return rows.filter(function(r){return (!flt.uid||r.uid===flt.uid)&&(!flt.type||r.type===flt.type)&&(!flt.st||String(r.st)===flt.st);});}
+  function render(){
+    var v=vis();$('cnt').textContent=v.length+' 条';$('pg-total').textContent='共 '+v.length+' 条';
+    $('tb').innerHTML=v.map(function(r){
+      var s=ST[r.st],op;
+      if(r.st===1) op='<span class="chg-a" style="display:inline-block;padding:1px 2px"><button class="lnk" data-ok="'+r.no+'">强制通过</button><button class="lnk r" data-no="'+r.no+'">强制拒绝</button></span>';
+      else if(r.st===6) op='<button class="lnk" data-rt="'+r.no+'">重试</button>';
+      else op='—';
+      return '<tr><td>'+(r.st===1?'<input type="checkbox" data-ck="'+r.no+'"'+(sel[r.no]?' checked':'')+'>':'')+'</td><td title="'+r.no+'">'+r.no.slice(0,15)+'…</td><td>'+r.uid+'</td><td class="l">'+esc(r.act)+'</td><td>'+r.type+'</td><td>'+r.tier+'</td><td class="r">'+money(r.amt)+'</td><td>'+money(r.wm)+'</td><td>'+(r.wb===2?'本金+赠送':'赠送金额')+'</td><td class="r">'+money(r.base)+'</td><td><span class="stag '+s[1]+'">'+s[0]+'</span></td><td>'+r.trig+'</td><td>'+r.c+'</td><td>'+r.e+'</td><td>'+(r.cr||'—')+'</td><td class="ops">'+op+'</td></tr>';
+    }).join('')||'<tr><td colspan="16">暂无数据</td></tr>';
+    bulk();
+  }
+  function selList(){return rows.filter(function(r){return sel[r.no]&&r.st===1;});}
+  function bulk(){var l=selList(),a=0;l.forEach(function(r){a+=r.amt;});$('bulk-t').textContent=l.length?'已选 '+l.length+' 笔 / 合计 ₱ '+money(a):'勾选「待领取」的订单可批量处理';$('bk-ok').disabled=!l.length;$('bk-no').disabled=!l.length;var can=vis().filter(function(r){return r.st===1;}).length;$('ck-all').checked=can>0&&l.length===can;$('ck-all').indeterminate=l.length>0&&l.length<can;}
+  function wreq(r){return r.wb===2?(r.base+r.amt)*r.wm:r.amt*r.wm;}
+  function kvList(l,withW){var a=0,w=0;l.forEach(function(r){a+=r.amt;w+=wreq(r);});return '<span>处理笔数</span><b>'+l.length+' 笔</b><span>涉及会员</span><b>'+l.map(function(r){return r.uid;}).filter(function(v,i,x){return x.indexOf(v)===i;}).length+' 人</b><span>合计奖励</span><b>₱ '+money(a)+'</b>'+(withW?'<span>合计打码要求</span><b>₱ '+money(w)+'（各笔按自己的流水快照计算）</b>':'');}
+  function find(no){for(var i=0;i<rows.length;i++)if(rows[i].no===no)return rows[i];}
+  function toast(t,bad){var e=$('toast');e.textContent=t;e.className='toast on'+(bad?' bad':'');clearTimeout(e._t);e._t=setTimeout(function(){e.className='toast';},1800);}
+  function kv(r){var w=r.wb===2?(r.base+r.amt)*r.wm:r.amt*r.wm;return '<span>订单号</span><b>'+r.no+'</b><span>会员 ID</span><b>'+r.uid+'</b><span>活动</span><b>'+esc(r.act)+'（'+r.type+'）</b><span>奖励金额</span><b>₱ '+money(r.amt)+'</b><span>打码要求</span><b>₱ '+money(w)+'（'+(r.wb===2?'（本金 '+money(r.base)+' + 奖励）':'奖励')+' × '+r.wm+'）</b>';}
+  $('tb').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    if(b.dataset.ok){cur=[find(b.dataset.ok)];$('ok-h').textContent='强制通过';$('ok-kv').innerHTML=kv(cur[0]);$('dlg-ok').classList.add('on');}
+    if(b.dataset.no){cur=[find(b.dataset.no)];$('no-h').textContent='强制拒绝';$('no-kv').innerHTML=kv(cur[0]).split('<span>打码要求</span>')[0];$('no-r').value='';$('no-c').textContent='0';$('no-e').hidden=true;$('no-r').classList.remove('err');$('dlg-no').classList.add('on');}
+    if(b.dataset.rt){toast('已提交重试');}
+  });
+  document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',function(){b.closest('.mask').classList.remove('on');});});
+  $('ok-go').addEventListener('click',function(){cur.forEach(function(r){r.st=2;r.cr=now();delete sel[r.no];});$('dlg-ok').classList.remove('on');render();toast(cur.length>1?'成功 '+cur.length+' 笔，跳过 0 笔':'已强制通过');});
+  $('no-r').addEventListener('input',function(){$('no-c').textContent=this.value.length;});
+  $('no-go').addEventListener('click',function(){var v=$('no-r').value.trim();if(!v){$('no-e').hidden=false;$('no-r').style.borderColor='#e5484d';return;}$('no-r').style.borderColor='';cur.forEach(function(r){r.st=4;delete sel[r.no];});$('dlg-no').classList.remove('on');render();toast(cur.length>1?'成功 '+cur.length+' 笔，跳过 0 笔':'已强制拒绝');});
+  $('tb').addEventListener('change',function(e){var n=e.target.dataset.ck;if(n){sel[n]=e.target.checked;bulk();}});
+  $('ck-all').addEventListener('change',function(){var on=this.checked;vis().forEach(function(r){if(r.st===1)sel[r.no]=on;});render();});
+  $('bk-ok').addEventListener('click',function(){cur=selList();$('ok-h').textContent='批量强制通过（'+cur.length+' 笔）';$('ok-kv').innerHTML=kvList(cur,true);$('dlg-ok').classList.add('on');});
+  $('bk-no').addEventListener('click',function(){cur=selList();$('no-h').textContent='批量强制拒绝（'+cur.length+' 笔）';$('no-kv').innerHTML=kvList(cur,false);$('no-r').value='';$('no-c').textContent='0';$('no-e').hidden=true;$('no-r').style.borderColor='';$('dlg-no').classList.add('on');});
+  $('b-q').addEventListener('click',function(){sel={};flt={uid:$('q-uid').value.trim(),type:$('q-type').value,st:$('q-state').value};render();});
+  $('b-reset').addEventListener('click',function(){sel={};$('q-uid').value='';$('q-type').value='';$('q-state').value='';flt={uid:'',type:'',st:''};render();});
+  $('b-ref').addEventListener('click',function(){sel={};render();toast('已刷新');});
+  var timer=null;
+  $('b-exp').addEventListener('click',function(){
+    var n=vis().length,k=0;$('exp').classList.add('on');$('exp-f').style.width='0';
+    clearInterval(timer);timer=setInterval(function(){k=Math.min(n,k+Math.max(1,Math.ceil(n/4)));$('exp-t').textContent='导出… 已获取 '+k+' / '+n+' 行';$('exp-f').style.width=(n?k/n*100:100)+'%';
+      if(k>=n){clearInterval(timer);setTimeout(function(){$('exp').classList.remove('on');toast('已导出 '+n+' 行（活动订单_20261124_1630.csv）');},300);}},300);
+  });
+  $('exp-c').addEventListener('click',function(){clearInterval(timer);$('exp').classList.remove('on');toast('已取消导出',true);});
+  $('resetAll').addEventListener('click',init);
+  init();
+})();
+</script>
+</body></html>
