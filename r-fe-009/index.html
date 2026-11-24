@@ -633,12 +633,12 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <h3>前台 · 入口卡片<span class="tag-new">新增</span></h3>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>位置</th><th>规则</th></tr>
-      <tr><td><b>Bonus 页 Free Bonus 区</b></td><td>和其它活动一样出一张卡片：列表图标、客户端名称、活动文案；位置按列表排序。按钮文案：今天能签显示 <code>Check In</code>，其余情况（未登录、已签、VIP 不在档位）显示 <code>View</code>。点卡片或按钮都是打开签到弹窗，不直接签到</td></tr>
+      <tr><td><b>Bonus 页 Free Bonus 区</b></td><td>和其它活动一样出一张卡片：列表图标、活动标题、活动文案；位置按列表排序。按钮文案：今天能签显示 <code>Check In</code>，其余情况（未登录、已签、VIP 不在档位）显示 <code>View</code>。点卡片或按钮都是打开签到弹窗，不直接签到</td></tr>
       <tr><td><b>Promotion 宽卡</b></td><td>后台勾了「Promotion 宽卡」就出现，点击同样打开签到弹窗（沿用现有机制）</td></tr>
     </table></div>
 
     <h3>前台 · 签到弹窗<span class="tag-new">新增页面</span></h3>
-    <div class="dh-prose"><p>PC 是 375 宽的居中弹窗，H5 是底部抽屉（高度 80%），沿用现网活动详情弹窗的外壳。从上到下：标题（客户端名称）、顶图（详情背景图）、Level / Bonus / Rules 三个页签（点击滚动到对应区块，滚动时页签跟着高亮）、等级区、7 天列表、规则、底部固定栏。</p></div>
+    <div class="dh-prose"><p>PC 是 375 宽的居中弹窗，H5 是底部抽屉（高度 80%），沿用现网活动详情弹窗的外壳。从上到下：标题（活动标题）、顶图（详情背景图）、Level / Bonus / Rules 三个页签（点击滚动到对应区块，滚动时页签跟着高亮）、等级区、7 天列表、规则、底部固定栏。</p></div>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>区块</th><th>内容</th></tr>
       <tr><td><b>等级区</b></td><td>左：VIP 图标。右：<code>Your VIP level</code> + <code>VIP 3</code>，下面小字是所属档位 <code>Tier VIP 1–5</code>；不在档位时小字显示 <code>Not in any tier</code>；未登录显示 <code>Log in to view</code>。下方进度条每个节点是一个档位，标注 VIP 区间，前面加 V（如 <code>V1-5</code>，单个等级写 <code>V6</code>）；节点圆点里不写序号，玩家所在档位高亮；节点数 = 档位数（1–10），等宽排列。<b>节点可以点</b>：点某个档位，下面 7 天列表切成这个档位的金额（预览）；档位多于 1 个时进度条下面有一行小字 <code>Tap a tier to preview its rewards</code></td></tr>
@@ -780,7 +780,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     if(pv!==null&&(pv>=n||pv===x.show))pv=null;
     var pvOn=pv!==null,si=pvOn?pv:x.show,t=cfg.tiers[si],own=x.ti>=0?cfg.tiers[x.ti]:null;
     h+='<div class="promotion-deposit-dialog is-daily-login is-checkin"><span class="mk pk tip" style="left:12px;top:6px" title="原：无。现：新增签到弹窗（PC 居中、H5 底部抽屉），默认显示自己 VIP 档位，可点开其它档位查看奖励金额">新增页面</span>';
-    h+='<header class="deposit-dialog__header"><p class="header-title">'+esc(cfg.cname)+'</p><button type="button" data-act="close" aria-label="Close">×</button></header>';
+    h+='<header class="deposit-dialog__header"><p class="header-title">'+esc(cfg.title)+'</p><button type="button" data-act="close" aria-label="Close">×</button></header>';
     h+='<div class="deposit-dialog__scroll"><div class="deposit-dialog__hero"'+(cfg.img[host==='h5'?'h5':'pc']?' style="background-image:url('+cfg.img[host==='h5'?'h5':'pc']+')"':'')+'></div><div class="daily-login-detail">';
     h+='<nav class="daily-login-tabs"><button type="button" class="active" data-act="tab" data-t="level">Level</button><button type="button" data-act="tab" data-t="bonus">Bonus</button><button type="button" data-act="tab" data-t="rules">Rules</button></nav>';
     /* 等级区 */
@@ -824,7 +824,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       var ns=host.querySelector('.deposit-dialog__scroll');if(ns){ns.scrollTop=keep[host.getAttribute('data-host')];ns.addEventListener('scroll',function(){spy(host);},{passive:true});spy(host);}
     });
     var x=info();
-    $('card-name').textContent=cfg.cname;$('card-img').src=cfg.img.icon||IMG.cal;$('card-img').style.visibility=cfg.img.icon?'':'hidden';$('card-desc').textContent=cfg.desc;$('card-btn').textContent=x.canClaim?'Check In':'View';
+    $('card-name').textContent=cfg.title;$('card-img').src=cfg.img.icon||IMG.cal;$('card-img').style.visibility=cfg.img.icon?'':'hidden';$('card-desc').textContent=cfg.desc;$('card-btn').textContent=x.canClaim?'Check In':'View';
     $('pc-bal').textContent=money(st.bal);
     $('l-name').textContent=cfg.name;$('l-cname').textContent=cfg.cname;$('l-wm').textContent=cfg.wm;$('l-wb').textContent=cfg.wb===2?'本金+赠送':'赠送金额';
     var who=!x.logged?'未登录':'VIP '+st.vip+(x.ti>=0?'（第 '+(x.ti+1)+' 档 '+rngLong(cfg.tiers[x.ti])+'）':'（不在任何档位）');
