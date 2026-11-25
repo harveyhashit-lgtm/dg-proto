@@ -572,7 +572,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 <header class="dh-header"><div class="dh-header-inner">
   <h1>每月彩金（新活动类型：每月固定日领取随机金额）</h1>
-  <div class="dh-meta"><span>模块：<b>营销活动 · 运营管理后台活动配置 + 前台 Bonus</b></span><span>适用：<b>菲律宾站、美国站（金额按站点币种）</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-24</b></span></div>
+  <div class="dh-meta"><span>模块：<b>营销活动 · 运营管理后台活动配置 + 前台 Bonus</b></span><span>适用：<b>菲律宾站、美国站（金额按站点币种）</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-25</b></span></div>
 </div></header>
 
 <nav class="dh-navbar"><div class="dh-navbar-inner dh-primary">
@@ -662,7 +662,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
               <div class="row"><label><i>*</i>前台展示范围</label><div><div class="mrange"><div class="inp" id="w-dmin"><input id="f-dmin" inputmode="decimal" placeholder="最小金额"></div><span>-</span><div class="inp" id="w-dmax"><input id="f-dmax" inputmode="decimal" placeholder="最大金额"></div></div><p class="hint">前台卡片和详情显示的金额范围，只用于展示，不参与派送。</p><div class="errmsg" id="e-d" hidden></div></div></div>
               <div class="row"><label><i>*</i>奖励范围</label><div><div class="mrange"><div class="inp" id="w-amin"><input id="f-amin" inputmode="decimal" placeholder="最小金额"></div><span>-</span><div class="inp" id="w-amax"><input id="f-amax" inputmode="decimal" placeholder="最大金额"></div></div><p class="hint">实际派送的最小、最大金额，每次领取在这个范围内随机，保留 2 位小数。不下发给前台。</p><div class="errmsg" id="e-a" hidden></div></div></div>
               <div class="row"><label><i>*</i>期望奖金（平均金额）</label><div><div class="inp num2" id="w-avg"><input id="f-avg" inputmode="decimal"></div><p class="hint">整体派送金额围绕这个值上下浮动，长期平均每次派送这么多；须在奖励范围的最小和最大之间。</p><div class="errmsg" id="e-avg" hidden></div></div></div>
-              <div class="row"><label>参与门槛</label><div><div class="inl wrap">领取日前<div class="inp num2" id="w-wd"><input id="f-wd" inputmode="numeric"><em class="wl">天</em></div>内累计充值 ≥<div class="inp num2" id="w-dep"><input id="f-dep" inputmode="decimal"></div>累计打码 ≥<div class="inp num2" id="w-bet"><input id="f-bet" inputmode="decimal"></div></div><p class="hint">两项都要满足。充值按到账的充值订单统计，人工加款、活动奖励不算；打码按已结算的有效投注统计。都含领取日当天领取前的数据。填 0 表示这项不要求。</p><div class="errmsg" id="e-th" hidden></div></div></div>
+              <div class="row"><label>参与门槛</label><div><div class="inl wrap">领取日前<div class="inp num2" id="w-wd"><input id="f-wd" inputmode="numeric"><em class="wl">天</em></div>内累计充值 ≥<div class="inp num2" id="w-dep"><input id="f-dep" inputmode="decimal"></div>累计打码 ≥<div class="inp num2" id="w-bet"><input id="f-bet" inputmode="decimal"></div></div><p class="hint">含领取日当天在内往前 N 天，充值和打码共用这个天数，两项都要满足，填 0 表示这项不要求。充值按到账订单，不含人工加款、活动奖励；打码 = 已结算投注 − 退款，不扣中奖，试玩和免费旋转不算。</p><div class="errmsg" id="e-th" hidden></div></div></div>
               <div class="row"><label>单日发放上限</label><div><div class="inp num2" id="w-cap"><input id="f-cap" inputmode="decimal"></div><p class="hint">一个领取日所有会员领取的金额合计达到上限后，当天停止领取。0 表示不限。</p><div class="errmsg" id="e-cap" hidden></div></div></div>
             </div>
             <div class="row"><label>活动时间</label><div class="dt2"><div class="inp dt"><span class="ico">◷</span><input placeholder="开始，空 = 不限" readonly></div><span>至</span><div class="inp dt"><span class="ico">◷</span><input placeholder="结束，空 = 不限" readonly></div></div></div>
@@ -754,7 +754,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td><b>前台展示范围</b></td><td>必填。最小 ≤ 最大，大于 0，最多 2 位小数。只用于前台展示</td><td>10 – 8,888</td></tr>
       <tr><td><b>奖励范围</b></td><td>必填。实际派送的最小、最大金额，0 &lt; 最小 ≤ 最大，最多 2 位小数</td><td>5 – 100</td></tr>
       <tr><td><b>期望奖金（平均金额）</b></td><td>必填。奖励范围最小 ≤ 期望 ≤ 最大；整体派送金额围绕它上下浮动</td><td>15</td></tr>
-      <tr><td><b>参与门槛</b></td><td>领取日前 N 天（1–90）内：累计到账充值 ≥ X，且累计打码 ≥ Y，两项都要满足；哪项填 0 就不要求哪项。充值不含人工加款、活动奖励；打码按已结算有效投注。都含领取日当天领取前的数据</td><td>30 天、充值 100、打码 500</td></tr>
+      <tr><td><b>参与门槛</b></td><td>领取日当天在内往前 N 个自然日（N 为 1–90，N=30 即当天 + 前 29 天），按站点业务时区，业务日 00:00 换天；充值和打码共用这个天数。累计到账充值 ≥ X，且累计打码 ≥ Y，两项都要满足；哪项填 0 就不要求哪项。充值不含人工加款、活动奖励；打码 = 已结算投注金额 − 退款，不扣中奖，试玩和免费旋转不算，统计全部游戏</td><td>30 天、充值 100、打码 500</td></tr>
       <tr><td><b>单日发放上限</b></td><td>一个领取日所有会员领取合计达到上限后当天停止领取；0 不限。当前一笔会超出上限时，这笔金额按剩余额度发放（剩余为 0 才停止）</td><td>20,000</td></tr>
       <tr><td><b>派发方式</b></td><td>固定手动领取（玩家点 Claim）</td><td>—</td></tr>
       <tr><td><b>流水基数 / 领取有效天数</b></td><td>流水基数固定赠送金额；点领取即到账，没有待领取订单，有效天数不适用</td><td>—</td></tr>
@@ -799,7 +799,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>接口</th><th>说明</th></tr>
       <tr><td>后台活动保存 / 查询</td><td><code>type = monthly_bonus</code>，<code>config { claimDays:[8,18,28], lastDayOfMonth, displayMin, displayMax, actualMin, actualMax, expectedAvg, depositWindowDays, depositMin, betMin, dailyCap }</code></td></tr>
-      <tr><td>前台活动列表 / 详情</td><td>只下发 <code>displayMin, displayMax, claimDays, lastDayOfMonth, nextClaimDate, claimState: available | claimed | not_claim_day | not_eligible | need_bet | cap_reached</code>，有门槛时加 <code>depositWindowDays, depositMin, depositTotal, betMin, betTotal</code></td></tr>
+      <tr><td>前台活动列表 / 详情</td><td>只下发 <code>displayMin, displayMax, claimDays, lastDayOfMonth, nextClaimDate, claimState: available | claimed | not_claim_day | not_eligible | need_bet | cap_reached</code>，任一门槛 &gt; 0 时下发 <code>depositWindowDays</code>（充值和打码共用的统计天数）；充值门槛 &gt; 0 时下发 <code>depositMin, depositTotal</code>；打码门槛 &gt; 0 时下发 <code>betMin, betTotal</code></td></tr>
       <tr><td>前台领取</td><td>沿用活动领取接口，返回 <code>amount</code>；服务端再校验领取日、次数、资格和单日上限</td></tr>
     </table></div>
 
@@ -826,12 +826,15 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>A10</td><td>测试环境模拟领取 10,000 次</td><td>平均值与期望奖金偏差 ≤ 5%，没有一笔超出奖励范围</td></tr>
       <tr><td>A11</td><td>抓前台接口</td><td>没有奖励范围、期望奖金、单日上限</td></tr>
       <tr><td>A12</td><td>勾「同设备只能参加一次」，同设备两个账号在同一领取日领取</td><td>第二个账号不能领</td></tr>
+      <tr><td>A13</td><td>只配打码门槛（充值填 0）</td><td>详情接口返回 depositWindowDays 和 betMin、betTotal，不返回 depositMin、depositTotal；前台只显示打码进度</td></tr>
+      <tr><td>A14</td><td>菲律宾站 11-28 00:30（菲律宾时间）领取，统计天数 30</td><td>可领；门槛统计 10-30 至 11-28 当前，含当天</td></tr>
     </table></div>
     <h3>开发测试重点</h3>
     <div class="dh-prose"><ul>
       <li><b>随机算法</b>：要保证均值接近期望值又不超出范围。一种做法：以概率 p =（最高 − 期望）÷（最高 − 最低）在 [最低, 期望] 里均匀取值，否则在 [期望, 最高] 里取值，长期均值即为期望值。</li>
       <li><b>并发</b>：同一会员同一领取日只能成功一次；单日上限要在并发下准确，不能超发。</li>
-      <li><b>时区</b>：领取日、门槛统计窗口都按站点业务时区。</li>
+      <li><b>时区</b>：领取日、门槛统计天数都按站点业务时区（菲律宾站 UTC+8，不是美东）；统计天数含当天，业务日 00:00 换天。</li>
+      <li><b>双门槛</b>：都不够时先判充值（not_eligible），充值够了再判打码（need_bet）。</li>
       <li><b>保密字段</b>：奖励范围、期望奖金、上限只在后台和服务端使用。</li>
     </ul></div>
   </div></div>
