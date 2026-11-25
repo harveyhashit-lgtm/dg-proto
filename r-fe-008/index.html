@@ -734,9 +734,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
                 <div class="errmsg" id="e-tier" hidden></div>
               </div></div>
               <div class="row"><label><i>*</i>奖品</label><div>
-                <table class="mx"><thead><tr><th style="width:44px">序号</th><th>转盘文字</th><th>奖励金额</th><th>中奖概率（%）</th><th>每日上限<small>空 = 不限</small></th><th style="width:110px">图标</th><th style="width:56px">操作</th></tr></thead><tbody id="przBody"></tbody></table>
+                <table class="mx"><thead><tr><th style="width:44px">序号</th><th>转盘文字</th><th>奖励金额</th><th>中奖概率（%）</th><th>每日上限<small>空 = 不限</small></th><th style="width:130px">图标<small>1:1，≤512px，≤400KB</small></th><th style="width:56px">操作</th></tr></thead><tbody id="przBody"></tbody></table>
                 <button class="addrow" type="button" id="addPrz">+ 添加奖品</button>
                 <p class="hint" id="pctSum"></p>
+                <p class="hint">图标：建议 1:1 正方形、透明底 PNG，128×128px 显示效果最好；最长边不超过 512px、文件不超过 400 KB，支持 PNG / JPG / WEBP。不上传用默认金币图标。</p>
+                <div class="errmsg" id="e-icon" hidden></div>
                 <p class="hint">按表格顺序顺时针排在转盘上，所有档位共用这一个奖池。中奖概率填百分比，最多 2 位小数，所有奖品合计须等于 100%；填 0 的格子显示在转盘上但不会抽中。每日上限按全站、按业务日统计，当天中出个数达到上限后这一格当天不能再中：其它格子的概率不变，抽中已中满的格子就重新抽一次，直到抽到其它格子；这一格仍显示在转盘上，前台不提示。概率和上限不下发前台。保存后下一次抽奖生效。</p>
                 <div class="errmsg" id="e-prz" hidden></div>
               </div></div>
@@ -866,7 +868,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>字段</th><th>规则</th><th>示例</th></tr>
       <tr><td><b>充值档位</b></td><td>必填，至少 1 行，可加行、删行。每行：当日累计充值 ≥（大于 0，最多 2 位小数，从上到下递增）、抽奖次数（≥ 1 的整数）</td><td>100 → 1 次；500 → 1 次；2,000 → 1 次；10,000 → 1 次</td></tr>
-      <tr><td><b>奖品</b></td><td>必填，至少 1 行，可加行、删行；按表格顺序顺时针排在转盘上，所有档位共用。每行：转盘文字（必填，前台转盘格子原样显示）、奖励金额（大于 0，最多 2 位小数）、中奖概率（0–100 的百分比，最多 2 位小数，所有奖品合计 = 100%）、每日上限（空 = 不限，填则为 ≥ 1 的整数）、图标（可上传，不传用默认金币图标）</td><td>12 格：3 / 5 / 7 / 177 / 10 / 12 / 15 / 77 / 17 / 27 / 37 / 777；777 每日上限 1</td></tr>
+      <tr><td><b>奖品</b></td><td>必填，至少 1 行，可加行、删行；按表格顺序顺时针排在转盘上，所有档位共用。每行：转盘文字（必填，前台转盘格子原样显示）、奖励金额（大于 0，最多 2 位小数）、中奖概率（0–100 的百分比，最多 2 位小数，所有奖品合计 = 100%）、每日上限（空 = 不限，填则为 ≥ 1 的整数）、图标（可上传，不传用默认金币图标；表头和表格下方提示「建议 1:1 正方形、透明底 PNG，128×128px；最长边 ≤ 512px、文件 ≤ 400 KB，支持 PNG / JPG / WEBP」，超出不上传并提示「第 N 行图标：文件 X KB，不能超过 400 KB」或「第 N 行图标：图片 W×Hpx，最长边不能超过 512px」）</td><td>12 格：3 / 5 / 7 / 177 / 10 / 12 / 15 / 77 / 17 / 27 / 37 / 777；777 每日上限 1</td></tr>
       <tr><td><b>派发方式</b></td><td>固定自动派发（抽中即到账）</td><td>—</td></tr>
       <tr><td><b>流水基数 / 领取有效天数</b></td><td>流水基数固定赠送金额；抽中即到账，没有待领取订单，有效天数不适用</td><td>—</td></tr>
       <tr><td><b>账号去重</b></td><td>沿用；充值转盘按每个业务日分别占位</td><td>—</td></tr>
@@ -977,6 +979,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>A20</td><td>查昨天的记录</td><td>剩余次数显示「0（已清零）」</td></tr>
       <tr><td>A21</td><td>会员 ID 和业务日都清空点查询</td><td>提示「请填写会员 ID 或选择业务日」</td></tr>
       <tr><td>A22</td><td>打开 Bonus 页</td><td>Free Bonus 区有充值转盘卡片（列表图标、活动标题、活动文案、Spin）；点 Spin 进 Spin 页 Deposit Spin Tab；关闭充值转盘活动后卡片不显示</td></tr>
+      <tr><td>A23</td><td>奖品图标上传 600×600px 或 500 KB 的图片</td><td>不上传，提示「第 N 行图标：图片 600×600px，最长边不能超过 512px」或「第 N 行图标：文件 500 KB，不能超过 400 KB」；上传 128×128px、50 KB 的 PNG 成功，前台转盘对应格子显示新图标</td></tr>
     </table></div>
     <h3>开发测试重点</h3>
     <div class="dh-prose"><ul>
@@ -1133,7 +1136,12 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   function readTiers(){return [].map.call($('tierBody').querySelectorAll('tr'),function(tr){return {min:tr.querySelector('[data-k=min]').value.trim(),spins:tr.querySelector('[data-k=spins]').value.trim()};});}
   function readPrz(){return [].map.call($('przBody').querySelectorAll('tr'),function(tr){var g=function(k){return tr.querySelector('[data-k='+k+']').value.trim();};return {label:g('label'),amount:g('amount'),weight:g('weight'),limit:g('limit'),icon:tr.dataset.icon||''};});}
   var fileIn=document.createElement('input');fileIn.type='file';fileIn.accept='image/png,image/jpeg,image/webp';fileIn.hidden=true;document.body.appendChild(fileIn);var upIdx=-1;
-  fileIn.addEventListener('change',function(){var f=fileIn.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var l=readPrz();l[upIdx].icon=rd.result;przRows(l);};rd.readAsDataURL(f);fileIn.value='';});
+  fileIn.addEventListener('change',function(){var f=fileIn.files[0];fileIn.value='';if(!f)return;var e=$('e-icon');e.hidden=true;
+    if(!/^image\/(png|jpeg|webp)$/.test(f.type)){e.textContent='第 '+(upIdx+1)+' 行图标：只支持 PNG / JPG / WEBP';e.hidden=false;return;}
+    if(f.size>400*1024){e.textContent='第 '+(upIdx+1)+' 行图标：文件 '+Math.round(f.size/1024)+' KB，不能超过 400 KB';e.hidden=false;return;}
+    var rd=new FileReader();rd.onload=function(){var im=new Image();im.onload=function(){var mx=Math.max(im.naturalWidth,im.naturalHeight);
+      if(mx>512){e.textContent='第 '+(upIdx+1)+' 行图标：图片 '+im.naturalWidth+'×'+im.naturalHeight+'px，最长边不能超过 512px';e.hidden=false;return;}
+      var l=readPrz();l[upIdx].icon=rd.result;przRows(l);};im.src=rd.result;};rd.readAsDataURL(f);});
   $('tierBody').addEventListener('click',function(e){var b=e.target.closest('[data-del]');if(!b||b.disabled)return;var l=readTiers();l.splice(Number(b.dataset.del),1);tierRows(l);});
   $('przBody').addEventListener('click',function(e){var b=e.target.closest('[data-delp]');if(b&&!b.disabled){var l=readPrz();l.splice(Number(b.dataset.delp),1);przRows(l);return;}
     var u=e.target.closest('[data-up]');if(u){upIdx=Number(u.dataset.up);fileIn.click();return;}
