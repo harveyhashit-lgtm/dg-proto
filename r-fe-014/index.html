@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>前台语言选择去国旗</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#0b0c0e;color:#e9eaec;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC",sans-serif;display:flex;gap:32px;justify-content:center;align-items:flex-start;padding:32px 16px;flex-wrap:wrap}
+  .doc{max-width:400px;font-size:14px;line-height:1.7;color:#c9cbd0}
+  .doc h1{font-size:18px;color:#fff;margin:0 0 8px}
+  .doc h2{font-size:14px;color:#fff;margin:18px 0 6px}
+  .doc ol,.doc ul{padding-left:18px;margin:4px 0}
+  .doc table{border-collapse:collapse;width:100%;font-size:13px;margin:6px 0}
+  .doc td,.doc th{border:1px solid #33353b;padding:5px 8px;text-align:left}
+  .doc th{color:#fff;background:#1a1b1f}
+  .badge{display:inline-block;background:#ff8a3d;color:#111;font-size:11px;font-weight:700;border-radius:4px;padding:0 5px;margin-left:4px;vertical-align:1px;line-height:16px}
+  .sw{display:flex;gap:8px;margin:8px 0}
+  .sw button{flex:1;padding:8px 0;border-radius:8px;border:1px solid #3a3c43;background:#17181b;color:#c9cbd0;cursor:pointer;font-family:inherit}
+  .sw button.on{background:#2d2e32;color:#fff;border-color:#6b6e76}
+
+  /* ===== 前台复刻（取值：K-UI-009 + 正式站计算样式） ===== */
+  .proto-window,.modal-mask{
+    --bg:#18191D;--drawer:#202026;--card-2:#2D2E32;--line:rgba(255,255,255,.08);
+    --text:#F3F3F5;--text-2:#C3C4CA;--text-3:#9297A3;--primary:#05F26A;--check:#08F26E;--on-primary:#0B2015;
+    --dlg:#191920;--dlg-line:#30313A;--opt-on:#34343C;--opt-off-text:#A2A2A8;
+    --font:proxima-nova,"SF Pro","PingFang SC",Arial,sans-serif;
+  }
+  .stage{position:relative;max-width:100%;overflow-x:auto}
+  .proto-window{font-family:var(--font);color:var(--text);background:var(--bg);border-radius:14px;overflow:hidden;position:relative;box-shadow:0 20px 60px #0008}
+
+  /* PC：侧栏底部 */
+  .pc{width:620px;height:430px;display:flex}
+  .pc .side{width:240px;padding:16px 12px;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+  .pc .menu div{height:44px;display:flex;align-items:center;padding:0 8px;color:var(--text-3);font-size:14px;font-weight:600;border-radius:8px}
+  .pc .foot{margin-top:auto}
+  .pc .dl{height:52px;background:var(--card-2);border-radius:8px;display:flex;align-items:center;padding:0 10px;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px}
+  .row{height:44px;width:100%;display:flex;align-items:center;gap:10px;padding:0 8px;border-radius:8px;background:none;border:0;color:var(--text-3);font:600 14px var(--font);cursor:pointer;position:relative}
+  .row:hover{background:rgba(255,255,255,.05)}
+  .row .lb{flex:1;text-align:left}
+  .abbr{min-width:24px;height:24px;padding:0 6px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--text);font:700 12px/24px var(--font);text-align:center;letter-spacing:.5px}
+  .chev{color:var(--text-3);font-size:16px;line-height:1}
+  .pc .main{flex:1;padding:16px}
+  .pc .top{height:38px;display:flex;justify-content:flex-end;gap:8px;margin-bottom:16px}
+  .ib{width:38px;height:38px;border-radius:10px;background:#292A2F;display:flex;align-items:center;justify-content:center;color:var(--text-2)}
+  .ph{height:120px;border-radius:12px;background:#22232a;margin-bottom:12px}
+  .ph.s{height:70px}
+  .ib.lang{width:auto;gap:6px;padding:0 8px 0 10px;border:0;cursor:pointer;position:relative;font-family:var(--font)}
+  .pc .si{height:38px;padding:0 14px;border-radius:10px;border:1px solid var(--primary);color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center}
+
+  /* H5：菜单抽屉底部 */
+  .h5{width:390px;height:700px;display:none}
+  .h5 .drawer{width:293px;height:100%;background:var(--drawer);padding:18px 12px 12px;display:flex;flex-direction:column}
+  .h5 .big{height:50px;border-radius:8px;background:linear-gradient(135deg,#34353e,#26272e);margin-bottom:10px;display:flex;align-items:center;padding:0 14px;font-size:16px}
+  .h5 .li{height:42px;display:flex;align-items:center;padding:0 6px;font-size:14px;color:#fff}
+  .h5 .foot{margin-top:auto;border-top:1px solid var(--line);padding-top:12px}
+  .h5 .row{height:50px;background:#2D2D33;border-radius:9px;color:#fff;font-size:15px;padding:0 14px}
+  .h5 .ver{font-size:11px;color:#68686F;margin-top:8px}
+  .h5 .rest{flex:1;background:#0e0e11}
+  .stage.mob .pc{display:none}.stage.mob .h5{display:flex}
+
+  /* 语言弹窗：沿用现网 .language-dialog，只去国旗 */
+  .modal-mask{display:none;position:absolute;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:5;border-radius:14px}
+  .modal-mask.show{display:flex}
+  .dlg{width:375px;max-width:calc(100% - 24px);background:var(--dlg);border:1px solid var(--dlg-line);border-radius:20px;font-family:var(--font);color:var(--text);position:relative}
+  .dlg .hd{padding:14px 16px 9px;display:flex;align-items:center;justify-content:center;position:relative;height:55px}
+  .dlg h2{margin:0;font-size:20px;font-weight:400;color:#fff}
+  .dlg .x{position:absolute;right:16px;top:14px;font-size:22px;cursor:pointer;color:#fff;background:none;border:0}
+  .dlg .bd{padding:5px 16px 20px}
+  .opt{width:100%;height:52px;border-radius:9px;padding:0 11px;display:flex;align-items:center;gap:10px;background:none;border:0;cursor:pointer;font-family:var(--font)}
+  .opt .nm{font-size:16px;font-weight:600;color:var(--opt-off-text);flex:1;text-align:left}
+  .opt.active{background:var(--opt-on)}
+  .opt.active .nm{color:#fff}
+  .opt .ck{width:22px;height:22px;border-radius:50%;background:var(--check);color:var(--on-primary);display:none;align-items:center;justify-content:center;font-size:13px;font-weight:900}
+  .opt.active .ck{display:flex}
+  .mk{position:absolute;top:-8px;right:-4px;z-index:2}
+</style>
+</head>
+<body>
+
+<div class="doc">
+  <h1>前台语言选择去国旗</h1>
+  <div>更新日期 2026-11-25。橙色 <span class="badge">改</span> 为本期改动，其余沿用现网。</div>
+
+  <h2>演示</h2>
+  <div class="sw"><button class="on" id="vPc" onclick="view('pc')">PC 顶栏 + 侧栏</button><button id="vH5" onclick="view('h5')">H5 菜单抽屉</button></div>
+  <div>点顶栏地球按钮或「Language」一行打开弹窗，选一个语言后，收起态的简写跟着变。</div>
+
+  <h2>改法</h2>
+  <ol>
+    <li>收起态（PC 侧栏底部、H5 菜单抽屉底部）：去掉国旗，改成当前语言的简写<span class="badge">改</span>。</li>
+    <li>PC 未登录顶栏地球按钮：保留图标，右侧加当前语言简写<span class="badge">改</span>。</li>
+    <li>简写跟着<b>当前选中的语言</b>走，不跟站点走<span class="badge">改</span>。</li>
+    <li>H5 左侧文字由国家名（Pilipinas）改为「Language」，和 PC 一致<span class="badge">改</span>。</li>
+    <li>弹窗「Select A Language」：去掉国旗和灰色副名（如 English (US)），只显示语言全称<span class="badge">改</span>；选中底色 + 绿勾沿用现网。</li>
+    <li>文案进语言包；新增语言时，全称和简写在语言包里一起加。</li>
+  </ol>
+
+  <h2>简写对照</h2>
+  <table>
+    <tr><th>语言</th><th>收起态简写</th><th>弹窗全称</th></tr>
+    <tr><td>英语</td><td>EN</td><td>English</td></tr>
+    <tr><td>菲律宾语</td><td>FIL</td><td>Filipino</td></tr>
+  </table>
+</div>
+
+<div class="stage" id="stage">
+  <!-- PC -->
+  <div class="proto-window pc">
+    <div class="side">
+      <div class="menu"><div>Casino</div><div>Sports</div><div>Bonus</div><div>Jackpot</div><div>VIP</div><div>Promotion</div></div>
+      <div class="foot">
+        <div class="dl">Download The APP</div>
+        <button class="row" onclick="openDlg()">
+          <span class="badge mk">改</span>
+          <span>🌐</span><span class="lb">Language</span><span class="abbr js-abbr">EN</span><span class="chev">›</span>
+        </button>
+        <button class="row"><span>💬</span><span class="lb">Live Support</span><span class="chev">›</span></button>
+      </div>
+    </div>
+    <div class="main">
+      <div class="top"><div class="ib">🔍</div><button class="ib lang" onclick="openDlg()"><span class="badge mk">改</span>🌐<span class="abbr js-abbr">EN</span></button><div class="si">Sign In</div></div>
+      <div class="ph"></div><div class="ph s"></div><div class="ph s"></div>
+    </div>
+  </div>
+
+  <!-- H5 -->
+  <div class="proto-window h5">
+    <div class="drawer">
+      <div class="big">Refer &amp; Earn</div><div class="big">VIP</div><div class="big">Promotion</div><div class="big">Spin</div>
+      <div class="li">Compliance Policy</div><div class="li">Live Support</div><div class="li">Sitemap</div>
+      <div class="foot">
+        <button class="row" onclick="openDlg()">
+          <span class="badge mk">改</span>
+          <span>🌐</span><span class="lb">Language</span><span class="abbr js-abbr">EN</span><span class="chev">›</span>
+        </button>
+        <div class="ver">Version : 1.0.0</div>
+      </div>
+    </div>
+    <div class="rest"></div>
+  </div>
+
+  <div class="modal-mask" id="mask" onclick="if(event.target===this)closeDlg()">
+    <div class="dlg">
+      <span class="badge mk" style="right:12px;top:-8px">改</span>
+      <div class="hd"><h2>Select A Language</h2><button class="x" onclick="closeDlg()">✕</button></div>
+      <div class="bd">
+        <button class="opt active" data-abbr="EN" onclick="pick(this)"><span class="nm">English</span><span class="ck">✓</span></button>
+        <button class="opt" data-abbr="FIL" onclick="pick(this)"><span class="nm">Filipino</span><span class="ck">✓</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+function view(v){$('stage').classList.toggle('mob',v==='h5');$('vPc').classList.toggle('on',v==='pc');$('vH5').classList.toggle('on',v==='h5');closeDlg();}
+function openDlg(){$('mask').classList.add('show');}
+function closeDlg(){$('mask').classList.remove('show');}
+function pick(el){
+  document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('active',o===el));
+  document.querySelectorAll('.js-abbr').forEach(a=>a.textContent=el.dataset.abbr);
+  closeDlg();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDlg();});
+</script>
+</body>
+</html>
