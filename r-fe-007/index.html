@@ -849,7 +849,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   tb.forEach(function(t){t.addEventListener('click',function(){var n=t.getAttribute('data-tab');tb.forEach(function(x){x.classList.toggle('active',x===t);});document.querySelectorAll('.dh-panel').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-panel')===n);});});});
   $('mkT').addEventListener('change',function(){document.body.classList.toggle('nomk',!this.checked);});
 
-  var DEF={name:'每月彩金',cname:'Monthly Bonus',days:[8,18,28],last:true,dmin:10,dmax:8888,amin:5,amax:100,avg:15,wd:30,dep:100,bet:500,cap:20000,wm:3};
+  var DEF={name:'每月彩金',cname:'Monthly Bonus',title:'Monthly Bonus',days:[8,18,28],last:true,dmin:10,dmax:8888,amin:5,amax:100,avg:15,wd:30,dep:100,bet:500,cap:20000,wm:3};
   var cfg,st,view='pc',SYM='₱';
   function clone(o){return JSON.parse(JSON.stringify(o));}
   function money(n){return SYM+' '+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
@@ -869,7 +869,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
   /* ---------- 前台 ---------- */
   function renderCard(){
-    $('card-name').textContent=cfg.cname;$('card-amt').textContent=m0(cfg.dmin)+' – '+m0(cfg.dmax);$('card-sub').textContent=dayText();
+    $('card-name').textContent=cfg.title;$('card-amt').textContent=m0(cfg.dmin)+' – '+m0(cfg.dmax);$('card-sub').textContent=dayText();
     $('card-btn').textContent=state()==='available'?'Claim':'View';$('pc-bal').textContent=money(st.bal);
   }
   function calendar(){var t=tp(),last=new Date(t.y,t.m+1,0).getDate(),first=new Date(t.y,t.m,1).getDay(),h='';
@@ -887,7 +887,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     else {btn='All claimed today';dis=true;tip='Next claim: '+fmtD(nx);}
     function bar(lbl,v,t){return '<p>'+lbl+' in last '+cfg.wd+' days<b>'+m0(v)+' / '+m0(t)+'</b></p><div class="bar"><i style="width:'+Math.min(100,v/t*100)+'%"></i></div>';}
     var gate=(cfg.dep>0||cfg.bet>0)?'<div class="mb-gate">'+(cfg.dep>0?bar('Deposit',depTotal(),cfg.dep):'')+(cfg.bet>0?'<div style="height:8px"></div>'+bar('Bet',betTotal(),cfg.bet):'')+'</div>':'';
-    return '<div class="promotion-deposit-dialog is-mb"><div class="deposit-dialog__header"><h2 class="header-title">'+cfg.cname+'</h2><button type="button" data-act="close">×</button></div>'+
+    return '<div class="promotion-deposit-dialog is-mb"><div class="deposit-dialog__header"><h2 class="header-title">'+cfg.title+'</h2><button type="button" data-act="close">×</button></div>'+
       '<div class="deposit-dialog__scroll"><div class="deposit-dialog__hero" style="background-image:url('+HERO+')"></div><div class="mb-body">'+
       '<div class="mb-amt"><small>Random bonus</small><strong>'+m0(cfg.dmin)+' – '+m0(cfg.dmax)+'</strong><span>'+dayText()+'</span></div>'+calendar()+gate+
       '<div class="daily-login-rules"><h3>Rules</h3><div class="activity-rules-html"><p>Claim a random bonus on every claim day ('+dayText()+').</p>'+((cfg.dep>0||cfg.bet>0)?'<p>To unlock, in the '+cfg.wd+' days before the claim day: '+[cfg.dep>0?'deposit at least '+m0(cfg.dep):'',cfg.bet>0?'bet at least '+m0(cfg.bet):''].filter(Boolean).join(' and ')+'.</p>':'')+'<p>One claim per account per claim day. Missed days cannot be claimed later.</p><p>The bonus needs '+cfg.wm+'x turnover to be withdrawn.</p></div></div></div></div>'+
@@ -912,7 +912,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   function err(id,box,msg){$(id).textContent=msg;$(id).hidden=false;[].concat(box).forEach(function(b){$(b).classList.add('err');});}
   $('d-ok').addEventListener('click',function(){
     document.querySelectorAll('#d-cfg .errmsg').forEach(function(e){e.hidden=true;});document.querySelectorAll('#d-cfg .inp').forEach(function(e){e.classList.remove('err');});
-    var c={name:$('f-name').value.trim()||cfg.name,cname:cfg.cname,days:[].map.call(dayBox.querySelectorAll('button.on'),function(b){return Number(b.dataset.d);}),last:$('f-last').checked,dmin:num('f-dmin'),dmax:num('f-dmax'),amin:num('f-amin'),amax:num('f-amax'),avg:num('f-avg'),wd:num('f-wd'),dep:num('f-dep'),bet:num('f-bet'),cap:num('f-cap'),wm:num('f-wm')};
+    var c={name:$('f-name').value.trim()||cfg.name,cname:$('f-cname').value.trim()||cfg.cname,title:$('f-title').value.trim()||cfg.title,days:[].map.call(dayBox.querySelectorAll('button.on'),function(b){return Number(b.dataset.d);}),last:$('f-last').checked,dmin:num('f-dmin'),dmax:num('f-dmax'),amin:num('f-amin'),amax:num('f-amax'),avg:num('f-avg'),wd:num('f-wd'),dep:num('f-dep'),bet:num('f-bet'),cap:num('f-cap'),wm:num('f-wm')};
     var bad=false;
     if(!c.days.length&&!c.last){err('e-days',[],'请至少选择 1 个领取日');bad=true;}
     if(!(c.dmin>0&&c.dmax>0)||c.dmin>c.dmax){err('e-d',['w-dmin','w-dmax'],c.dmin>c.dmax?'前台展示范围最小不能大于最大':'请填写前台展示范围（大于 0）');bad=true;}
