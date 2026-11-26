@@ -660,7 +660,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 <header class="dh-header"><div class="dh-header-inner">
   <h1>充值转盘（新活动类型：按当日累计充值档位给抽奖次数）</h1>
-  <div class="dh-meta"><span>模块：<b>营销活动 · 运营管理后台活动配置 + 前台 Spin 页</b></span><span>适用：<b>各站点（金额按站点币种）</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-25</b></span></div>
+  <div class="dh-meta"><span>模块：<b>营销活动 · 运营管理后台活动配置 + 前台 Spin 页</b></span><span>适用：<b>各站点（金额按站点币种）</b></span><span>产品经理：<b>Harvey</b></span><span>更新日期：<b>2026-11-26</b></span></div>
 </div></header>
 
 <nav class="dh-navbar"><div class="dh-navbar-inner dh-primary">
@@ -677,6 +677,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <button class="doc-btn" id="newDay" type="button">过业务日 0 点</button>
     <label>下一次结果 <select id="selForce"></select></label>
     <label><input type="checkbox" id="ckCap"> 设了每日上限的奖品今天全站已中满</label>
+    <label><input type="checkbox" id="ckAll"> 全部奖品今天都已中满</label>
     <label>活动开关 <select id="selSw"><option value="both">两个转盘都开启</option><option value="dep">只开充值转盘</option><option value="free">只开免费转盘</option></select></label>
     <label><input type="checkbox" id="ckLogin" checked> 已登录</label>
     <button class="doc-btn" id="resetAll" type="button">重置演示</button>
@@ -730,7 +731,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
               <div class="row"><label><i>*</i>充值档位</label><div>
                 <table class="mx"><thead><tr><th style="width:56px">档</th><th>当日累计充值 ≥</th><th>抽奖次数</th><th style="width:70px">操作</th></tr></thead><tbody id="tierBody"></tbody></table>
                 <button class="addrow" type="button" id="addTier">+ 添加档位</button>
-                <p class="hint">当个业务日（站点时区 00:00–23:59）内到账成功的充值合计，法币和数字币都算（按站点币种折算）。每达到一档给该档的次数，每档每天只给一次；当天没用完的次数 0 点清零。保存后对之后的充值生效，当天已发的次数不收回。</p>
+                <p class="hint">当个业务日（站点时区 00:00–23:59）内到账成功的充值合计，法币和数字币都算（按站点币种折算）。每达到一档给该档的次数，每档每天只给一次；当天没用完的次数 0 点清零。保存后对之后的充值生效，当天已发的次数不收回。最多 10 个档位，每档 1–100 次。</p>
                 <div class="errmsg" id="e-tier" hidden></div>
               </div></div>
               <div class="row"><label><i>*</i>奖品</label><div>
@@ -739,7 +740,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
                 <p class="hint" id="pctSum"></p>
                 <p class="hint">图标：建议 1:1 正方形、透明底 PNG，128×128px 显示效果最好；最长边不超过 256px、文件不超过 50 KB，支持 PNG / JPG / WEBP。不上传用默认金币图标。</p>
                 <div class="errmsg" id="e-icon" hidden></div>
-                <p class="hint">按表格顺序顺时针排在转盘上，所有档位共用这一个奖池。中奖概率填百分比，最多 2 位小数，所有奖品合计须等于 100%；填 0 的格子显示在转盘上但不会抽中。每日上限按全站、按业务日统计，当天中出个数达到上限后这一格当天不能再中：其它格子的概率不变，抽中已中满的格子就重新抽一次，直到抽到其它格子；这一格仍显示在转盘上，前台不提示。概率和上限不下发前台。保存后下一次抽奖生效。</p>
+                <p class="hint">至少 2 个、最多 12 个奖品，按表格顺序顺时针排在转盘上，所有档位共用这一个奖池。中奖概率填百分比，最多 2 位小数，所有奖品合计须等于 100%；填 0 的格子显示在转盘上但不会抽中。每日上限按全站、按业务日统计，当天中出个数达到上限后这一格当天不能再中：其它格子的概率不变，抽中已中满的格子就重新抽一次，直到抽到其它格子；这一格仍显示在转盘上，前台不提示。概率和上限不下发前台。保存后下一次抽奖生效。</p>
                 <div class="errmsg" id="e-prz" hidden></div>
               </div></div>
             </div>
@@ -867,17 +868,18 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="dh-prose"><p>活动列表 › 新建活动 › 活动类型选「充值转盘」。「文案与图片」页和其它活动相同（活动标题显示在充值转盘页头，规则文案显示在 Rule 弹窗）；「活动配置」页多出下表的专有配置，其余字段沿用。</p></div>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>字段</th><th>规则</th><th>示例</th></tr>
-      <tr><td><b>充值档位</b></td><td>必填，至少 1 行，可加行、删行。每行：当日累计充值 ≥（大于 0，最多 2 位小数，从上到下递增）、抽奖次数（≥ 1 的整数）</td><td>100 → 1 次；500 → 1 次；2,000 → 1 次；10,000 → 1 次</td></tr>
-      <tr><td><b>奖品</b></td><td>必填，至少 1 行，可加行、删行；按表格顺序顺时针排在转盘上，所有档位共用。每行：转盘文字（必填，前台转盘格子原样显示）、奖励金额（大于 0，最多 2 位小数）、中奖概率（0–100 的百分比，最多 2 位小数，所有奖品合计 = 100%）、每日上限（空 = 不限，填则为 ≥ 1 的整数）、图标（可上传，不传用默认金币图标；表头和表格下方提示「建议 1:1 正方形、透明底 PNG，128×128px；最长边 ≤ 256px、文件 ≤ 50 KB，支持 PNG / JPG / WEBP」，超出不上传并提示「第 N 行图标：文件 X KB，不能超过 50 KB」或「第 N 行图标：图片 W×Hpx，最长边不能超过 256px」）</td><td>12 格：3 / 5 / 7 / 177 / 10 / 12 / 15 / 77 / 17 / 27 / 37 / 777；777 每日上限 1</td></tr>
+      <tr><td><b>充值档位</b></td><td>必填，1–10 行，可加行、删行。每行：当日累计充值 ≥（大于 0，最多 2 位小数，从上到下递增）、抽奖次数（1–100 的整数）。金额按账本金额（站点账本币种），展示只换符号</td><td>100 → 1 次；500 → 1 次；2,000 → 1 次；10,000 → 1 次</td></tr>
+      <tr><td><b>奖品</b></td><td>必填，2–12 行，可加行、删行（运行中也可以，下一次抽奖生效，前端按接口返回的 prizeId 停格）；按表格顺序顺时针排在转盘上，所有档位共用。每行：转盘文字（必填，前台转盘格子原样显示）、奖励金额（大于 0，最多 2 位小数）、中奖概率（0–100 的百分比，最多 2 位小数，所有奖品合计 = 100%）、每日上限（空 = 不限，填则为 ≥ 1 的整数）、图标（可上传，不传用默认金币图标；表头和表格下方提示「建议 1:1 正方形、透明底 PNG，128×128px；最长边 ≤ 256px、文件 ≤ 50 KB，支持 PNG / JPG / WEBP」，超出不上传并提示「第 N 行图标：文件 X KB，不能超过 50 KB」或「第 N 行图标：图片 W×Hpx，最长边不能超过 256px」）</td><td>12 格：3 / 5 / 7 / 177 / 10 / 12 / 15 / 77 / 17 / 27 / 37 / 777；777 每日上限 1</td></tr>
       <tr><td><b>派发方式</b></td><td>固定自动派发（抽中即到账）</td><td>—</td></tr>
       <tr><td><b>流水基数 / 领取有效天数</b></td><td>流水基数固定赠送金额；抽中即到账，没有待领取订单，有效天数不适用</td><td>—</td></tr>
       <tr><td><b>账号去重</b></td><td>沿用；充值转盘按每个业务日分别占位</td><td>—</td></tr>
     </table></div>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>触发</th><th>系统反馈</th></tr>
-      <tr><td>删到没有档位 / 没有奖品</td><td>删除按钮不可点（至少保留 1 行）</td></tr>
+      <tr><td>档位只剩 1 行 / 奖品只剩 2 行</td><td>删除按钮不可点</td></tr>
+      <tr><td>档位已有 10 行 / 奖品已有 12 行</td><td>添加按钮不可点，显示「最多 10 个档位」/「最多 12 个奖品」</td></tr>
       <tr><td>档位充值金额为空、≤ 0 或没有从上到下递增</td><td>提示「档位充值金额须大于 0，且从上到下递增」，不能保存</td></tr>
-      <tr><td>抽奖次数不是 ≥ 1 的整数</td><td>提示「抽奖次数须为大于等于 1 的整数」</td></tr>
+      <tr><td>抽奖次数不是 1–100 的整数</td><td>提示「抽奖次数须为 1–100 的整数」</td></tr>
       <tr><td>转盘文字为空</td><td>提示「请填写转盘文字」</td></tr>
       <tr><td>奖励金额为空或 ≤ 0</td><td>提示「奖励金额须大于 0」</td></tr>
       <tr><td>中奖概率不在 0–100、超过 2 位小数，或合计不等于 100%</td><td>提示「中奖概率须为 0–100、最多 2 位小数，合计须等于 100%」；表格下方实时显示合计</td></tr>
@@ -898,14 +900,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <h3>规则</h3>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>项</th><th>规则</th></tr>
-      <tr><td><b>当日累计充值</b></td><td>当个业务日内到账成功的充值合计（法币 + 数字币，按站点币种折算），站点业务时区</td></tr>
+      <tr><td><b>当日累计充值</b></td><td>当个业务日内到账成功的充值合计，按账本金额统计（站点账本币种，前台展示只换符号）；含人工补单，不含人工加款和活动奖励；站点业务时区。跨 0 点的充值按入账完成时间归到哪一天。活动当天中途开启，开启前当天已到账的充值也算，开启后按累计补发已达到的档位</td></tr>
       <tr><td><b>得次数</b></td><td>累计充值每达到一个档位，得该档次数；每档每天只给一次。例：当天累计 600，达到第 1、2 档，共 2 次</td></tr>
-      <tr><td><b>次数有效期</b></td><td>当日有效，业务日 0 点未用次数清零，累计充值从 0 重算</td></tr>
+      <tr><td><b>次数有效期</b></td><td>当日有效，业务日 0 点未用次数清零，累计充值从 0 重算；活动被关闭或到了结束时间，未用次数立即作废</td></tr>
       <tr><td><b>奖池</b></td><td>所有档位共用一个奖池</td></tr>
       <tr><td><b>抽奖</b></td><td>每次消耗 1 次，后端按中奖概率随机，前台只播放动画并停在后端返回的格子</td></tr>
-      <tr><td><b>每日上限</b></td><td>按全站、按业务日统计每个奖品的中出个数；达到上限后当天该奖品不能再中：其它格子的概率不变，抽中它就重新抽一次，直到抽到其它格子；格子仍显示在转盘上，前台不做任何提示</td></tr>
+      <tr><td><b>每日上限</b></td><td>按全站、按业务日统计每个奖品的中出个数；达到上限后当天该奖品不能再中：其它格子的概率不变，抽中它就重新抽一次，直到抽到其它格子；格子仍显示在转盘上，前台不做任何提示。上限按「每个奖品、每个活动、每个业务日的中奖次数」计，多个充值转盘活动各算各的。<b>所有奖品当天都中满</b>时不抽奖、不扣次数，提示「Today's prizes are all gone. Come back tomorrow!」</td></tr>
       <tr><td><b>入账</b></td><td>中奖金额立即进红利钱包，生成一条「已到账」的活动订单；打码量 = 金额 × 流水倍数</td></tr>
-      <tr><td><b>参与资格</b></td><td>最低 VIP、账号去重（按业务日占位）沿用公共配置</td></tr>
+      <tr><td><b>参与资格</b></td><td>最低 VIP、账号去重（按业务日占位）沿用公共配置。去重按注册 IP + 建号设备，在发次数时拦截；被拦的账号不提示原因，今日充值照常显示</td></tr>
       <tr><td><b>改配置</b></td><td>档位改动对之后的充值生效，当天已发的次数不收回；奖品改动下一次抽奖生效</td></tr>
       <tr><td><b>保密</b></td><td>中奖概率、每日上限不下发前台</td></tr>
     </table></div>
@@ -914,13 +916,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="dh-prose"><p>侧栏入口仍是「Spin」。页面顶部新增 Tab：「Deposit Spin」「Free Spin」，默认打开 Deposit Spin。只开启了其中一个活动时不显示 Tab，直接显示那个转盘；两个都没开时沿用现网。Free Spin 内容和现网一致，本期不改。</p></div>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>区域</th><th>内容</th></tr>
-      <tr><td><b>Bonus 页入口卡片</b></td><td>Free Bonus 区新增一张卡片（充值转盘活动开启时显示）：列表图标（后台「文案与图片」上传）+ 活动标题 + 活动文案，按钮「Spin」，点了进 Spin 页并打开 Deposit Spin Tab</td></tr>
+      <tr><td><b>Bonus 页入口卡片</b></td><td>Free Bonus 区新增一张卡片（充值转盘活动开启期间常驻，次数用完也显示）：列表图标（后台「文案与图片」上传）+ 活动标题 + 活动文案，按钮「Spin」，点了进 Spin 页并打开 Deposit Spin Tab</td></tr>
       <tr><td><b>页头</b></td><td>活动标题（后台「活动标题」）；右侧 Rule、Record 按钮（样式同现网）。Rule 打开规则弹窗，显示后台「规则文案」；Record 滚动到我的中奖记录</td></tr>
       <tr><td><b>转盘</b></td><td>新做的通用皮肤（不用节日主题，后台不可换）。格子按奖品表顺序顺时针排列，显示图标 + 转盘文字；中心是 SPIN 按钮（显示剩余次数）</td></tr>
       <tr><td><b>大号 SPIN 按钮</b></td><td>转盘正下方，页面主按钮：「SPIN」+ 剩余次数胶囊「2 left」，有次数时呼吸放大 + 扫光；转动中不可点；次数为 0 时变灰，文字「Deposit to get spins」，点了提示并打开充值弹窗；未登录显示「Log in to spin」，点了打开登录。和中心 SPIN 按钮效果相同</td></tr>
       <tr><td><b>今日充值卡</b></td><td>左「Today's deposit ₱550.00」，右「Spins left 2」；档位进度条（每个档位一个节点，下方写「₱500 · 1 spin」，已达到的点亮）；提示「Deposit ₱1,450.00 more to get 1 more spin」，全部达到时「All tiers reached today. Come back tomorrow!」；按钮「Deposit」打开充值弹窗</td></tr>
-      <tr><td><b>我的中奖记录</b></td><td>只列本人记录：转盘文字、时间、金额，新的在上；没有记录显示「No record yet」</td></tr>
-      <tr><td><b>中奖弹窗</b></td><td>动画停稳后弹出「Congratulations!」「You won ₱15.00」「Added to your bonus wallet」，按钮「OK」；金额 = 动画停的格子 = 到账金额</td></tr>
+      <tr><td><b>我的中奖记录</b></td><td>只列本人记录：转盘文字、时间、金额，新的在上；先显示最近 20 条，滚动到底加载更多；没有记录显示「No record yet」</td></tr>
+      <tr><td><b>中奖弹窗</b></td><td>动画停稳后弹出「Congratulations!」「You won ₱15.00」「Added to your bonus wallet」，按钮「OK」；金额 = 动画停的格子 = 到账金额。钱包入账成功才弹这个弹窗；入账延迟或失败时弹窗改为「Congratulations! You won ₱15.00」「Your bonus is being credited. Please check later.」，中奖记录照常显示</td></tr>
+      <tr><td><b>奖品全部中满</b></td><td>点 SPIN 不转、不扣次数，提示「Today's prizes are all gone. Come back tomorrow!」</td></tr>
       <tr><td><b>次数为 0</b></td><td>SPIN 可点，点了提示「No spins left. Deposit to get more spins.」并打开充值弹窗，不抽奖</td></tr>
       <tr><td><b>未登录</b></td><td>能看转盘和规则；今日充值卡显示「Log in to see your spins」+「Log In」；点 SPIN 打开登录弹窗</td></tr>
     </table></div>
@@ -980,6 +983,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>A21</td><td>会员 ID 和业务日都清空点查询</td><td>提示「请填写会员 ID 或选择业务日」</td></tr>
       <tr><td>A22</td><td>打开 Bonus 页</td><td>Free Bonus 区有充值转盘卡片（列表图标、活动标题、活动文案、Spin）；点 Spin 进 Spin 页 Deposit Spin Tab；关闭充值转盘活动后卡片不显示</td></tr>
       <tr><td>A23</td><td>奖品图标上传 300×300px 或 60 KB 的图片</td><td>不上传，提示「第 N 行图标：图片 300×300px，最长边不能超过 256px」或「第 N 行图标：文件 60 KB，不能超过 50 KB」；上传 128×128px、20 KB 的 PNG 成功，前台转盘对应格子显示新图标</td></tr>
+      <tr><td>A24</td><td>奖品删到 2 行 / 加到 12 行；档位加到 10 行；某档次数填 101</td><td>2 行时删除不可点；12 行、10 行时添加不可点并提示最多几个；101 提示「抽奖次数须为 1–100 的整数」</td></tr>
+      <tr><td>A25</td><td>所有奖品当天都已中满后点 SPIN</td><td>不转、不扣次数，提示「Today's prizes are all gone. Come back tomorrow!」</td></tr>
+      <tr><td>A26</td><td>当天已有充值 600，中午才开启活动，之后再充 10</td><td>开启后按累计 610 补发第 1、2 档的次数</td></tr>
+      <tr><td>A27</td><td>玩家还有 1 次时运营关闭活动</td><td>前台剩余次数变 0，未用次数作废</td></tr>
+      <tr><td>A28</td><td>23:59 链上确认、00:01 通知到系统的充值</td><td>按入账完成时间计入前一业务日</td></tr>
     </table></div>
     <h3>开发测试重点</h3>
     <div class="dh-prose"><ul>
@@ -1085,8 +1093,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   function mask(host,html){var m=document.querySelector('[data-mask="'+host+'"]');m.innerHTML=html;m.classList.add('on');}
   function pick(){
     var f=$('selForce').value;
-    function full(i){var p=cfg.prizes[i];return p.limit!==''&&p.limit!=null&&((st.site[i]||0)+($('ckCap').checked?Number(p.limit):0))>=Number(p.limit);}
+    function full(i){if($('ckAll').checked)return true;var p=cfg.prizes[i];return p.limit!==''&&p.limit!=null&&((st.site[i]||0)+($('ckCap').checked?Number(p.limit):0))>=Number(p.limit);}
     function roll(){var r=Math.random()*100;for(var k=0;k<cfg.prizes.length;k++){r-=cfg.prizes[k].weight;if(r<0&&cfg.prizes[k].weight>0)return k;}return roll();}
+    if(!cfg.prizes.some(function(p,k){return p.weight>0&&!full(k);}))return -1;  // 全部奖品当天都已中满：不抽、不扣次数
     var i=f!==''?Number(f):roll(),n=0;
     while(full(i)&&n<1000){i=roll();n++;}  // 抽中已中满上限的格子：重新抽，直到抽到其它格子
     return i;
@@ -1098,7 +1107,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     if(st.spinning)return;
     if(!st.logged){toastF(host,'打开登录弹窗（现网）');return;}
     if(left()<=0){toastF(host,'No spins left. Deposit to get more spins.',true);setTimeout(function(){toastF(host,'打开充值弹窗（现网）');},1300);return;}
-    var i=pick(),p=cfg.prizes[i],n=cfg.prizes.length,seg=360/n;
+    var i=pick();if(i<0){toastF(host,"Today's prizes are all gone. Come back tomorrow!",true);return;}
+    var p=cfg.prizes[i],n=cfg.prizes.length,seg=360/n;
     var base=Math.ceil(st.rot/360)*360+360*5;st.rot=base-i*seg;st.spinning=true;st.used++;
     var el=document.querySelector('[data-host="'+host+'"]');var wh=el.querySelector('.dw-wheel'),disc=el.querySelector('[data-disc]'),hub=el.querySelector('.dw-hub'),go=el.querySelector('.dw-go');
     hub.disabled=true;hub.classList.remove('ready');wh.classList.remove('ready');wh.classList.add('spinning');if(go){go.disabled=true;go.classList.remove('ready');var gi=go.querySelector('i');if(gi)gi.textContent=left();}
@@ -1131,8 +1141,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
   /* ---------- 后台 ---------- */
   function tierRows(list){var tbody=$('tierBody');tbody.innerHTML=list.map(function(t,i){return '<tr><td>'+(i+1)+'</td><td><input data-k="min" value="'+t.min+'" inputmode="decimal"></td><td><input data-k="spins" value="'+t.spins+'" inputmode="numeric"></td><td><button class="lnk r" type="button" data-del="'+i+'"'+(list.length<=1?' disabled':'')+'>删除</button></td></tr>';}).join('');}
-  function przRows(list){var tbody=$('przBody');tbody.innerHTML=list.map(function(p,i){return '<tr data-icon="'+(p.icon||'')+'"><td>'+(i+1)+'</td><td><input class="lbl" data-k="label" value="'+esc(p.label)+'"></td><td><input data-k="amount" value="'+p.amount+'" inputmode="decimal"></td><td><input data-k="weight" value="'+p.weight+'" inputmode="decimal" placeholder="0.00"></td><td><input data-k="limit" value="'+(p.limit===''||p.limit==null?'':p.limit)+'" inputmode="numeric" placeholder="不限"></td><td><div class="ico">'+(p.icon?'<img alt="" src="'+p.icon+'">':'<i class="def" title="默认金币图标"></i>')+'<button class="lnk" type="button" data-up="'+i+'">上传</button>'+(p.icon?'<button class="lnk r" type="button" data-clr="'+i+'">清除</button>':'')+'</div></td><td><button class="lnk r" type="button" data-delp="'+i+'"'+(list.length<=1?' disabled':'')+'>删除</button></td></tr>';}).join('');}
-  var _pr=przRows;przRows=function(l){_pr(l);pctSum();};
+  function przRows(list){var tbody=$('przBody');tbody.innerHTML=list.map(function(p,i){return '<tr data-icon="'+(p.icon||'')+'"><td>'+(i+1)+'</td><td><input class="lbl" data-k="label" value="'+esc(p.label)+'"></td><td><input data-k="amount" value="'+p.amount+'" inputmode="decimal"></td><td><input data-k="weight" value="'+p.weight+'" inputmode="decimal" placeholder="0.00"></td><td><input data-k="limit" value="'+(p.limit===''||p.limit==null?'':p.limit)+'" inputmode="numeric" placeholder="不限"></td><td><div class="ico">'+(p.icon?'<img alt="" src="'+p.icon+'">':'<i class="def" title="默认金币图标"></i>')+'<button class="lnk" type="button" data-up="'+i+'">上传</button>'+(p.icon?'<button class="lnk r" type="button" data-clr="'+i+'">清除</button>':'')+'</div></td><td><button class="lnk r" type="button" data-delp="'+i+'"'+(list.length<=2?' disabled':'')+'>删除</button></td></tr>';}).join('');}
+  var _pr=przRows;przRows=function(l){_pr(l);pctSum();$('addPrz').disabled=l.length>=12;$('addPrz').textContent=l.length>=12?'最多 12 个奖品':'+ 添加奖品';};
+  var _tr=tierRows;tierRows=function(l){_tr(l);$('addTier').disabled=l.length>=10;$('addTier').textContent=l.length>=10?'最多 10 个档位':'+ 添加档位';};
   function readTiers(){return [].map.call($('tierBody').querySelectorAll('tr'),function(tr){return {min:tr.querySelector('[data-k=min]').value.trim(),spins:tr.querySelector('[data-k=spins]').value.trim()};});}
   function readPrz(){return [].map.call($('przBody').querySelectorAll('tr'),function(tr){var g=function(k){return tr.querySelector('[data-k='+k+']').value.trim();};return {label:g('label'),amount:g('amount'),weight:g('weight'),limit:g('limit'),icon:tr.dataset.icon||''};});}
   var fileIn=document.createElement('input');fileIn.type='file';fileIn.accept='image/png,image/jpeg,image/webp';fileIn.hidden=true;document.body.appendChild(fileIn);var upIdx=-1;
@@ -1159,8 +1170,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     document.querySelectorAll('#d-cfg .errmsg').forEach(function(e){e.hidden=true;});document.querySelectorAll('#d-cfg .err').forEach(function(e){e.classList.remove('err');});
     var T=readTiers(),P=readPrz(),bad=false,trs=$('tierBody').querySelectorAll('tr'),prs=$('przBody').querySelectorAll('tr');
     var m1=[],m2=[];
-    T.forEach(function(t,i){if(!isAmt(t.min)||(i&&Number(t.min)<=Number(T[i-1].min))){trs[i].querySelector('[data-k=min]').classList.add('err');if(m1.indexOf(1)<0)m1.push(1);}if(!isInt(t.spins)||Number(t.spins)<1){trs[i].querySelector('[data-k=spins]').classList.add('err');if(m1.indexOf(2)<0)m1.push(2);}});
-    if(m1.length){err('e-tier',m1.map(function(k){return k===1?'档位充值金额须大于 0，且从上到下递增':'抽奖次数须为大于等于 1 的整数';}).join('；'));bad=true;}
+    T.forEach(function(t,i){if(!isAmt(t.min)||(i&&Number(t.min)<=Number(T[i-1].min))){trs[i].querySelector('[data-k=min]').classList.add('err');if(m1.indexOf(1)<0)m1.push(1);}if(!isInt(t.spins)||Number(t.spins)<1||Number(t.spins)>100){trs[i].querySelector('[data-k=spins]').classList.add('err');if(m1.indexOf(2)<0)m1.push(2);}});
+    if(m1.length){err('e-tier',m1.map(function(k){return k===1?'档位充值金额须大于 0，且从上到下递增':'抽奖次数须为 1–100 的整数';}).join('；'));bad=true;}
     var anyW=false,sumC=0;
     P.forEach(function(p,i){var r=prs[i];if(!p.label){r.querySelector('[data-k=label]').classList.add('err');if(m2.indexOf(1)<0)m2.push(1);}if(!isAmt(p.amount)){r.querySelector('[data-k=amount]').classList.add('err');if(m2.indexOf(2)<0)m2.push(2);}if(!isPct(p.weight)){r.querySelector('[data-k=weight]').classList.add('err');if(m2.indexOf(3)<0)m2.push(3);}else{sumC+=Math.round(Number(p.weight)*100);if(Number(p.weight)>0)anyW=true;}if(p.limit!==''&&(!isInt(p.limit)||Number(p.limit)<1)){r.querySelector('[data-k=limit]').classList.add('err');if(m2.indexOf(4)<0)m2.push(4);}});
     if((!anyW||sumC!==10000)&&m2.indexOf(3)<0){m2.push(3);prs.forEach(function(r){r.querySelector('[data-k=weight]').classList.add('err');});}
@@ -1185,7 +1196,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   document.querySelectorAll('#depSeg button').forEach(function(b){b.addEventListener('click',function(){if(st.spinning)return;var reached0=cfg.tiers.map(function(t){return st.dep>=t.min;});st.dep+=Number(b.dataset.a);var before=st.granted;syncGrant();var add0=st.granted-before;if(add0>0){st.flash='spins';st.addN=add0;}st.popIdx=cfg.tiers.map(function(t,i){return !reached0[i]&&st.dep>=t.min?i:-1;}).filter(function(i){return i>=0;});st.deps.push({t:clk(),no:'DP'+st.day.replace(/-/g,'')+'000'+String(103+st.deps.length),amt:Number(b.dataset.a),cum:st.dep,tier:st.popIdx.length?tierName(st.popIdx):'—',add:add0});renderAll();var add=st.granted-before;var host=$('v-h5').classList.contains('on')?'h5':'pc';toastF(host,add>0?'充值到账 +'+n0(b.dataset.a)+'，获得 '+add+' 次':'充值到账 +'+n0(b.dataset.a)+'，未达到新档位');});});
   $('newDay').addEventListener('click',function(){if(st.spinning)return;st.yday={day:st.day,dep:st.dep,granted:st.granted,used:st.used,total:st.records.reduce(function(a,r){return a+r.amount;},0),last:st.records[0]?st.records[0].at:'—',deps:st.deps,recs:st.records,tiers:cfg.tiers.map(function(t,i){return st.dep>=t.min?i:-1;}).filter(function(i){return i>=0;})};st.day='2026-11-26';st.clock=0;st.dep=0;st.granted=0;st.used=0;st.site={};st.deps=[];st.records=[];$('lq-day').value=st.day;LQ.day=st.day;renderAll();});
   function fillForce(){$('selForce').innerHTML='<option value="">按中奖概率随机</option>'+cfg.prizes.map(function(p,i){return '<option value="'+i+'">指定「'+esc(p.label)+'」</option>';}).join('');}
-  ['ckCap','selForce'].forEach(function(id){$(id).addEventListener('change',hint);});
+  ['ckCap','ckAll','selForce'].forEach(function(id){$(id).addEventListener('change',hint);});
   $('selSw').addEventListener('change',function(){st.sw=this.value;$('l-st').textContent=st.sw==='free'?'关闭':'开启';$('l-st').classList.toggle('off',st.sw==='free');$('l-st2').textContent=st.sw==='dep'?'关闭':'开启';$('l-st2').classList.toggle('off',st.sw==='dep');renderFront();});
   $('ckLogin').addEventListener('change',function(){st.logged=this.checked;renderAll();});
   function hint(){
@@ -1262,7 +1273,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   document.querySelectorAll('[data-lt]').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('[data-lt]').forEach(function(x){x.classList.toggle('on',x===b);});$('lp-free').classList.toggle('on',b.dataset.lt==='free');$('lp-dep').classList.toggle('on',b.dataset.lt==='dep');});});
   function renderAll(){renderLed();$('l-name').textContent=cfg.name;$('l-cname').textContent=cfg.cname;$('l-wm').textContent=cfg.wm;renderFront();hint();}
   function init(){cfg=clone(DEF);st={page:'spin',dep:550,granted:0,used:0,records:[],site:{},bal:1280.5,rot:0,spinning:false,logged:true,sw:'both',tab:'dep',clock:0,ord:0,day:'2026-11-25',deps:[{t:'2026-11-25 10:12:30',no:'DP20261125000101',amt:100,cum:100,tier:'第 1 档',add:1},{t:'2026-11-25 13:40:05',no:'DP20261125000102',amt:450,cum:550,tier:'第 2 档',add:1}],lt:'dep'};syncGrant();
-    $('ckCap').checked=false;$('ckLogin').checked=true;$('selSw').value='both';$('l-st').textContent='开启';$('l-st').classList.remove('off');$('l-st2').textContent='开启';$('l-st2').classList.remove('off');
+    $('ckCap').checked=false;$('ckAll').checked=false;$('ckLogin').checked=true;$('selSw').value='both';$('l-st').textContent='开启';$('l-st').classList.remove('off');$('l-st2').textContent='开启';$('l-st2').classList.remove('off');
     LQ={uid:'',day:'2026-11-25',act:''};$('lq-uid').value='';$('lq-day').value='2026-11-25';$('lq-act').value='';$('lq-err').hidden=true;$('led-dlg').classList.remove('on');fillForce();fill();document.querySelectorAll('.sp-mask').forEach(function(m){m.classList.remove('on');});renderAll();}
   $('resetAll').addEventListener('click',function(){init();show('pc');});
   init();show('pc');
