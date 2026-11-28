@@ -614,7 +614,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .fx .rr-rain.on{display:block}
 .fx .rr-bar{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:3;display:flex;align-items:center;gap:8px;white-space:nowrap;background:rgba(20,10,12,.82);border:1px solid #7a2a2a;border-radius:999px;padding:6px 14px;font-size:12.5px;color:#ffe3a3;font-weight:700}
 .fx .rr-bar i{font-style:normal;font-family:Menlo,monospace;color:#ffd45d}
-.fx .rr-x{position:absolute;top:10px;right:12px;z-index:3;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.45);color:#fff;font-size:18px;line-height:1;cursor:pointer}
+.fx .rr-x{position:absolute;top:56px;right:14px;z-index:3;height:34px;padding:0 14px 0 10px;border-radius:999px;border:0;background:rgba(255,255,255,.94);color:#20212b;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+.fx .rr-x b{width:20px;height:20px;border-radius:50%;background:#20212b;color:#fff;font-size:13px;line-height:20px;text-align:center}
+.fx .rr-env .lnk2{display:block;margin:10px auto 0;background:none;border:0;color:#ffe3a3;font-size:12.5px;text-decoration:underline;cursor:pointer}
+.fx .rr-env .lnk2[hidden]{display:none}
 .fx .rr-drop{position:absolute;top:-100px;border:0;padding:0;background:none;cursor:pointer;animation:rrfall linear infinite;will-change:transform}
 .fx .rr-drop img{display:block;width:100%;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45));transition:transform .15s}
 .fx .rr-drop:hover img{transform:scale(1.12)}
@@ -813,19 +816,19 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <div class="flow-diagram"><span class="flow-step">场次进行中</span><span class="flow-arrow">→</span><span class="flow-step">玩家回到首页<span class="sub">或在 Bonus 详情点 Claim Red Envelope</span></span><span class="flow-arrow">→</span><span class="flow-step">满屏下红包雨<span class="sub">一直下，顶部显示场次和倒计时</span></span><span class="flow-arrow">→</span><span class="flow-step">点中任意一个红包</span><span class="flow-arrow">→</span><span class="flow-step">按下方领取流程判断</span></div>
       <div class="flow-branches">
         <div class="flow-branch"><span>能领</span><span class="arr">→</span><span class="result good">弹结果卡「You got X」，已到账；点 OK 继续下，可再点</span></div>
-        <div class="flow-branch"><span>未登录 / 充值不够 / 投注不够</span><span class="arr">→</span><span class="result bad">弹提示卡（Log In / Deposit / Play），不领取；点按钮去登录 / 充值 / 游戏大厅</span></div>
-        <div class="flow-branch"><span>本场抢完 / 个数已满</span><span class="arr">→</span><span class="result neutral">弹提示卡，点 OK 关掉提示，红包雨继续下</span></div>
-        <div class="flow-branch"><span>点右上角 ×</span><span class="arr">→</span><span class="result neutral">红包雨关闭；本场内再回到首页会重新下</span></div>
+        <div class="flow-branch"><span>未登录 / 充值不够 / 投注不够</span><span class="arr">→</span><span class="result bad">弹提示卡，不领取；点 Log In / Deposit / Play 关闭红包雨并去登录 / 充值 / 游戏大厅；点「Close red envelope rain」直接关闭</span></div>
+        <div class="flow-branch"><span>本场抢完 / 个数已满</span><span class="arr">→</span><span class="result neutral">弹提示卡，按钮 Close，点了关闭红包雨</span></div>
+        <div class="flow-branch"><span>点右上角「✕ Close」</span><span class="arr">→</span><span class="result neutral">红包雨关闭；本场内再回到首页会重新下</span></div>
         <div class="flow-branch"><span>场次结束</span><span class="arr">→</span><span class="result neutral">红包雨自动消失</span></div>
       </div>
     </div>
     <div class="tbl-wrap"><table class="dh-table-simple">
       <tr><th>项</th><th>规则</th></tr>
       <tr><td><b>出现</b></td><td>场次进行中，玩家每次进入 / 回到首页（PC、H5）都满屏下；关掉后再回首页也会再下。Bonus 详情场次内点「Claim Red Envelope」也打开。不在时间段不下</td></tr>
-      <tr><td><b>下落</b></td><td>一直下到玩家关掉或场次结束；顶部条「Red Envelope Rain · Round 1 · Ends in 00:20:00」，右上角 × 关闭</td></tr>
+      <tr><td><b>下落</b></td><td>一直下到玩家关掉或场次结束；顶部条「Red Envelope Rain · Round 1 · Ends in 00:20:00」；右上角白底胶囊按钮「✕ Close」关闭（深色遮罩上要醒目）</td></tr>
       <tr><td><b>点中</b></td><td>点任意一个 = 一次领取请求；结果卡打开时其它点击无效，等这次结果回来才能再点（防重复请求）</td></tr>
       <tr><td><b>能领</b></td><td>结果卡：You got 2.13 / Added to your bonus wallet / OK；点 OK 继续</td></tr>
-      <tr><td><b>不能领</b></td><td>照样下，点了弹提示卡：未登录「Log in to claim red envelopes」+ Log In；充值不够「Deposit 40 more today to claim」+ Deposit；投注不够「Bet 240 more today to claim」+ Play；今日已满「You've claimed 3 / 3 today. Come back tomorrow」+ OK；本场已满「You've claimed 1 / 1 this round. Next round 18:00」+ OK；本场抢完「This round is over. Next round 18:00」+ OK</td></tr>
+      <tr><td><b>不能领</b></td><td>照样下，点了弹提示卡，引导关闭：<br>· 还能补救的——未登录「Log in to claim red envelopes」+ Log In；充值不够「Deposit 40 more today to claim」+ Deposit；投注不够「Bet 240 more today to claim」+ Play。点按钮关闭红包雨并打开登录弹窗 / 充值弹窗 / 游戏大厅；下方小字「Close red envelope rain」直接关闭<br>· 本场已没得抢的——今日已满「You've claimed 3 / 3 today. Come back tomorrow」、本场已满「You've claimed 1 / 1 this round. Next round 18:00」、本场抢完「This round is over. Next round 18:00」，按钮都是 Close，点了关闭红包雨</td></tr>
     </table></div>
 
     <h3>领取流程</h3>
@@ -950,10 +953,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <tr><td>A17</td><td>领取条件选「无条件」</td><td>详情不显示条件进度，场次内直接可抢</td></tr>
       <tr><td>A18</td><td>菲律宾站 00:05（菲律宾时间）</td><td>今日累计充值从当天 00:00 重新算，Today 0 / 3</td></tr>
       <tr><td>A19</td><td>12:10 进入首页（PC、H5）</td><td>满屏下红包雨，顶部显示 Round 1 和倒计时</td></tr>
-      <tr><td>A20</td><td>每场每人 2 个，今日充值 300 的会员连点两个红包</td><td>各弹一次结果卡，钱包两次到账；第三次点弹「Claimed this round」，红包雨继续</td></tr>
-      <tr><td>A21</td><td>今日只充值 60 的会员点红包</td><td>弹提示「Deposit 40 more today to claim」+ Deposit，不到账</td></tr>
+      <tr><td>A20</td><td>每场每人 2 个，今日充值 300 的会员连点两个红包</td><td>各弹一次结果卡，钱包两次到账；第三次点弹「Claimed this round」+ Close，点了红包雨关闭</td></tr>
+      <tr><td>A21</td><td>今日只充值 60 的会员点红包</td><td>弹提示「Deposit 40 more today to claim」+ Deposit + 小字 Close red envelope rain，不到账；点 Deposit 红包雨关闭并打开充值弹窗</td></tr>
       <tr><td>A22</td><td>未登录访客 12:10 进首页点红包</td><td>照样下，点了弹「Log in to claim red envelopes」+ Log In</td></tr>
-      <tr><td>A23</td><td>点 × 关闭后去 Bonus 页再回首页</td><td>红包雨重新下</td></tr>
+      <tr><td>A23</td><td>点右上角「✕ Close」关闭后去 Bonus 页再回首页</td><td>红包雨重新下</td></tr>
       <tr><td>A24</td><td>12:29 停在首页到 12:30</td><td>红包雨自动消失；11:50、12:40 进首页不下</td></tr>
       <tr><td>A25</td><td>Bonus 详情点「Claim Red Envelope」</td><td>打开满屏红包雨</td></tr>
       <tr><td>A26</td><td>结果卡没关时快速连点其它红包</td><td>只发一次领取请求</td></tr>
@@ -1067,23 +1070,23 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   function openRain(host){var r=rainEl(host);if(!r)return;var n=host==='pc'?18:12,h='',i;
     for(i=0;i<n;i++){var w=Math.round(44+Math.random()*28),l=(i+Math.random())/n*100,d=(3.6+Math.random()*3).toFixed(2),dl=(-Math.random()*6).toFixed(2),r0=Math.round(-25+Math.random()*50),r1=r0+Math.round(-40+Math.random()*80);
       h+='<button type="button" class="rr-drop" data-act="drop" aria-label="Red envelope" style="left:calc('+l.toFixed(1)+'% - '+w/2+'px);width:'+w+'px;animation-duration:'+d+'s;animation-delay:'+dl+'s;--r0:'+r0+'deg;--r1:'+r1+'deg"><img alt="" src="'+ENV+'"></button>';}
-    r.innerHTML='<div class="rr-bar" data-rbar>'+rainBar()+'</div><button type="button" class="rr-x" data-act="rclose" aria-label="关闭">×</button>'+h+
-      '<div class="rr-win" data-rwin><div class="rr-env"><div class="coin" data-rcoin>★</div><p data-rp>You got</p><strong data-win></strong><small data-rs></small><button type="button" data-ract>OK</button></div></div>'+
+    r.innerHTML='<div class="rr-bar" data-rbar>'+rainBar()+'</div><button type="button" class="rr-x" data-act="rclose" aria-label="关闭红包雨"><b>✕</b>Close</button>'+h+
+      '<div class="rr-win" data-rwin><div class="rr-env"><div class="coin" data-rcoin>★</div><p data-rp>You got</p><strong data-win></strong><small data-rs></small><button type="button" data-ract>OK</button><button type="button" class="lnk2" data-ract2 hidden>Close red envelope rain</button></div></div>'+
       '<span class="mk pk tip" style="left:12px;top:14px" title="原：无。现：场次进行中回到首页自动满屏下红包雨，一直下、可连点，点中任意一个 = 领取一次并弹结果卡；× 可关，每次回首页都重新下；不能领时照样下，点了弹提示">新增满屏红包雨</span>';
     r.classList.add('on');}
   function closeRain(host){var r=rainEl(host);if(r){r.classList.remove('on');r.innerHTML='';}}
   function rainCard(host,o){var r=rainEl(host),w=r.querySelector('[data-rwin]'),e=w.querySelector('.rr-env');e.classList.toggle('msg',!o.amount);
     w.querySelector('[data-rcoin]').textContent=o.amount?'★':'!';w.querySelector('[data-rp]').textContent=o.amount?'You got':o.title;
     w.querySelector('[data-win]').textContent=o.amount?money(o.amount):o.text;w.querySelector('[data-rs]').textContent=o.amount?'Added to your bonus wallet':'';
-    var b=w.querySelector('[data-ract]');b.textContent=o.btn||'OK';b.dataset.ract=o.act||'ok';w.classList.add('on');}
+    var b=w.querySelector('[data-ract]');b.textContent=o.btn||'OK';b.dataset.ract=o.act||'ok';w.querySelector('[data-ract2]').hidden=!o.close2;w.classList.add('on');}
   function rainClick(host){var r=rainEl(host);if(r.querySelector('[data-rwin]').classList.contains('on'))return;var s=state(),c=curIdx();
     if(s==='available'){var a=pick();st.claims[c]=(st.claims[c]||0)+1;st.bal+=a;renderAll();rainCard(host,{amount:a});return;}
-    var m={login:{title:'Log in first',text:'Log in to claim red envelopes',btn:'Log In',act:'login'},
-      sold_out:{title:'All claimed',text:'This round is over. '+nextText()},
-      need_deposit:{title:'Deposit to unlock',text:'Deposit '+m0(cfg.dep-depTotal())+' more today to claim',btn:'Deposit',act:'deposit'},
-      need_bet:{title:'Play to unlock',text:'Bet '+m0(cfg.bet-betTotal())+' more today to claim',btn:'Play',act:'play'},
-      day_limit:{title:'Daily limit reached',text:'You’ve claimed '+dayCount()+' / '+cfg.pd+' today. Come back tomorrow'},
-      session_limit:{title:'Claimed this round',text:'You’ve claimed '+(st.claims[c]||0)+' / '+cfg.pr+' this round. '+nextText()}}[s]||{title:'Not in red envelope time',text:nextText()};
+    var m={login:{title:'Log in first',text:'Log in to claim red envelopes',btn:'Log In',act:'login',close2:true},
+      sold_out:{title:'All claimed',text:'This round is over. '+nextText(),btn:'Close',act:'close'},
+      need_deposit:{title:'Deposit to unlock',text:'Deposit '+m0(cfg.dep-depTotal())+' more today to claim',btn:'Deposit',act:'deposit',close2:true},
+      need_bet:{title:'Play to unlock',text:'Bet '+m0(cfg.bet-betTotal())+' more today to claim',btn:'Play',act:'play',close2:true},
+      day_limit:{title:'Daily limit reached',text:'You’ve claimed '+dayCount()+' / '+cfg.pd+' today. Come back tomorrow',btn:'Close',act:'close'},
+      session_limit:{title:'Claimed this round',text:'You’ve claimed '+(st.claims[c]||0)+' / '+cfg.pr+' this round. '+nextText(),btn:'Close',act:'close'}}[s]||{title:'Not in red envelope time',text:nextText(),btn:'Close',act:'close'};
     rainCard(host,m);}
   function syncRain(){['pc','h5'].forEach(function(h){var r=rainEl(h),live=page==='home'&&curIdx()>=0;if(live&&!r.classList.contains('on'))openRain(h);if(curIdx()<0)closeRain(h);var b=r.querySelector('[data-rbar]');if(b)b.innerHTML=rainBar();});}
   function setPage(p){page=p;document.querySelectorAll('#pgSeg button').forEach(function(x){x.classList.toggle('on',x.dataset.pg===p);});
@@ -1095,8 +1098,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   document.querySelectorAll('.fx').forEach(function(fx){fx.addEventListener('click',function(e){var host=fx.id==='fx-pc'?'pc':'h5';
     var d=e.target.closest('[data-act="drop"]');if(d){rainClick(host);return;}
     var x=e.target.closest('[data-act="rclose"]');if(x){closeRain(host);return;}
-    var k=e.target.closest('[data-ract]');if(k){var a=k.dataset.ract;rainEl(host).querySelector('[data-rwin]').classList.remove('on');
-      if(a==='login')toastF(host,'打开登录弹窗（现网）');if(a==='deposit')toastF(host,'打开充值弹窗（现网）');if(a==='play')toastF(host,'跳到 Casino 游戏大厅（现网）');}
+    if(e.target.closest('[data-ract2]')){closeRain(host);return;}
+    var k=e.target.closest('[data-ract]');if(k){var a=k.dataset.ract;if(a==='ok'){rainEl(host).querySelector('[data-rwin]').classList.remove('on');return;}
+      closeRain(host);if(a==='login')toastF(host,'关闭红包雨，打开登录弹窗（现网）');if(a==='deposit')toastF(host,'关闭红包雨，打开充值弹窗（现网）');if(a==='play')toastF(host,'关闭红包雨，跳到 Casino 游戏大厅（现网）');}
   });});
 
   /* ---------- 后台 ---------- */
